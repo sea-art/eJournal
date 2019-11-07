@@ -64,4 +64,4 @@ class LtiAssignmentFactory(AssignmentFactory):
 
 
 class GroupAssignmentFactory(AssignmentFactory):
-    group_size = 3
+    is_group_assignment = True

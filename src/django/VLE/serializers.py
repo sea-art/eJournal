@@ -160,19 +160,16 @@ class AssignmentDetailsSerializer(serializers.ModelSerializer):
     course_count = serializers.SerializerMethodField()
     lti_count = serializers.SerializerMethodField()
     active_lti_course = serializers.SerializerMethodField()
-    is_group_assignment = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
         fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date',
-                  'is_published', 'course_count', 'lti_count', 'active_lti_course', 'group_size', 'is_group_assignment')
+                  'is_published', 'course_count', 'lti_count', 'active_lti_course', 'is_group_assignment',
+                  'can_set_journal_name', 'can_set_journal_image', 'can_lock_journal')
         read_only_fields = ('id', )
 
     def get_course_count(self, assignment):
         return assignment.courses.count()
-
-    def get_is_group_assignment(self, assignment):
-        return assignment.is_group_assignment
 
     def get_lti_count(self, assignment):
         if 'user' in self.context and self.context['user'] and \

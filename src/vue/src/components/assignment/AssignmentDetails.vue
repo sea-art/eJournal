@@ -79,15 +79,10 @@
                 />
             </b-col>
         </b-row>
-        <h2
-            v-if="canChangeOptions"
-            class="field-heading"
-        >
+        <h2 class="field-heading">
             Options
         </h2>
-        <div
-            v-if="canChangeOptions"
-        >
+        <div>
             <b-button
                 v-if="assignmentDetails.is_published"
                 v-b-tooltip.hover
@@ -110,6 +105,9 @@
                 <icon name="times"/>
                 Unpublished
             </b-button>
+
+            <br/>
+
             <b-button
                 v-if="assignmentDetails.is_group_assignment"
                 v-b-tooltip.hover
@@ -130,8 +128,74 @@
                 <icon name="user"/>
                 Individual assignment
             </b-button>
+
+            <b-button
+                v-if="assignmentDetails.is_group_assignment && assignmentDetails.can_lock_journal"
+                v-b-tooltip.hover
+                class="add-button mr-2 multi-form"
+                title="Students are allowd to lock the journal they are in. Once locked, no other students can join."
+                @click="assignmentDetails.can_lock_journal = false"
+            >
+                <icon name="check"/>
+                Journal can be locked
+            </b-button>
+            <b-button
+                v-if="assignmentDetails.is_group_assignment && !assignmentDetails.can_lock_journal"
+                v-b-tooltip.hover
+                class="delete-button mr-2 multi-form"
+                title="Students are not allowd to lock the journal they are in.
+                       Once locked, no other students can join."
+                @click="assignmentDetails.can_lock_journal = true"
+            >
+                <icon name="times"/>
+                Journal cannot be locked
+            </b-button>
+
+            <br/>
+
+            <b-button
+                v-if="assignmentDetails.can_set_journal_name"
+                v-b-tooltip.hover
+                class="add-button mr-2 multi-form"
+                title="Students are allowed to change the journal name"
+                @click="assignmentDetails.can_set_journal_name = false"
+            >
+                <icon name="check"/>
+                Custom journal names
+            </b-button>
+            <b-button
+                v-if="!assignmentDetails.can_set_journal_name"
+                v-b-tooltip.hover
+                class="delete-button mr-2 multi-form"
+                title="Students are not allowed to change the journal name"
+                @click="assignmentDetails.can_set_journal_name = true"
+            >
+                <icon name="times"/>
+                Custom journal names
+            </b-button>
+
+            <b-button
+                v-if="assignmentDetails.can_set_journal_image"
+                v-b-tooltip.hover
+                class="add-button mr-2 multi-form"
+                title="Students are allowed to change the journal image"
+                @click="assignmentDetails.can_set_journal_image = false"
+            >
+                <icon name="check"/>
+                Custom journal images
+            </b-button>
+            <b-button
+                v-if="!assignmentDetails.can_set_journal_image"
+                v-b-tooltip.hover
+                class="delete-button mr-2 multi-form"
+                title="Students are not allowed to change the journal image"
+                @click="assignmentDetails.can_set_journal_image = true"
+            >
+                <icon name="times"/>
+                Custom journal images
+            </b-button>
         </div>
-        <h2
+        <!-- <h2
             v-if="assignmentDetails.is_group_assignment"
             class="field-heading"
         >
@@ -147,7 +211,7 @@
                 step="1"
                 required
             />
-        </div>
+        </div> -->
     </b-form>
 </template>
 
@@ -165,12 +229,12 @@ export default {
         assignmentDetails: {
             required: true,
         },
+        isNew: {
+            default: false,
+        },
         presetNodes: {
             // Props with type Object/Array must use a factory function to return the default value.
             default: () => [],
-        },
-        canChangeOptions: {
-            default: true,
         },
     },
     computed: {
@@ -250,10 +314,6 @@ export default {
 
             return Object.assign({}, { minDate }, this.$root.flatPickrTimeConfig)
         },
-    },
-    created () {
-        // This makes use of null !== false -> true. As a new assignment should have these options available.
-        this.canChangeOptions = this.assignmentDetails.is_published !== false
     },
 }
 </script>

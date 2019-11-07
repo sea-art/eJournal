@@ -71,20 +71,15 @@ class FormatView(viewsets.ViewSet):
 
         request.user.check_permission('can_edit_assignment', assignment)
 
-        is_published, group_size, is_group_assignment = utils.optional_typed_params(
-            assignment_details, (bool, 'is_published'), (int, 'group_size'), (bool, 'is_group_assignment'))
+        is_published, can_set_journal_name, can_set_journal_image, can_lock_journal = \
+            utils.optional_typed_params(
+                request.data, (bool, 'is_published'),
+                (bool, 'can_set_journal_name'), (bool, 'can_set_journal_image'), (bool, 'can_lock_journal'))
 
         # Check for any property that cannot be changed after publishing
         if assignment.is_published:
             if is_published is False:
                 return response.bad_request("You cannot unpublish an assignment after its published.")
-            if (assignment.is_group_assignment and (not group_size or group_size <= 1)) or \
-               (not assignment.is_group_assignment and group_size and group_size > 1):
-                return response.bad_request("You cannot change the assignment type after its published.")
-
-        # Check if group_size is a valid size
-        if is_group_assignment and (group_size is None or group_size <= 1):
-            return response.bad_request("Group size needs to be at least 2")
 
         # Remove data that must not be changed by the serializer
         req_data = assignment_details or {}

@@ -115,7 +115,8 @@ def make_course_group(name, course, lti_id=None):
 
 def make_assignment(name, description, author=None, format=None, active_lti_id=None,
                     points_possible=10, is_published=None, unlock_date=None, due_date=None,
-                    lock_date=None, course_ids=None, courses=None, group_size=None):
+                    lock_date=None, course_ids=None, courses=None, is_group_assignment=False,
+                    can_set_journal_name=False, can_set_journal_image=False, can_lock_journal=False):
     """Make a new assignment.
 
     Arguments:
@@ -136,8 +137,10 @@ def make_assignment(name, description, author=None, format=None, active_lti_id=N
         else:
             format = make_default_format(timezone.now(), points_possible)
 
-    assign = Assignment(name=name, description=description, author=author, format=format, group_size=group_size,
-                        active_lti_id=active_lti_id)
+    assign = Assignment(name=name, description=description, author=author, format=format,
+                        is_group_assignment=is_group_assignment, active_lti_id=active_lti_id,
+                        can_set_journal_name=can_set_journal_name, can_set_journal_image=can_set_journal_image,
+                        can_lock_journal=can_lock_journal)
     assign.save()
     if course_ids:
         for course_id in course_ids:

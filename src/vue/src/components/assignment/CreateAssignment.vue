@@ -1,6 +1,9 @@
 <template>
     <b-card class="no-hover">
-        <assignment-details :assignmentDetails="form"/>
+        <assignment-details
+            :assignmentDetails="form"
+            :isNew="true"
+        />
         <b-button
             class="float-left change-button mt-2"
             type="reset"
@@ -44,6 +47,9 @@ export default {
                 lock_date: null,
                 is_published: null,
                 is_group_assignment: false,
+                can_set_journal_name: false,
+                can_set_journal_image: false,
+                can_lock_journal: false,
                 group_size: null,
             },
             reset: null,

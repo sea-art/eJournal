@@ -615,14 +615,10 @@ class Assignment(models.Model):
         default=list,
     )
 
-    group_size = models.IntegerField(
-        'group_size',
-        null=True
-    )
-
-    @property
-    def is_group_assignment(self):
-        return self.group_size and self.group_size > 1
+    is_group_assignment = models.BooleanField(default=False)
+    can_set_journal_name = models.BooleanField(default=False)
+    can_set_journal_image = models.BooleanField(default=False)
+    can_lock_journal = models.BooleanField(default=False)
 
     def has_lti_link(self):
         return self.active_lti_id is not None

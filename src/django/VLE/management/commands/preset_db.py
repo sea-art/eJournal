@@ -272,7 +272,7 @@ class Command(BaseCommand):
                 ],
                 "format": 0,
                 "author": self.users["Teacher"],
-                "group_size": 0,
+                "is_group_assignment": False,
             },
             {
                 "name": "Colloquium",
@@ -280,7 +280,7 @@ class Command(BaseCommand):
                 "courses": [self.courses["Portfolio Academische Vaardigheden - Cohort 1"]],
                 "format": 1,
                 "author": self.users["Teacher"],
-                "group_size": 0,
+                "is_group_assignment": False,
             },
             {
                 "name": "Group Assignment",
@@ -289,7 +289,7 @@ class Command(BaseCommand):
                 "courses": [self.courses["Portfolio Academische Vaardigheden - Cohort 2"]],
                 "format": 2,
                 "author": self.users["Teacher"],
-                "group_size": 3,
+                "is_group_assignment": True,
             }
         ]
 
@@ -298,7 +298,7 @@ class Command(BaseCommand):
             format = self.formats[a["format"]]
             faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
             assignment = factory.make_assignment(a["name"], a["description"], a["author"], format,
-                                                 is_published=True, group_size=a["group_size"])
+                                                 is_published=True, is_group_assignment=a["is_group_assignment"])
             for user in self.users.values():
                 factory.make_assignment_participation(assignment, user)
             for course in a["courses"]:

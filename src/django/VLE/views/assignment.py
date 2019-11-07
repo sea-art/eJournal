@@ -55,6 +55,7 @@ class AssignmentView(viewsets.ViewSet):
             course = None
             courses = request.user.participations.all()
 
+        print(Assignment.objects.all())
         query = Assignment.objects.filter(courses__in=courses).distinct()
         viewable = [assignment for assignment in query if request.user.can_view(assignment)]
         serializer = AssignmentSerializer(viewable, many=True, context={'user': request.user, 'course': course})
@@ -91,25 +92,28 @@ class AssignmentView(viewsets.ViewSet):
         """
         name, description, course_id = utils.required_typed_params(
             request.data, (str, 'name'), (str, 'description'), (int, 'course_id'))
-        unlock_date, due_date, lock_date, active_lti_id, is_published, group_size, points_possible = \
+        unlock_date, due_date, lock_date, active_lti_id, is_published, points_possible, is_group_assignment, \
+        can_set_journal_name, can_set_journal_image, can_lock_journal = \
             utils.optional_typed_params(
                 request.data, (str, 'unlock_date'), (str, 'due_date'), (str, 'lock_date'), (str, 'lti_id'),
-                (bool, 'is_published'), (int, 'group_size'), (float, 'points_possible'))
+                (bool, 'is_published'), (float, 'points_possible'), (bool, 'is_group_assignment'),
+                (bool, 'can_set_journal_name'), (bool, 'can_set_journal_image'), (bool, 'can_lock_journal'))
         course = Course.objects.get(pk=course_id)
 
         request.user.check_permission('can_add_assignment', course)
 
-        assignment = factory.make_assignment(name, description, courses=[course],
-                                             author=request.user, active_lti_id=active_lti_id,
-                                             points_possible=points_possible,
-                                             unlock_date=unlock_date, due_date=due_date,
-                                             lock_date=lock_date, is_published=is_published, group_size=group_size)
+        assignment = factory.make_assignment(
+            name, description, courses=[course], author=request.user, active_lti_id=active_lti_id,
+            points_possible=points_possible, unlock_date=unlock_date, due_date=due_date,
+            lock_date=lock_date, is_published=is_published, is_group_assignment=is_group_assignment,
+            can_set_journal_name=can_set_journal_name, can_set_journal_image=can_set_journal_image,
+            can_lock_journal=can_lock_journal)
 
         if active_lti_id is not None:
             course.set_assignment_lti_id_set(active_lti_id)
             course.save()
 
-        if group_size is None:
+        if is_group_assignment is True:
             for user in course.users.all():
                 factory.make_journal(assignment, user)
 
@@ -190,19 +194,14 @@ class AssignmentView(viewsets.ViewSet):
         if not (request.user.is_superuser or request.user == assignment.author):
             req_data.pop('author', None)
 
-        is_published, group_size, is_group_assignment = utils.optional_typed_params(
-            request.data, (bool, 'is_published'), (int, 'group_size'), (bool, 'is_group_assignment'))
+        is_published, can_set_journal_name, can_set_journal_image, can_lock_journal = \
+            utils.optional_typed_params(
+                request.data, (bool, 'is_published'),
+                (bool, 'can_set_journal_name'), (bool, 'can_set_journal_image'), (bool, 'can_lock_journal'))
         # Check for any property that cannot be changed after publishing
         if assignment.is_published:
             if is_published is False:
                 return response.bad_request("You cannot unpublish an assignment after its published.")
-            if (assignment.is_group_assignment and (not group_size or group_size <= 1)) or \
-               (not assignment.is_group_assignment and group_size and group_size > 1):
-                return response.bad_request("You cannot change the assignment type after its published.")
-
-        # Check if group_size is a valid size
-        if is_group_assignment and (group_size is None or group_size <= 1):
-            return response.bad_request("Group size needs to be at least 2")
 
         # Make journals when published and it is not a group assignment
         # For group assignments, journals are created once they login themself
