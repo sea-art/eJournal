@@ -144,14 +144,24 @@ class LtiLaunchTest(TestCase):
     def test_lti_launch_multiple_roles(self):
         lti_launch(
             request_body={
-                'roles': 'Learner,Instructor',
+                'roles': 'Extra,Instructor',
                 'user_id': self.student.lti_id
             },
             response_value=lti_view.LTI_STATES.LOGGED_IN.value,
             assert_msg='With a user_id the user should login',
         )
-        assert User.objects.filter(lti_id=self.student.lti_id)[0].is_teacher, \
+        assert User.objects.get(lti_id=self.student.lti_id).is_teacher, \
             'Student should become a teacher when loggin in with Instructor role'
+        lti_launch(
+            request_body={
+                'roles': 'Extra,Hello',
+                'user_id': self.student.lti_id
+            },
+            response_value=lti_view.LTI_STATES.LOGGED_IN.value,
+            assert_msg='With a user_id the user should login',
+        )
+        assert User.objects.get(lti_id=self.student.lti_id).is_teacher, \
+            'Teacher should stay teacher when roles change'
 
     def test_lti_launch_unknown_role(self):
         lti_launch(
