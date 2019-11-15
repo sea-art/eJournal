@@ -6,6 +6,7 @@ import oauth2
 from django.conf import settings
 from django.http import QueryDict
 from django.shortcuts import redirect
+from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -218,6 +219,8 @@ def lti_launch(request):
             query['full_name'] = params.get('custom_user_full_name', None)
         else:
             refresh = TokenObtainPairSerializer.get_token(user)
+            user.last_login = timezone.now()
+            user.save()
             query = QueryDict.fromkeys(['lti_params'], lti_params, mutable=True)
             query['jwt_access'] = str(refresh.access_token)
             query['jwt_refresh'] = str(refresh)

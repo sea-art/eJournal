@@ -133,6 +133,7 @@ class LtiLaunchTest(TestCase):
         )
 
     def test_lti_launch_user(self):
+        old_last_login = self.student.last_login
         lti_launch(
             request_body={
                 'user_id': self.student.lti_id
@@ -140,6 +141,8 @@ class LtiLaunchTest(TestCase):
             response_value=lti_view.LTI_STATES.LOGGED_IN.value,
             assert_msg='With a user_id the user should login',
         )
+        assert old_last_login != User.objects.get(pk=self.student.pk).last_login, \
+            'Last login should be updated'
 
     def test_lti_launch_multiple_roles(self):
         lti_launch(

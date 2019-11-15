@@ -192,6 +192,7 @@ class AssignmentView(viewsets.ViewSet):
         """
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
         assignment = Assignment.objects.get(pk=pk)
+        course = None
 
         request.user.check_permission('can_edit_assignment', assignment)
 
@@ -231,7 +232,8 @@ class AssignmentView(viewsets.ViewSet):
             req_data['active_lti_id'] = req_data.pop('lti_id')
 
         # Update the other data
-        serializer = AssignmentSerializer(assignment, data=req_data, context={'user': request.user}, partial=True)
+        serializer = AssignmentSerializer(
+            assignment, data=req_data, context={'user': request.user, 'course': course}, partial=True)
         if not serializer.is_valid():
             return response.bad_request()
         serializer.save()

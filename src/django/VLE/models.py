@@ -659,20 +659,27 @@ class Assignment(models.Model):
         courses = self.courses.filter(assignment_lti_id_set__contains=[self.active_lti_id])
         return courses.first()
 
-    def get_active_course(self):
+    def get_active_course(self, user):
         """"Query for retrieving the course which is most relevant to the assignment."""
         # Get matching LTI course if possible
-        course = self.get_active_lti_course()
-        if course is not None:
-            return course
+        active_courses = self.courses.filter(assignment_lti_id_set__contains=[self.active_lti_id])
+        for course in active_courses:
+            if user.can_view(course):
+                return course
 
         # Else get course that started the most recent
-        course = self.courses.filter(startdate__lt=timezone.now()).order_by('-startdate').first()
-        if course is not None:
-            return course
+        most_recent_courses = self.courses.filter(startdate__lt=timezone.now()).order_by('-startdate')
+        for course in most_recent_courses:
+            if user.can_view(course):
+                return course
 
         # Else get the course that starts the soonest
-        return self.courses.order_by('startdate').first()
+        starts_first_courses = self.courses.filter(startdate__gt=timezone.now()).order_by('startdate')
+        for course in starts_first_courses:
+            if user.can_view(course):
+                return course
+
+        return None
 
     def get_course_lti_id(self, course):
         """Gets the assignment lti_id that belongs to the course assignment pair if it exists."""

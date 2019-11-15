@@ -480,25 +480,38 @@ class AssignmentAPITest(TestCase):
 
     def test_get_active_course(self):
         future_course = factory.Course(startdate=timezone.now() + datetime.timedelta(weeks=2))
+        teacher = future_course.author
         later_future_course = factory.Course(startdate=timezone.now() + datetime.timedelta(weeks=5))
         assignment = factory.Assignment(courses=[future_course, later_future_course])
-        assert assignment.get_active_course() == future_course, \
+        assert assignment.get_active_course(teacher) == future_course, \
             'Select first upcomming course as there is no LTI course or course that has already started'
 
-        past_course = factory.Course(startdate=timezone.now() - datetime.timedelta(weeks=5))
+        past_course = factory.Course(startdate=timezone.now() - datetime.timedelta(weeks=5), author=teacher)
         assignment.courses.add(past_course)
-        recent_course = factory.Course(startdate=timezone.now() - datetime.timedelta(weeks=3))
+        recent_course = factory.Course(startdate=timezone.now() - datetime.timedelta(weeks=3), author=teacher)
         assignment.courses.add(recent_course)
-        assert assignment.get_active_course() == recent_course, \
+        assert assignment.get_active_course(teacher) == recent_course, \
             'Select most recent course as there is no LTI course'
 
-        lti_course = factory.LtiCourseFactory(startdate=timezone.now() + datetime.timedelta(weeks=1))
+        lti_course = factory.LtiCourseFactory(startdate=timezone.now() + datetime.timedelta(weeks=1), author=teacher)
         assignment.courses.add(lti_course)
         assignment.active_lti_id = 'lti_id'
         lti_course.assignment_lti_id_set.append('lti_id')
         lti_course.save()
         assignment.save()
-        assert assignment.get_active_course() == lti_course, 'Select LTI course above all other courses'
+        assert assignment.get_active_course(teacher) == lti_course, \
+            'Select LTI course above all other courses'
+
+        past = factory.Course(startdate=timezone.now() - datetime.timedelta(days=1))
+        assignment.courses.add(past)
+        future = factory.Course(startdate=timezone.now() + datetime.timedelta(days=1))
+        assignment.courses.add(future)
+        lti = factory.LtiCourseFactory(startdate=timezone.now() + datetime.timedelta(weeks=1))
+        assignment.courses.add(lti)
+        assert assignment.get_active_course(teacher) == lti_course, \
+            'Do not select any course that the user is not in'
+        assert assignment.get_active_course(factory.Student()) is None, \
+            'When someone is not related to the assignment, it should not respond with any course'
 
     def test_day_neutral_datetime_increment(self):
         dt = datetime.datetime(year=2018, month=9, day=1)

@@ -14,7 +14,7 @@ from VLE.models import Entry, Journal, Node, Participation, PresetNode
 
 def _send_deadline_mail(deadline, journal):
     assignment = journal.assignment
-    course = assignment.get_active_course()
+    course = assignment.get_active_course(journal.user)
     email_data = {}
     email_data['heading'] = 'Upcoming deadline'
     email_data['main_content'] = '''\
