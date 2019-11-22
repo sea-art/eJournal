@@ -4,11 +4,10 @@ format.py.
 In this file are all the Format api requests.
 """
 from rest_framework import viewsets
-from rest_framework.decorators import action
 
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
-from VLE.models import Assignment, Entry, Field, PresetNode, Template
+from VLE.models import Assignment
 from VLE.serializers import AssignmentDetailsSerializer, FormatSerializer
 
 
@@ -100,70 +99,5 @@ class FormatView(viewsets.ViewSet):
 
         serializer = FormatSerializer(format)
         assignment_details = AssignmentDetailsSerializer(assignment, context={'user': request.user})
-
-        return response.success({'format': serializer.data, 'assignment_details': assignment_details.data})
-
-    @action(methods=['patch'], detail=True)
-    def copy(self, request, pk):
-        """Copy an assignment format from one assignment to another.
-        Users should have edit rights for both assignnments.
-
-        Arguments:
-        request -- request data
-            from_assignment_id -- assignment ID from which the format should be copied
-        pk -- own assignment ID
-
-        """
-        from_assignment_id, = utils.required_params(request.data, 'from_assignment_id')
-        from_assignment = Assignment.objects.get(pk=from_assignment_id)
-        to_assignment = Assignment.objects.get(pk=pk)
-
-        request.user.check_permission('can_edit_assignment', to_assignment)
-        request.user.check_permission('can_edit_assignment', from_assignment)
-
-        format = from_assignment.format
-        from_format_id = format.pk
-        format.pk = None
-        format.save()
-
-        template_dict = {}
-
-        for template in Template.objects.filter(format=from_format_id, archived=False):
-            from_template_id = template.pk
-            template.pk = None
-            template.format = format
-            template.save()
-            template_dict[from_template_id] = template.pk
-
-            for field in Field.objects.filter(template=from_template_id):
-                field.pk = None
-                field.template = template
-                field.save()
-
-        for preset in PresetNode.objects.filter(format=from_format_id):
-            preset.pk = None
-            preset.format = format
-            if preset.forced_template:
-                preset.forced_template = Template.objects.get(pk=template_dict[preset.forced_template.pk])
-            preset.save()
-
-        for preset in PresetNode.objects.filter(format=to_assignment.format):
-            preset.delete()
-        for template in Template.objects.filter(format=to_assignment.format):
-            if not Entry.objects.filter(template=template).exists():
-                template.delete()
-            else:
-                template.archived = True
-                template.format = format
-                template.save()
-
-        to_assignment.format = format
-        to_assignment.save()
-
-        for preset in PresetNode.objects.filter(format=format):
-            utils.update_journals(to_assignment.journal_set.all(), preset)
-
-        serializer = FormatSerializer(to_assignment.format)
-        assignment_details = AssignmentDetailsSerializer(to_assignment, context={'user': request.user})
 
         return response.success({'format': serializer.data, 'assignment_details': assignment_details.data})

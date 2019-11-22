@@ -247,7 +247,7 @@ export default {
                 this.handleCourseChoice = true
                 break
             case this.states.new_assign:
-                assignmentAPI.getCopyable(0).then((assignments) => {
+                assignmentAPI.getCopyable().then((assignments) => {
                     this.assignments = assignments.filter(
                         assignment => parseInt(assignment.course.cID, 10) !== this.page.cID)
                     if (this.assignments.length) {

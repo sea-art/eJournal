@@ -104,18 +104,11 @@
                 v-if="$hasPermission('can_delete_assignment')"
                 :class="{'input-disabled': assignmentDetails.lti_count > 1 && assignmentDetails.active_lti_course
                     && parseInt(assignmentDetails.active_lti_course.cID) === parseInt($route.params.cID)}"
-                class="delete-button multi-form mr-md-2 flex-grow-1"
+                class="delete-button multi-form"
                 @click="deleteAssignment"
             >
                 <icon name="trash"/>
                 {{ assignmentDetails.course_count > 1 ? 'Remove' : 'Delete' }} assignment
-            </b-button>
-            <b-button
-                class="add-button multi-form flex-grow-1"
-                @click="$emit('copyFormat')"
-            >
-                <icon name="file"/>
-                Copy other assignment
             </b-button>
         </div>
     </b-card>

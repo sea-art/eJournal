@@ -2,6 +2,20 @@
     <b-card class="no-hover">
         <h2 class="multi-form">
             How can we help you?
+            <div
+                v-b-tooltip.hover
+                title="Support available in English and Dutch"
+                class="d-inline"
+            >
+                <img
+                    src="/gb-flag.svg"
+                    class="support-lang-flag mr-1"
+                />
+                <img
+                    src="/nl-flag.svg"
+                    class="support-lang-flag"
+                />
+            </div>
         </h2>
         Hi {{ this.$store.getters['user/fullName'] }}, thanks for reaching out to eJournal support.
         Please select the support category that best fits your situation:
@@ -171,3 +185,10 @@ export default {
     },
 }
 </script>
+
+<style lang="sass">
+.support-lang-flag
+    height: 0.8em
+    margin-top: -5px
+    border-radius: 2px !important
+</style>

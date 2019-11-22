@@ -42,12 +42,24 @@
             />
             <b-button
                 v-if="$hasPermission('can_add_assignment', 'course', cID)"
-                class="add-button"
+                class="add-button mr-2 mb-2"
                 @click="showModal('createAssignmentRef')"
             >
                 <icon name="plus"/>
                 Create New Assignment
             </b-button>
+            <b-button
+                v-if="$hasPermission('can_add_assignment', 'course', cID)"
+                v-b-modal="'course-assignment-copy-modal'"
+                class="add-button mb-2"
+            >
+                <icon name="file"/>
+                Copy Assignment
+            </b-button>
+            <assignment-copy-modal
+                modalID="course-assignment-copy-modal"
+                :cID="cID"
+            />
         </load-wrapper>
 
         <b-modal
@@ -72,6 +84,7 @@ import assignmentCard from '@/components/assignment/AssignmentCard.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
 import deadlineDeck from '@/components/assets/DeadlineDeck.vue'
+import assignmentCopyModal from '@/components/assignment/AssignmentCopyModal.vue'
 
 import assignmentAPI from '@/api/assignment.js'
 
@@ -85,6 +98,7 @@ export default {
         mainCard,
         createAssignment,
         deadlineDeck,
+        assignmentCopyModal,
     },
     props: {
         cID: {

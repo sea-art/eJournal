@@ -13,7 +13,7 @@ def needs_grading(node_pk):
     node = Node.objects.get(pk=node_pk)
 
     journal = node.journal
-    course = node.journal.assignment.get_active_course()
+    course = node.journal.assignment.get_active_course(journal.user)
 
     result_data = {'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}?nID={4}'.format(
         settings.BASELINK, course.pk, journal.assignment.pk, journal.pk, node.pk)}

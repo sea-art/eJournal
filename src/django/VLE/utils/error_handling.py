@@ -65,36 +65,36 @@ class ErrorMiddleware:
     def process_exception(self, request, exception):
         # Generic exception
         if isinstance(exception, VLEBadRequest):
-            return response.bad_request(str(exception))
+            return response.bad_request(str(exception), exception=exception)
 
         # Django exceptions
         elif isinstance(exception, ObjectDoesNotExist):
-            return response.not_found('{0} does not exist.'.format(str(exception).split()[0]))
+            return response.not_found('{0} does not exist.'.format(str(exception).split()[0]), exception=exception)
         elif isinstance(exception, ValidationError):
-            return response.validation_error(exception)
+            return response.validation_error(exception, exception=exception)
 
         # Variable exceptions
         elif isinstance(exception, VLEMissingRequiredKey):
-            return response.key_error(*exception.keys)
+            return response.key_error(*exception.keys, exception=exception)
         elif isinstance(exception, VLEMissingRequiredField):
-            return response.bad_request(str(exception))
+            return response.bad_request(str(exception), exception=exception)
         elif isinstance(exception, VLEParamWrongType):
-            return response.value_error(str(exception))
+            return response.value_error(str(exception), exception=exception)
 
         # Permission exceptions
         elif isinstance(exception, VLEParticipationError):
-            return response.forbidden(str(exception))
+            return response.forbidden(str(exception), exception=exception)
         elif isinstance(exception, VLEPermissionError):
-            return response.forbidden(str(exception))
+            return response.forbidden(str(exception), exception=exception)
         elif isinstance(exception, VLEUnverifiedEmailError):
-            return response.forbidden(str(exception))
+            return response.forbidden(str(exception), exception=exception)
 
         # Programming exceptions
         elif isinstance(exception, VLEProgrammingError):
-            return response.internal_server_error(str(exception))
+            return response.internal_server_error(str(exception), exception=exception)
         elif isinstance(exception, SMTPAuthenticationError):
             return response.internal_server_error(
-                'Mailserver is not configured correctly, please contact a server admin.')
+                'Mailserver is not configured correctly, please contact a server admin.', exception=exception)
 
         # LTI exceptions
         elif isinstance(exception, jwt.exceptions.ExpiredSignatureError):
@@ -102,4 +102,5 @@ class ErrorMiddleware:
                 'The LTI instance link has expired, 15 minutes have passed. Please try again.')
         elif isinstance(exception, jwt.exceptions.InvalidSignatureError):
             return response.unauthorized(
-                'Invalid LTI parameters given. Please retry from your LTI instance or notify a server admin.')
+                'Invalid LTI parameters given. Please retry from your LTI instance or notify a server admin.',
+                exception=exception)

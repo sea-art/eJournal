@@ -68,8 +68,8 @@ def get_user_lti(request):
     lti_user_id = request['user_id']
 
     users = User.objects.filter(lti_id=lti_user_id)
-    if users.count() > 0:
-        user = users[0]
+    if users.exists():
+        user = users.first()
         if 'custom_user_image' in request:
             user.profile_picture = request['custom_user_image']
             user.save()

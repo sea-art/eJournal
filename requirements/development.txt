@@ -17,3 +17,4 @@ py==1.8.0 # Pytest
 pytest==5.2.0 # Testing library
 pytest-cov==2.7.1 # Pytest
 pytest-django==3.5.1 # Pytest
+pytest-xdist==1.30.0 # Run Pytest in parallel

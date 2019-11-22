@@ -37,3 +37,4 @@ class CourseFactory(factory.django.DjangoModelFactory):
 
 class LtiCourseFactory(CourseFactory):
     active_lti_id = factory.Sequence(lambda x: "course_lti_id{}".format(x))
+    author = factory.SubFactory('test.factory.user.LtiTeacherFactory')
