@@ -4,6 +4,8 @@ import test.factory.course
 import factory
 from django.utils import timezone
 
+from VLE.models import Template
+
 
 class AssignmentFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -13,6 +15,7 @@ class AssignmentFactory(factory.django.DjangoModelFactory):
     description = 'Logboek for all your logging purposes'
     is_published = True
     author = factory.SubFactory('test.factory.user.TeacherFactory')
+    unlock_date = timezone.now()
     due_date = timezone.now() + datetime.timedelta(weeks=1)
     lock_date = timezone.now() + datetime.timedelta(weeks=2)
 
@@ -36,9 +39,15 @@ class AssignmentFactory(factory.django.DjangoModelFactory):
 
 
 class TemplateAssignmentFactory(AssignmentFactory):
-    class Meta:
-        model = 'VLE.Assignment'
-    format = factory.SubFactory('test.factory.format.TemplateFormatFactory')
+    @factory.post_generation
+    def add_templates(self, create, extracted):
+        if not create:
+            return
+
+        template = Template.objects.create(format=self.format, name="template 1")
+        self.format.template_set.add(template)
+        template = Template.objects.create(format=self.format, name="template 2")
+        self.format.template_set.add(template)
 
 
 class LtiAssignmentFactory(AssignmentFactory):

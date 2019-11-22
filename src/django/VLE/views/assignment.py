@@ -3,6 +3,7 @@ assignment.py.
 
 In this file are all the assignment api requests.
 """
+from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework import viewsets
@@ -13,9 +14,23 @@ import VLE.lti_grade_passback as lti_grade
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
-from VLE.models import Assignment, Course, Journal, User
+from VLE.models import Assignment, Course, Field, Journal, PresetNode, Template, User
 from VLE.serializers import AssignmentDetailsSerializer, AssignmentSerializer, CourseSerializer
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
+
+
+def day_neutral_datetime_increment(date, months=0):
+    return date + relativedelta(months=months, weekday=date.weekday())
+
+
+def set_assignment_dates(assignment_copy, months=0):
+    """Sets the to assignment dates to the assignment source dates plus offset if exists."""
+    if assignment_copy.unlock_date:
+        assignment_copy.unlock_date = day_neutral_datetime_increment(assignment_copy.unlock_date, months)
+    if assignment_copy.due_date:
+        assignment_copy.due_date = day_neutral_datetime_increment(assignment_copy.due_date, months)
+    if assignment_copy.lock_date:
+        assignment_copy.lock_date = day_neutral_datetime_increment(assignment_copy.lock_date, months)
 
 
 class AssignmentView(viewsets.ViewSet):
@@ -184,6 +199,7 @@ class AssignmentView(viewsets.ViewSet):
         """
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
         assignment = Assignment.objects.get(pk=pk)
+        course = None
 
         request.user.check_permission('can_edit_assignment', assignment)
 
@@ -240,7 +256,8 @@ class AssignmentView(viewsets.ViewSet):
             req_data['active_lti_id'] = req_data.pop('lti_id')
 
         # Update the other data
-        serializer = AssignmentSerializer(assignment, data=req_data, context={'user': request.user}, partial=True)
+        serializer = AssignmentSerializer(
+            assignment, data=req_data, context={'user': request.user, 'course': course}, partial=True)
         if not serializer.is_valid():
             return response.bad_request()
         serializer.save()
@@ -406,12 +423,9 @@ class AssignmentView(viewsets.ViewSet):
 
         return response.success()
 
-    @action(methods=['get'], detail=True)
-    def copyable(self, request, pk):
-        """Get all assignments that a user can copy a format from, except for the current assignment.
-
-        Arguments:
-        pk -- assignment ID
+    @action(methods=['get'], detail=False)
+    def copyable(self, request):
+        """Get all assignments that a user can copy a format from.
 
         Returns a list of tuples consisting of courses and copyable assignments."""
         courses = Course.objects.filter(participation__user=request.user.id,
@@ -419,7 +433,7 @@ class AssignmentView(viewsets.ViewSet):
 
         copyable = []
         for course in courses:
-            assignments = Assignment.objects.filter(courses=course).exclude(pk=pk)
+            assignments = Assignment.objects.filter(courses=course)
             if assignments:
                 copyable.append({
                     'course': CourseSerializer(course).data,
@@ -427,3 +441,72 @@ class AssignmentView(viewsets.ViewSet):
                                                                many=True).data
                 })
         return response.success({'data': copyable})
+
+    @action(methods=['post'], detail=True)
+    def copy(self, request, pk):
+        """Copy an assignment format.
+        Users should have edit rights for the assignment copy source.
+
+        Arguments:
+        request -- request data
+            course_id -- course id which will receive the assignment copy
+            months_offset -- number of months to shift all dates
+            years_offset -- number of years to shift all dates
+        pk -- assignment copy source ID
+
+        """
+        course_id, months_offset = utils.required_typed_params(request.data, (int, 'course_id'), (int, 'months_offset'))
+        course = Course.objects.get(pk=course_id)
+        assignment_source = Assignment.objects.get(pk=pk)
+
+        request.user.check_permission('can_add_assignment', course)
+        request.user.check_permission('can_edit_assignment', assignment_source)
+
+        source_format_id = assignment_source.format.pk
+
+        format = assignment_source.format
+        format.pk = None
+        format.save()
+
+        assignment = assignment_source
+        assignment.pk = None
+        set_assignment_dates(assignment, months_offset)
+
+        # One to one fields needs to be updated before save else we would have a duplicate key
+        assignment.format = format
+        assignment.save()
+
+        # Many to many field requires manual update, only set the course we are copying into
+        assignment.courses.set([course])
+        assignment.save()
+
+        template_dict = {}
+
+        for template in Template.objects.filter(format=source_format_id, archived=False):
+            from_template_id = template.pk
+            template.pk = None
+            template.format = format
+            template.save()
+            template_dict[from_template_id] = template.pk
+
+            for field in Field.objects.filter(template=from_template_id):
+                field.pk = None
+                field.template = template
+                field.save()
+
+        for preset in PresetNode.objects.filter(format=source_format_id):
+            preset.pk = None
+            preset.format = format
+            preset.due_date = day_neutral_datetime_increment(preset.due_date, months_offset)
+            if preset.unlock_date:
+                preset.unlock_date = day_neutral_datetime_increment(preset.unlock_date, months_offset)
+            if preset.lock_date:
+                preset.lock_date = day_neutral_datetime_increment(preset.lock_date, months_offset)
+            if preset.forced_template:
+                preset.forced_template = Template.objects.get(pk=template_dict[preset.forced_template.pk])
+            preset.save()
+
+        for user in course.users.all():
+            factory.make_journal(assignment, user)
+
+        return response.success({'assignment_id': assignment.pk})

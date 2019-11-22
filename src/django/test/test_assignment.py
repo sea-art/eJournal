@@ -1,14 +1,18 @@
 import datetime
 import test.factory as factory
 from test.utils import api
+from test.utils.generic_utils import equal_models
 
+from dateutil import parser
+from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
 
 import VLE.factory
 import VLE.utils.generic_utils as utils
-from VLE.models import Assignment, Course, Journal, Node, Role
+from VLE.models import Assignment, Course, Entry, Format, Journal, Node, Participation, PresetNode, Role, Template
+from VLE.views.assignment import day_neutral_datetime_increment, set_assignment_dates
 
 
 class AssignmentAPITest(TestCase):
@@ -189,30 +193,214 @@ class AssignmentAPITest(TestCase):
         teacher = factory.Teacher()
         course = factory.Course(author=teacher)
         assignment = factory.TemplateAssignment(courses=[course])
-        factory.TemplateFormat(assignment=assignment)
-        assignment2 = factory.TemplateAssignment(courses=[course])
-        factory.TemplateFormat(assignment=assignment2)
-        journal = factory.Journal(assignment=assignment2)
-        [factory.Entry(node__journal=journal) for _ in range(4)]
 
-        resp = api.get(self, 'assignments/copyable', params={'pk': assignment.pk}, user=teacher)['data']
+        # Check copyable return values
+        resp = api.get(self, 'assignments/copyable', user=teacher)['data']
+        assert resp[0]['assignments'][0]['id'] == assignment.pk, 'copyable assignment should be displayed'
         assert len(resp[0]['assignments']) == 1
-        assert resp[0]['course']['id'] == course.id, 'copyable assignments should be displayed'
+        assert resp[0]['course']['id'] == course.id, 'copyable course should be displayed'
 
-        before_id = api.get(self, 'formats', params={'pk': assignment2.pk},
-                            user=teacher)['format']['templates'][0]['id']
-        before_from_id = api.get(self, 'formats', params={'pk': assignment.pk},
-                                 user=teacher)['format']['templates'][0]['id']
-        resp = api.update(self, 'formats/copy', params={'pk': assignment2.pk, 'from_assignment_id': assignment.pk},
-                          user=teacher)
-        after_id = api.get(self, 'formats', params={'pk': assignment2.pk}, user=teacher)['format']['templates'][0]['id']
+        student = factory.Journal(assignment=assignment).user
+        data = api.get(self, 'assignments/copyable', user=student, status=200)['data']
+        assert len(data) == 0, 'A student should not be able to see any copyable assignments'
 
-        after_from_id = api.get(self, 'formats', params={'pk': assignment.pk},
-                                user=teacher)['format']['templates'][0]['id']
-        assert before_id != after_id, 'Assignment should be changed'
-        assert before_from_id == after_from_id, 'From assignment templates should be unchanged'
+        r = Participation.objects.get(course=course, user=teacher).role
+        r.can_edit_assignment = False
+        r.save()
+        data = api.get(self, 'assignments/copyable', user=teacher)['data']
+        assert len(data) == 0, 'A teacher requires can_edit_assignment to see copyable assignments.'
 
-        assert len(utils.get_journal_entries(journal)) == 4, 'Old entries should not be removed'
+    def test_assignment_copy(self):
+        start2018_2019 = datetime.datetime(year=2018, month=9, day=1)
+        start2019_2020 = datetime.datetime(year=2019, month=9, day=1)
+        end2018_2019 = start2019_2020 - relativedelta(days=1)
+        end2019_2020 = datetime.datetime(year=2020, month=9, day=1) - relativedelta(days=1)
+
+        teacher = factory.Teacher()
+        course = factory.Course(
+            author=teacher,
+            startdate=start2018_2019,
+            enddate=end2019_2020,
+        )
+        not_copy_course = factory.Course()
+        source_assignment = factory.TemplateAssignment(
+            courses=[course, not_copy_course],
+            unlock_date=start2018_2019,
+            due_date=end2018_2019,
+            lock_date=end2018_2019,
+        )
+        source_assignment.active_lti_id = 'some id'
+        source_assignment.save()
+        source_format = source_assignment.format
+        source_progress_node = factory.ProgressNode(
+            format=source_format,
+            unlock_date=start2018_2019,
+            due_date=start2018_2019 + relativedelta(months=6),
+            lock_date=start2018_2019 + relativedelta(months=6),
+        )
+        source_deadline_node = factory.EntrydeadlineNode(
+            format=source_format,
+            unlock_date=None,
+            due_date=start2018_2019 + relativedelta(months=6),
+            lock_date=None,
+        )
+
+        source_template = factory.Template(format=source_format)
+        student = factory.Student()
+        # Create student participation and accompanying journal
+        factory.Participation(user=student, course=course, role=Role.objects.get(course=course, name='Student'))
+        assert Participation.objects.filter(course=course).count() == 2
+        source_student_journal = Journal.objects.get(user=student, assignment=source_assignment)
+        VLE.factory.make_journal(user=teacher, assignment=source_assignment)
+        assert Journal.objects.filter(assignment=source_assignment).count() == 2
+        source_entries = []
+        number_of_source_student_journal_entries = 4
+        for _ in range(number_of_source_student_journal_entries):
+            source_entries.append(factory.Entry(template=source_template, node__journal=source_student_journal))
+
+        assert Node.objects.count() == 8, \
+            '2 nodes for the presets for teacher and student each, 4 for the student entries'
+        assert source_entries[0].node.journal == source_student_journal
+        assert Entry.objects.filter(
+            node__journal=source_student_journal).count() == number_of_source_student_journal_entries, \
+            'Only the entries explicitly created above exist for the source journal'
+        assert Journal.objects.filter(assignment=source_assignment).count() == 2, \
+            'The source assignment only holds the journals explicitly created above'
+
+        before_source_preset_nodes = PresetNode.objects.filter(format=source_assignment.format)
+        assert source_progress_node in before_source_preset_nodes, 'We are working with the correct node and format'
+        before_source_templates = Template.objects.filter(format=source_assignment.format)
+        before_source_format_resp = api.get(self, 'formats', params={'pk': source_assignment.pk}, user=teacher)
+
+        pre_copy_format_count = Format.objects.count()
+        pre_copy_journal_count = Journal.objects.count()
+        pre_copy_entry_count = Entry.objects.count()
+        pre_copy_node_count = Node.objects.count()
+        pre_copy_preset_node_count = PresetNode.objects.count()
+        resp = api.post(self, 'assignments/{}/copy'.format(source_assignment.pk), params={
+                'course_id': course.pk,
+                'months_offset': 0,
+            }, user=teacher)
+        created_assignment = Assignment.objects.get(pk=resp['assignment_id'])
+        created_format = created_assignment.format
+
+        assert pre_copy_format_count + 1 == Format.objects.count(), 'One additional format is created'
+        assert created_format == Format.objects.last(), 'Last created format should be the new assignment format'
+        assert pre_copy_journal_count * 2 == Journal.objects.count(), \
+            'A journal should be created for each of the existing course users'
+        assert pre_copy_entry_count == Entry.objects.count(), 'No additional entries are created'
+        assert pre_copy_node_count + 4 == Node.objects.count(), 'Both student and teacher receive nodes for the presets'
+        assert pre_copy_preset_node_count + 2 == PresetNode.objects.count(), \
+            'The progress and preset nodes are copied'
+        assert before_source_preset_nodes.count() == PresetNode.objects.filter(
+            format=created_assignment.format).count(), 'All preset nodes should be copied along.'
+        assert created_assignment.active_lti_id is None, 'Copied assignment should not be linked to LTI'
+        assert created_assignment.lti_id_set == [], 'Copied assignment should not be linked to LTI'
+        assert created_assignment.courses.count() == 1 and course in created_assignment.courses.all(), \
+            'Only the course where we call copy from should be part of the created assignment course set'
+
+        after_source_preset_nodes = PresetNode.objects.filter(format=source_assignment.format)
+        after_source_templates = Template.objects.filter(format=source_assignment.format)
+        after_source_format_resp = api.get(self, 'formats', params={'pk': source_assignment.pk}, user=teacher)
+        created_format_resp = api.get(self, 'formats', params={'pk': created_assignment.pk}, user=teacher)
+
+        # Validate that the entire copied response format is unchanged
+        assert before_source_format_resp == after_source_format_resp, 'Source format should remain unchanged'
+        # The check above is extensive, but limited by the serializer, so let us check the db fully.
+        assert before_source_preset_nodes.count() == after_source_preset_nodes.count() \
+            and before_source_templates.count() == after_source_templates.count(), \
+            'Format of the copy target should remain unchanged'
+        for before_n, after_n in zip(before_source_preset_nodes, after_source_preset_nodes):
+            assert equal_models(before_n, after_n), 'Copy target preset nodes should remain unchanged'
+        for before_t, after_t in zip(before_source_templates, after_source_templates):
+            assert equal_models(before_t, after_t), 'Copy target templates should remain unchanged'
+        assert len(utils.get_journal_entries(source_student_journal)) == number_of_source_student_journal_entries, \
+            'Old entries should not be removed'
+
+        assert created_format.pk == created_format_resp['format']['id'], \
+            'The most recently created (fresh copy) format, should be returned.'
+
+        # Validate copy response results
+        o = before_source_format_resp['format']  # original
+        a = after_source_format_resp['format']
+        c = created_format_resp['format']
+        assert o['id'] != c['id'], 'Created format should be a new format'
+        assert o['id'] == a['id'], 'Original format should be the same'
+        # Validate template copy results
+        for o_t, a_t, c_t in zip(o['templates'], a['templates'], c['templates']):
+            assert c_t['id'] != a_t['id'], 'Should be a new template'
+        # Validate preset copy results
+        for o_p, a_p, c_p in zip(o['presets'], a['presets'], c['presets']):
+            assert c_p['id'] != a_p['id'], 'Should be a new preset'
+
+        # Validate the copy result values without the meddling of the serializer
+        created_preset_nodes = PresetNode.objects.filter(format=created_format)
+        created_templates = Template.objects.filter(format=created_format)
+        assert before_source_preset_nodes.count() == created_preset_nodes.count() \
+            and before_source_templates.count() == created_templates.count(), \
+            'Format of the copy should be equal to the copy target'
+        for before_n, created_n in zip(before_source_preset_nodes, created_preset_nodes):
+            assert equal_models(before_n, created_n, ignore=['id', 'format', 'forced_template']), \
+                'Copy preset nodes should be equal'
+        for before_t, created_t in zip(before_source_templates, created_templates):
+            assert equal_models(before_t, created_t, ignore=['id', 'format', 'forced_template']), \
+                'Copy target templates should be equal'
+
+        # Copy again, but now update all dates
+        resp = api.post(self, 'assignments/{}/copy'.format(source_assignment.pk), params={
+                'course_id': course.pk,
+                'months_offset': 12,
+            }, user=teacher)
+        created_assignment = Assignment.objects.get(pk=resp['assignment_id'])
+        created_format = created_assignment.format
+        created_format_resp = api.get(self, 'formats', params={'pk': created_assignment.pk}, user=teacher)
+
+        # Validate again, this time dates should be different
+        c = created_format_resp['format']
+        for o_p, c_p in zip(o['presets'], c['presets']):
+            for key, value in c_p.items():
+                if key in ['unlock_date', 'due_date', 'lock_date']:
+                    if o_p[key] is None:
+                        assert value is None, 'Don\'t shift deadlines that were not there to begin with.'
+                    else:
+                        assert relativedelta(parser.parse(value), parser.parse(o_p[key])).years == 1
+
+        # The copy result values should still be equal apart from the dates
+        created_preset_nodes = PresetNode.objects.filter(format=created_format)
+        created_templates = Template.objects.filter(format=created_format)
+        assert before_source_preset_nodes.count() == created_preset_nodes.count() \
+            and before_source_templates.count() == created_templates.count(), \
+            'Format of the copy should be equal to the copy target'
+        for before_n, created_n in zip(before_source_preset_nodes, created_preset_nodes):
+            assert equal_models(before_n, created_n,
+                                ignore=['id', 'format', 'forced_template', 'unlock_date', 'due_date', 'lock_date']), \
+                'Copy preset nodes should be equal'
+        for before_t, created_t in zip(before_source_templates, created_templates):
+            assert equal_models(before_t, created_t,
+                                ignore=['id', 'format', 'forced_template', 'unlock_date', 'due_date', 'lock_date']), \
+                'Copy target templates should be equal'
+
+        created_progress_node = created_preset_nodes.filter(type=Node.PROGRESS).first()
+        created_deadline_node = created_preset_nodes.filter(type=Node.ENTRYDEADLINE).first()
+        assert created_deadline_node.unlock_date is None and created_deadline_node.lock_date is None, \
+            'Times which were unset in original should not be changed'
+        assert created_deadline_node.due_date.weekday() == source_deadline_node.due_date.weekday() and \
+            created_progress_node.unlock_date.weekday() == source_progress_node.unlock_date.weekday() and \
+            created_progress_node.due_date.weekday() == source_progress_node.due_date.weekday() and \
+            created_progress_node.lock_date.weekday() == source_progress_node.lock_date.weekday() and \
+            'Week days should be preserved'
+        assert relativedelta(created_deadline_node.due_date, source_deadline_node.due_date).years == 1 and \
+            created_deadline_node.due_date.month == source_deadline_node.due_date.month, \
+            'Deadline should shift 1 year but otherwise be similar'
+        assert relativedelta(created_progress_node.unlock_date, source_progress_node.unlock_date).years == 1 and \
+            created_progress_node.unlock_date.month == source_progress_node.unlock_date.month, \
+            'Deadline should shift 1 year but otherwise be similar'
+        assert relativedelta(created_progress_node.due_date, source_progress_node.due_date).years == 1 and \
+            created_progress_node.due_date.month == source_progress_node.due_date.month, \
+            'Deadline should shift 1 year but otherwise be similar'
+        assert relativedelta(created_progress_node.lock_date, source_progress_node.lock_date).years == 1 and \
+            created_progress_node.lock_date.month == source_progress_node.lock_date.month, \
+            'Deadline should shift 1 year but otherwise be similar'
 
     def test_upcoming(self):
         course2 = factory.Course(author=self.teacher)
@@ -271,7 +459,7 @@ class AssignmentAPITest(TestCase):
             'journals'
 
     def test_deadline(self):
-        journal = factory.Journal(assignment__format=factory.TemplateFormatFactory())
+        journal = factory.Journal(assignment=factory.TemplateAssignment())
         assignment = journal.assignment
         teacher = assignment.courses.first().author
         assignment.points_possible = 10
@@ -331,22 +519,83 @@ class AssignmentAPITest(TestCase):
 
     def test_get_active_course(self):
         future_course = factory.Course(startdate=timezone.now() + datetime.timedelta(weeks=2))
+        teacher = future_course.author
         later_future_course = factory.Course(startdate=timezone.now() + datetime.timedelta(weeks=5))
         assignment = factory.Assignment(courses=[future_course, later_future_course])
-        assert assignment.get_active_course() == future_course, \
+        assert assignment.get_active_course(teacher) == future_course, \
             'Select first upcomming course as there is no LTI course or course that has already started'
 
-        past_course = factory.Course(startdate=timezone.now() - datetime.timedelta(weeks=5))
+        past_course = factory.Course(startdate=timezone.now() - datetime.timedelta(weeks=5), author=teacher)
         assignment.courses.add(past_course)
-        recent_course = factory.Course(startdate=timezone.now() - datetime.timedelta(weeks=3))
+        recent_course = factory.Course(startdate=timezone.now() - datetime.timedelta(weeks=3), author=teacher)
         assignment.courses.add(recent_course)
-        assert assignment.get_active_course() == recent_course, \
+        assert assignment.get_active_course(teacher) == recent_course, \
             'Select most recent course as there is no LTI course'
 
-        lti_course = factory.LtiCourseFactory(startdate=timezone.now() + datetime.timedelta(weeks=1))
+        lti_course = factory.LtiCourseFactory(startdate=timezone.now() + datetime.timedelta(weeks=1), author=teacher)
         assignment.courses.add(lti_course)
         assignment.active_lti_id = 'lti_id'
         lti_course.assignment_lti_id_set.append('lti_id')
         lti_course.save()
         assignment.save()
-        assert assignment.get_active_course() == lti_course, 'Select LTI course above all other courses'
+        assert assignment.get_active_course(teacher) == lti_course, \
+            'Select LTI course above all other courses'
+
+        past = factory.Course(startdate=timezone.now() - datetime.timedelta(days=1))
+        assignment.courses.add(past)
+        future = factory.Course(startdate=timezone.now() + datetime.timedelta(days=1))
+        assignment.courses.add(future)
+        lti = factory.LtiCourseFactory(startdate=timezone.now() + datetime.timedelta(weeks=1))
+        assignment.courses.add(lti)
+        assert assignment.get_active_course(teacher) == lti_course, \
+            'Do not select any course that the user is not in'
+        assert assignment.get_active_course(factory.Student()) is None, \
+            'When someone is not related to the assignment, it should not respond with any course'
+
+    def test_day_neutral_datetime_increment(self):
+        dt = datetime.datetime(year=2018, month=9, day=1)
+        inc = day_neutral_datetime_increment(dt, 13)
+        assert inc.weekday() == dt.weekday()
+        assert inc.year == dt.year + 1
+        assert inc.month == dt.month + 1
+
+        inc = day_neutral_datetime_increment(dt, -13)
+        assert inc.weekday() == dt.weekday()
+        assert inc.year == dt.year - 1
+        assert inc.month == dt.month - 1
+
+        dt = datetime.datetime(year=2018, month=1, day=1) - relativedelta(days=1)
+        inc = day_neutral_datetime_increment(dt, 1)
+        assert inc.weekday() == dt.weekday()
+        assert inc.year == dt.year + 1
+        assert inc.month == 2, '4/2/2018 is the closest tuesday to 12/31/2017 + 1 month'
+
+        inc = day_neutral_datetime_increment(dt, 12)
+        assert inc == datetime.datetime(year=2019, month=1, day=6), \
+            '06/01/2019 is the closest tuesday to 12/31/2017 + 1 year'
+        assert inc.weekday() == dt.weekday()
+
+    def test_set_assignment_dates(self):
+        start2018_2019 = datetime.datetime(year=2018, month=9, day=1)
+        start2019_2020 = datetime.datetime(year=2019, month=9, day=1)
+        end2018_2019 = start2019_2020 - relativedelta(days=1)
+
+        assignment = factory.Assignment(
+            unlock_date=start2018_2019,
+            due_date=end2018_2019,
+            lock_date=end2018_2019,
+        )
+
+        set_assignment_dates(assignment, months=12)
+        assert relativedelta(assignment.unlock_date, start2018_2019).years == 1 \
+            and relativedelta(assignment.due_date, end2018_2019).years == 1 \
+            and relativedelta(assignment.lock_date, end2018_2019).years == 1, \
+            'Set dates should be moved 1 year forward'
+
+        assignment.unlock_date = None
+        assignment.due_date = None
+        assignment.lock_date = None
+        set_assignment_dates(assignment, months=12)
+        assert assignment.unlock_date is None and assignment.due_date is None \
+            and assignment.lock_date is None, \
+            'Unset dates should not be modified'

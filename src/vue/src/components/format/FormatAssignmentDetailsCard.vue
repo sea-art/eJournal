@@ -17,13 +17,6 @@
             <icon name="trash"/>
             {{ assignmentDetails.course_count > 1 ? 'Remove' : 'Delete' }} assignment
         </b-button>
-        <b-button
-            class="add-button multi-form flex-grow-1"
-            @click="$emit('copyFormat')"
-        >
-            <icon name="file"/>
-            Copy other assignment
-        </b-button>
     </b-card>
 </template>
 

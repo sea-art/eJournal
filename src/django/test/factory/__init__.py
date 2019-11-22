@@ -3,7 +3,7 @@ from test.factory.assignment import (AssignmentFactory, GroupAssignmentFactory, 
 from test.factory.comment import StudentCommentFactory, TeacherCommentFactory
 from test.factory.course import CourseFactory, LtiCourseFactory
 from test.factory.entry import EntryFactory
-from test.factory.format import FormatFactory, TemplateFormatFactory
+from test.factory.format import FormatFactory
 from test.factory.grade import GradeFactory
 from test.factory.group import GroupFactory, LtiGroupFactory
 from test.factory.instance import InstanceFactory
@@ -43,7 +43,6 @@ AssignmentParticipation = AssignmentParticipationFactory
 Journal = JournalFactory
 GroupJournal = GroupJournalFactory
 Format = FormatFactory
-TemplateFormat = TemplateFormatFactory
 Template = TemplateFactory
 TemplateAllTypes = TemplateAllTypesFactory
 ProgressNode = ProgressNodeFactory

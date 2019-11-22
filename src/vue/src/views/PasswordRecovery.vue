@@ -22,7 +22,7 @@
                     type="password"
                     required
                     placeholder="Repeat new password"
-                    @keyup.enter="handleLogin()"
+                    @keyup.enter="recoverPassword()"
                 />
                 <b-button
                     class="float-right multi-form add-button"

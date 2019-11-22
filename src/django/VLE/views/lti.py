@@ -6,6 +6,7 @@ import oauth2
 from django.conf import settings
 from django.http import QueryDict
 from django.shortcuts import redirect
+from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -126,13 +127,14 @@ def handle_test_student(user, params):
     return user
 
 
-@api_view(['GET'])
-def get_lti_params_from_jwt(request, jwt_params):
+@api_view(['POST'])
+def get_lti_params_from_jwt(request):
     """Handle the controlflow for course/assignment create, connect and select.
 
     Returns the data needed for the correct entry place.
     """
     user = request.user
+    jwt_params, = utils.required_params(request.data, 'jwt_params')
     lti_params = decode_lti_params(jwt_params)
     if user != User.objects.get(lti_id=lti_params['user_id']):
         return response.forbidden(
@@ -164,10 +166,11 @@ def get_lti_params_from_jwt(request, jwt_params):
     }})
 
 
-@api_view(['PATCH'])
+@api_view(['POST'])
 @permission_classes((AllowAny, ))
-def update_lti_groups(request, jwt_params):
+def update_lti_groups(request):
     user = request.user
+    jwt_params, = utils.required_params(request.data, 'jwt_params')
     lti_params = decode_lti_params(jwt_params)
     if user != User.objects.get(lti_id=lti_params['user_id']):
         return response.forbidden(
@@ -218,6 +221,8 @@ def lti_launch(request):
             query['full_name'] = params.get('custom_user_full_name', None)
         else:
             refresh = TokenObtainPairSerializer.get_token(user)
+            user.last_login = timezone.now()
+            user.save()
             query = QueryDict.fromkeys(['lti_params'], lti_params, mutable=True)
             query['jwt_access'] = str(refresh.access_token)
             query['jwt_refresh'] = str(refresh)

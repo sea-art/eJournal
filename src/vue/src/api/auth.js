@@ -85,6 +85,9 @@ function handleSuccess (resp, connArgs) {
  * This because this is generic response handling, and we dont know what should happen in case of an error.
  */
 function handleError (error, connArgs) {
+    if (error.response === undefined) {
+        throw error
+    }
     const response = error.response
     const status = response.status
 

@@ -7,8 +7,16 @@ to receive the appropriate error code.
 """
 from django.conf import settings
 from django.http import FileResponse, HttpResponse, JsonResponse
+from sentry_sdk import capture_exception, capture_message
 
 import VLE.models
+
+
+def sentry_log(description='No description given', exception=None):
+    if exception:
+        capture_exception(exception)
+    elif description:
+        capture_message(description, level='error')
 
 
 def success(payload={}, description=''):
@@ -33,53 +41,58 @@ def created(payload={}, description=''):
     return json_response(payload=payload, description=description, status=201)
 
 
-def bad_request(description='Your browser performed a bad request.'):
+def bad_request(description='Your browser performed a bad request.', exception=None):
     """Calls a json_response with status 400: Bad Request.
 
     Arguments:
         description  -- Additional information about the reason of the response, included in the data payload.
                         This serves in addition to the HTTP default reason phrase 'Bad Request'.
     """
+    sentry_log(description, exception)
     return json_response(description=description, status=400)
 
 
-def unauthorized(description='You are not authenticated.'):
+def unauthorized(description='You are not authenticated.', exception=None):
     """Calls a json_response with status 401: Unauthorized.
 
     Arguments:
         description  -- Additional information about the reason of the response, included in the data payload.
                         This serves in addition to the HTTP default reason phrase 'Unauthorized'.
     """
+    sentry_log(description, exception)
     return json_response(description=description, status=401)
 
 
-def forbidden(description='You have no access to this page'):
+def forbidden(description='You have no access to this page', exception=None):
     """Calls a json_response with status 403: Forbidden.
 
     Arguments:
         description  -- Additional information about the reason of the response, included in the data payload.
                         This serves in addition to the HTTP default reason phrase 'Forbidden'.
     """
+    sentry_log(description, exception)
     return json_response(description=description, status=403)
 
 
-def not_found(description='The page or file you requested was not found.'):
+def not_found(description='The page or file you requested was not found.', exception=None):
     """Calls a json_response with status 404: Not Found.
 
     Arguments:
         description  -- Additional information about the reason of the response, included in the data payload.
                         This serves in addition to the HTTP default reason phrase 'Not Found'.
     """
+    sentry_log(description, exception)
     return json_response(description=description, status=404)
 
 
-def internal_server_error(description='Oops! The server experienced internal hiccups.'):
+def internal_server_error(description='Oops! The server experienced internal hiccups.', exception=None):
     """Calls a json_response with status 500: Internal Server Error.
 
     Arguments:
         description  -- Additional information about the reason of the response, included in the data payload.
                         This serves in addition to the HTTP default reason phrase 'Internal Server Error'.
     """
+    sentry_log(description, exception)
     return json_response(description=description, status=500)
 
 
@@ -127,23 +140,24 @@ def json_response(payload={}, description='', status=None, reason=None, charset=
     return JsonResponse(data={**payload, 'description': description}, status=status, reason=reason, charset=charset)
 
 
-def key_error(*keys):
+def key_error(*keys, exception=None):
     """Generate a bad request response with each given key formatted in the description."""
     if len(keys) == 1:
-        return bad_request(description='Field {0} is required but is missing.'.format(keys[0]))
+        return bad_request(description='Field {0} is required but is missing.'.format(keys[0]), exception=exception)
     else:
-        return bad_request(description='Fields {0} are required but one or more are missing.'.format(', '.join(keys)))
+        return bad_request(description='Fields {0} are required but one or more are missing.'.format(', '.join(keys)),
+                           exception=exception)
 
 
-def value_error(message=None):
+def value_error(message=None, exception=None):
     """Generate a bad request response with each given key formatted in the description."""
     if message:
-        return bad_request(description='One or more fields are invalid: {0}'.format(message))
+        return bad_request(description='One or more fields are invalid: {0}'.format(message), exception=exception)
     else:
-        return bad_request(description='One or more fields are invalid.')
+        return bad_request(description='One or more fields are invalid.', exception=exception)
 
 
-def validation_error(err):
+def validation_error(err, exception=None):
     """Formats a validation error into a readable bad_request response."""
     resp = ""
     field_count = 1
@@ -164,7 +178,7 @@ def validation_error(err):
         elif isinstance(arg, str):
             resp += arg
 
-    return bad_request(resp)
+    return bad_request(resp, exception=exception)
 
 
 def file(file_path, filename):

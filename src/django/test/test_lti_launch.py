@@ -82,10 +82,10 @@ def lti_launch(request_body={}, response_value=lti_view.LTI_STATES.NO_USER.value
 
 def get_jwt(obj, request_body={}, timestamp=str(int(time.time())), nonce=str(oauth2.generate_nonce()),
             user=None, status=200, response_msg='', assert_msg='', response_value=None, delete_field=False,
-            access=None):
+            access=None, url='get_lti_params_from_jwt'):
     request = create_request(request_body, timestamp, nonce, delete_field)
     jwt_params = lti_view.encode_lti_params(request)
-    response = api.get(obj, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), user=user, status=status, access=access)
+    response = api.post(obj, url, params={'jwt_params': jwt_params},  user=user, status=status, access=access)
     if response_msg:
         if 'description' in response:
             assert response_msg in response['description'], assert_msg
@@ -139,6 +139,7 @@ class LtiLaunchTest(TestCase):
         )
 
     def test_lti_launch_user(self):
+        old_last_login = self.student.last_login
         lti_launch(
             request_body={
                 'user_id': self.student.lti_id
@@ -146,18 +147,30 @@ class LtiLaunchTest(TestCase):
             response_value=lti_view.LTI_STATES.LOGGED_IN.value,
             assert_msg='With a user_id the user should login',
         )
+        assert old_last_login != User.objects.get(pk=self.student.pk).last_login, \
+            'Last login should be updated'
 
     def test_lti_launch_multiple_roles(self):
         lti_launch(
             request_body={
-                'roles': 'Learner,Instructor',
+                'roles': 'Extra,Instructor',
                 'user_id': self.student.lti_id
             },
             response_value=lti_view.LTI_STATES.LOGGED_IN.value,
             assert_msg='With a user_id the user should login',
         )
-        assert User.objects.filter(lti_id=self.student.lti_id)[0].is_teacher, \
+        assert User.objects.get(lti_id=self.student.lti_id).is_teacher, \
             'Student should become a teacher when loggin in with Instructor role'
+        lti_launch(
+            request_body={
+                'roles': 'Extra,Hello',
+                'user_id': self.student.lti_id
+            },
+            response_value=lti_view.LTI_STATES.LOGGED_IN.value,
+            assert_msg='With a user_id the user should login',
+        )
+        assert User.objects.get(lti_id=self.student.lti_id).is_teacher, \
+            'Teacher should stay teacher when roles change'
 
     def test_lti_launch_unknown_role(self):
         lti_launch(
@@ -292,6 +305,42 @@ class LtiLaunchTest(TestCase):
             request_body={'user_id': 'invalid_user_id'},
             response_msg='User does not exist',
             assert_msg='Without a valid lti_id it should not find the user')
+
+    def test_update_lti_groups(self):
+        course = factory.LtiCourse()
+        assignment = factory.LtiAssignment(courses=[course])
+        test_student = factory.TestUser()
+        group_count = Group.objects.filter(course=course).count()
+        get_jwt(
+            self, url='update_lti_groups',
+            user=self.student, status=404,
+            request_body={'user_id': 'invalid_user_id'},
+            response_msg='User does not exist',
+            assert_msg='Without a valid lti_id it should not find the user')
+        get_jwt(
+            self, url='update_lti_groups',
+            user=test_student, status=200,
+            request_body={
+                'user_id': test_student.lti_id,
+                'custom_course_id': course.active_lti_id,
+                'custom_assignment_id': assignment.active_lti_id},
+            response_msg='',
+            assert_msg='With valid params it should response succesfully')
+        assert group_count == Group.objects.filter(course=course).count(), \
+            'No new groups should be created, if no supplied'
+        get_jwt(
+            self, url='update_lti_groups',
+            user=test_student, status=200,
+            request_body={
+                'user_id': test_student.lti_id,
+                'custom_section_id': 'new_group1,new_group2',
+                'custom_course_id': course.active_lti_id,
+                'custom_assignment_id': assignment.active_lti_id},
+            response_msg='',
+            assert_msg='With valid params it should response succesfully')
+        assert group_count + 2 == Group.objects.filter(course=course).count() and \
+            Group.objects.filter(course=course, lti_id='new_group2').exists(), \
+            'New groups should be created'
 
     def test_get_lti_params_from_jwt_wrong_user(self):
         get_jwt(
