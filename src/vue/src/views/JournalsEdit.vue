@@ -8,8 +8,7 @@
                 :journal="journal"
                 :editView="true"
                 :assignment="assignment"
-            >
-            </journal-card>
+            />
         </div>
         <div slot="right-content-column">
             <h3>Actions</h3>
@@ -31,7 +30,6 @@ import contentColumns from '@/components/columns/ContentColumns.vue'
 import journalCard from '@/components/assignment/JournalCard.vue'
 
 import assignmentAPI from '@/api/assignment.js'
-import journalAPI from '@/api/journal.js'
 
 export default {
     name: 'JournalsEdit',

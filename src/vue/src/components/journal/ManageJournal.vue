@@ -1,7 +1,8 @@
 <template>
     <div
         v-if="assignment.can_set_journal_name || assignment.can_set_journal_image ||
-            ((assignment.can_lock_journal || !journal.locked) && assignment.is_group_assignment)"
+            ((assignment.can_lock_journal || (!journal.locked && $hasPermission('can_have_journal'))) &&
+            assignment.is_group_assignment)"
     >
         <h3>Manage journal</h3>
         <!-- Manage every assignment -->
