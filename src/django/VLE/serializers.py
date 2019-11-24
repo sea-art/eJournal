@@ -307,6 +307,8 @@ class AssignmentSerializer(serializers.ModelSerializer):
         users = User.objects.filter(
             participation__course=course, participation__role__can_have_journal=True
         )
+
+        # Get grade compared to users in the group
         participation = Participation.objects.filter(user=self.context['user'], course=course)
         if participation.exists():
             participation = participation.first()

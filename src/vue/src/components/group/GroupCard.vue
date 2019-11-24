@@ -148,7 +148,6 @@ export default {
             return this.participants.filter(p => !this.members.map(m => m.id).includes(p.id))
         },
         members () {
-            console.log(this.participants)
             return this.participants.filter(p => p.groups.map(g => g.id).includes(this.group.id))
         },
     },

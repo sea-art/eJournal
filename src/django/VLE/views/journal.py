@@ -126,7 +126,7 @@ class JournalView(viewsets.ViewSet):
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
         journal = Journal.objects.get(pk=pk)
 
-        request.user.check_can_view(journal.assignment)
+        request.user.check_can_view(journal)
 
         req_data = request.data
         published, = utils.optional_params(request.data, 'published')
@@ -144,10 +144,19 @@ class JournalView(viewsets.ViewSet):
             lti_grade.replace_result(journal)
             return response.success({'journal': JournalSerializer(journal, context={'user': request.user}).data})
 
-        if not request.user.is_superuser:
-            return response.forbidden('You are not allowed to edit this journal.')
+        name, = utils.optional_typed_params(request.data, (str, 'name'))
+        if name is not None:
+            if not request.user.has_permission('can_edit_assignment', journal.assignment):
+                if not journal.assignment.can_set_journal_name:
+                    return response.forbidden('You are not allowed to change the journal name.')
+            journal.name = name
+            journal.save()
+            return response.success({'journal': JournalSerializer(journal, context={'user': request.user}).data})
 
-        return self.admin_update(request, journal)
+        if request.user.is_superuser:
+            return self.admin_update(request, journal)
+
+        return response.bad_request('No valid values were specified.')
 
     @action(['patch'], detail=True)
     def join(self, request, pk):

@@ -84,8 +84,6 @@ class GradePassBackRequestXMLTest(TestCase):
 
     def test_create_xml_with_data_url(self):
         """Test create xml."""
-        print(self.journal.authors.all())
-        print(self.journal.authors.first().sourcedid)
         passback = lti_grade.GradePassBackRequest(self.journal.authors.first(), self.journal.get_grade(),
                                                   result_data={'url': 'http://127.0.0.1:8000/grade_passback'})
         result = b'<imsx_POXEnvelopeRequest xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">\

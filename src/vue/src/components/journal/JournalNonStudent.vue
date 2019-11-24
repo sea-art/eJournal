@@ -146,12 +146,73 @@
                     </div>
                     <b-button
                         v-if="$hasPermission('can_publish_grades')"
-                        class="add-button flex-grow-1 full-width"
+                        class="multi-form add-button full-width"
                         @click="publishGradesJournal"
                     >
                         <icon name="upload"/>
                         Publish all grades
                     </b-button>
+                </b-col>
+                <b-col lg="12">
+                    <template
+                        v-if="assignment.can_set_journal_name || assignment.can_set_journal_image ||
+                            ((assignment.can_lock_journal || !journal.locked) && assignment.is_group_assignment)"
+                    >
+                        <h3>Manage journal</h3>
+                        <!-- Manage every assignment -->
+                        <input
+                            v-if="assignment.can_set_journal_name && editingName"
+                            v-model="journalName"
+                            class="theme-input full-width multi-form"
+                            type="text"
+                            :placeholder="journal.name"
+                        />
+                        <b-button
+                            v-if="assignment.can_set_journal_name"
+                            class="multi-form change-button full-width"
+                            @click="changeName()"
+                        >
+                            <icon name="save"/>
+                            Change name
+                        </b-button>
+                        <!-- Manage group assignment -->
+                        <template v-if="is_group_assignment">
+                            <b-button
+                                v-if="assignment.can_lock_journal && journal.locked"
+                                class="multi-form dark-bue-button full-width"
+                                @click="lockJournal()"
+                            >
+                                <icon name="unlock"/>
+                                Unlock journal
+                            </b-button>
+                            <b-button
+                                v-else-if="assignment.can_lock_journal"
+                                class="multi-form delete-button full-width"
+                                tag="b-button"
+                                @click="lockJournal()"
+                            >
+                                <icon name="lock"/>
+                                Lock journal
+                            </b-button>
+                            <b-button
+                                v-if="!journal.locked && assignment.is_group_assignment"
+                                class="multi-form delete-button full-width"
+                                tag="b-button"
+                                @click="leaveJournal()"
+                            >
+                                <icon name="sign-out"/>
+                                Leave journal
+                            </b-button>
+                        </template>
+                    </template>
+                    <template v-if="assignment.is_group_assignment">
+                        <h3>Members</h3>
+                        <student-card
+                            v-for="student in journal.students"
+                            :key="student.id"
+                            :user="student.user"
+                        />
+                    </template>
                 </b-col>
             </b-row>
         </b-col>
@@ -162,6 +223,7 @@
 import entryNonStudentPreview from '@/components/entry/EntryNonStudentPreview.vue'
 import timeline from '@/components/timeline/Timeline.vue'
 import journalCard from '@/components/assignment/JournalCard.vue'
+import studentCard from '@/components/assignment/StudentCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import journalStartCard from '@/components/journal/JournalStartCard.vue'
@@ -182,6 +244,7 @@ export default {
         journalCard,
         journalStartCard,
         journalEndCard,
+        studentCard,
         progressNode,
     },
     props: ['cID', 'aID', 'jID'],
@@ -196,6 +259,8 @@ export default {
             assignment: {},
             journal: null,
             loadingNodes: true,
+            editingName: false,
+            journalName: '',
         }
     },
     computed: {
@@ -257,6 +322,24 @@ export default {
                     this.selectFirstUngradedNode(gradeUpdated)
                 }
             })
+        },
+        lockJournal () {
+            journalAPI.lock(this.jID, !this.journal.locked, { responseSuccessToast: true })
+                .then(() => {
+                    this.journal.locked = !this.journal.locked
+                })
+        },
+        changeName () {
+            if (this.editingName) {
+                journalAPI.update(
+                    this.jID, { name: this.journalName }, { customSuccessToast: 'Successfully set journal name' })
+                    .then(() => {
+                        this.journal.name = this.journalName
+                        this.editingName = false
+                    })
+            } else {
+                this.editingName = true
+            }
         },
         selectFirstUngradedNode (gradeUpdated) {
             let min = this.nodes.length

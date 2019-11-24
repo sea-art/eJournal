@@ -70,7 +70,6 @@ class AssignmentView(viewsets.ViewSet):
             course = None
             courses = request.user.participations.all()
 
-        print(Assignment.objects.all())
         query = Assignment.objects.filter(courses__in=courses).distinct()
         viewable = [assignment for assignment in query if request.user.can_view(assignment)]
         serializer = AssignmentSerializer(viewable, many=True, context={'user': request.user, 'course': course})

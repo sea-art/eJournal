@@ -20,16 +20,12 @@
                         :title="squareInfo"
                     />
                     <b-badge v-else-if="!$hasPermission('can_view_all_journals') && journal.locked">
-                        <!-- {{ leftNum ? Math.round(leftNum * 100) / 100 : 0 }} -->
                         <icon name="lock"/>
                     </b-badge>
                 </div>
-                <div class="student-details list-view">
-                    <span>
-                        <h4>{{ journal.name ? journal.name : 'Empty journal' }}</h4>
-                        <p v-if="groups">({{ groups }})</p>
-                    </span>
-                    <!-- {{ journal.students[0].user.username }} -->
+                <div class="student-details">
+                    <b>{{ journal.name ? journal.name : 'Empty journal' }}</b>
+                    <p>{{ journal.students.map(s => s.user.username).join(', ') }}</p>
                 </div>
             </b-col>
             <b-col
@@ -46,21 +42,21 @@
         <div v-else>
             <div class="d-flex multi-form">
                 <div class="portrait-wrapper">
-                    <img :src="journal.image"/>
+                    <img
+                        class="no-hover"
+                        :src="journal.image"
+                    />
                 </div>
                 <div class="student-details">
-                    <span>
-                        <h4>{{ journal.name ? journal.name : 'Empty journal' }}</h4>
-                        <p v-if="groups">({{ groups }})</p>
-                    </span>
-                    {{ journal.students.map(s => s.user.username).join(', ') }}
+                    <b>{{ journal.name ? journal.name : 'Empty journal' }}</b>
+                    <p>{{ journal.students.map(s => s.user.username).join(', ') }}</p>
                 </div>
             </div>
             <progress-bar
-                v-if="$hasPermission('can_view_all_journals')"
                 :currentPoints="journal.stats.acquired_points"
                 :totalPoints="assignment.points_possible"
                 :comparePoints="assignment && assignment.stats ? assignment.stats.average_points : -1"
+                :bonusPoints="journal.bonus_points"
             />
         </div>
         <slot/>
