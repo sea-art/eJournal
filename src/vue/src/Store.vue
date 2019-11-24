@@ -48,8 +48,8 @@ export default {
         }
 
         function searchFilter (journal) {
-            return journal.names.toLowerCase().includes(searchValue.toLowerCase())
-                || journal.full_names.toLowerCase().includes(searchValue.toLowerCase())
+            return journal.name.toLowerCase().includes(searchValue.toLowerCase())
+                || journal.students.some(user => user.user.username.toLowerCase().includes(searchValue.toLowerCase()))
         }
         let filteredJournals = journals
         if (groups !== null && groups.length !== 0) {

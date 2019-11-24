@@ -10,20 +10,12 @@
             :key="journal.id"
             @click="joinJournal(journal.id)"
         >
-            <main-card
-                :line1="journal.names"
-                :color="$root.getBorderClass(journal.id)"
-                :line2="`${journal.students.length}/${assignment.group_size}`"
+            <journal-card
+                :listView="true"
+                :journal="journal"
+                :assignment="assignment"
             />
         </div>
-        <b-button
-            slot="main-content-column"
-            class="add-button"
-            @click="createJournal()"
-        >
-            <icon name="plus"/>
-            Create a new group
-        </b-button>
     </content-columns>
 </template>
 
@@ -31,17 +23,17 @@
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import mainCard from '@/components/assets/MainCard.vue'
+import journalCard from '@/components/assignment/JournalCard.vue'
 
 import journalAPI from '@/api/journal.js'
 import assignmentAPI from '@/api/assignment.js'
 
 export default {
-    name: 'CreateJoinJournal',
+    name: 'JoinJournal',
     components: {
         contentColumns,
         breadCrumb,
-        mainCard,
+        journalCard,
     },
     props: {
         cID: {
@@ -69,19 +61,6 @@ export default {
         })
     },
     methods: {
-        createJournal () {
-            journalAPI.create(this.aID)
-                .then((journal) => {
-                    this.$router.push({
-                        name: 'Journal',
-                        params: {
-                            cID: this.cID, aID: this.aID, jID: journal.id,
-                        },
-                    })
-                })
-            assignmentAPI.get(this.aID)
-                .then((assignment) => { this.assignment = assignment })
-        },
         joinJournal (jID) {
             journalAPI.join(jID)
                 .then((journal) => {

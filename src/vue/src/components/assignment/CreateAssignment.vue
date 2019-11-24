@@ -50,7 +50,6 @@ export default {
                 can_set_journal_name: false,
                 can_set_journal_image: false,
                 can_lock_journal: false,
-                group_size: null,
             },
             reset: null,
         }

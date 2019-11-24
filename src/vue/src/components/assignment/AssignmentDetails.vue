@@ -195,23 +195,6 @@
                 Custom journal images
             </b-button>
         </div>
-        <!-- <h2
-            v-if="assignmentDetails.is_group_assignment"
-            class="field-heading"
-        >
-            Max group size
-        </h2>
-        <div v-if="assignmentDetails.is_group_assignment">
-            <b-input
-                v-model="assignmentDetails.group_size"
-                type="number"
-                class="multi-form theme-input"
-                placeholder="Max group size"
-                min="2"
-                step="1"
-                required
-            />
-        </div> -->
     </b-form>
 </template>
 

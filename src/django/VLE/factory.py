@@ -11,6 +11,7 @@ from django.utils import timezone
 import VLE.validators as validators
 from VLE.models import (Assignment, AssignmentParticipation, Comment, Content, Course, Entry, Field, Format, Grade,
                         Group, Instance, Journal, Node, Participation, PresetNode, Role, Template, User, UserFile)
+from VLE.settings.base import DEFAULT_PROFILE_PICTURE
 
 
 def make_instance(allow_standalone_registration=None):
@@ -22,7 +23,7 @@ def make_instance(allow_standalone_registration=None):
     return instance
 
 
-def make_user(username, password=None, email=None, lti_id=None, profile_picture='/unknown-profile.png',
+def make_user(username, password=None, email=None, lti_id=None, profile_picture=DEFAULT_PROFILE_PICTURE,
               is_superuser=False, is_teacher=False, full_name=None, verified_email=False, is_staff=False,
               is_test_student=False):
     """Create a user.
@@ -238,7 +239,7 @@ def make_node(journal, entry=None, type=Node.ENTRY, preset=None):
     return node
 
 
-def make_journal(assignment, author):
+def make_journal(assignment, author, max_users=1):
     """Make a new journal.
 
     First creates all nodes defined by the format.
@@ -249,7 +250,7 @@ def make_journal(assignment, author):
     if Journal.objects.filter(assignment=assignment, authors__user=author).exists():
         return Journal.objects.get(assignment=assignment, authors__user=author)
     preset_nodes = assignment.format.presetnode_set.all()
-    journal = Journal.objects.create(assignment=assignment)
+    journal = Journal.objects.create(assignment=assignment, max_users=max_users)
     journal.authors.add(make_assignment_participation(assignment, author))
     journal.save()
 

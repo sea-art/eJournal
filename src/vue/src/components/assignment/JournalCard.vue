@@ -6,29 +6,34 @@
         >
             <b-col
                 class="d-flex"
-                md="7"
+                :md="$hasPermission('can_view_all_journals') ? 7 : 12"
             >
                 <div class="portrait-wrapper">
                     <img
                         class="no-hover"
-                        :src="previewPicture"
+                        :src="journal.image"
                     />
                     <number-badge
-                        v-if="markingNeeded + unpublished > 0"
+                        v-if="$hasPermission('can_view_all_journals') && markingNeeded + unpublished > 0"
                         :leftNum="markingNeeded"
                         :rightNum="unpublished"
                         :title="squareInfo"
                     />
+                    <b-badge v-else-if="!$hasPermission('can_view_all_journals') && journal.locked">
+                        <!-- {{ leftNum ? Math.round(leftNum * 100) / 100 : 0 }} -->
+                        <icon name="lock"/>
+                    </b-badge>
                 </div>
                 <div class="student-details list-view">
                     <span>
-                        <b>{{ journal.name }}</b>
-                        <span v-if="groups">({{ groups }})</span>
+                        <h4>{{ journal.name ? journal.name : 'Empty journal' }}</h4>
+                        <p v-if="groups">({{ groups }})</p>
                     </span>
                     <!-- {{ journal.students[0].user.username }} -->
                 </div>
             </b-col>
             <b-col
+                v-if="$hasPermission('can_view_all_journals')"
                 class="mt-2"
                 md="5"
             >
@@ -41,17 +46,18 @@
         <div v-else>
             <div class="d-flex multi-form">
                 <div class="portrait-wrapper">
-                    <img :src="previewPicture"/>
+                    <img :src="journal.image"/>
                 </div>
                 <div class="student-details">
                     <span>
-                        <b>{{ journal.name }}</b>
-                        <span v-if="groups">({{ groups }})</span>
+                        <h4>{{ journal.name ? journal.name : 'Empty journal' }}</h4>
+                        <p v-if="groups">({{ groups }})</p>
                     </span>
                     {{ journal.students.map(s => s.user.username).join(', ') }}
                 </div>
             </div>
             <progress-bar
+                v-if="$hasPermission('can_view_all_journals')"
                 :currentPoints="journal.stats.acquired_points"
                 :totalPoints="assignment.points_possible"
                 :comparePoints="assignment && assignment.stats ? assignment.stats.average_points : -1"
@@ -84,16 +90,7 @@ export default {
     },
     computed: {
         numMarkingNeeded () {
-            return this.journal.stats.submitted - this.journal.stats.graded
-        },
-        previewPicture () {
-            const studentsWithPicture = this.journal.students.filter(
-                student => student.user.profile_picture !== '/static/unknown-profile.png')
-            if (studentsWithPicture.length > 0) {
-                return studentsWithPicture[0].user.profile_picture
-            } else {
-                return '/static/unknown-profile.png'
-            }
+            return this.journal.stats ? this.journal.stats.submitted - this.journal.stats.graded : 0
         },
         groups () {
             const groups = []
@@ -109,10 +106,10 @@ export default {
             return groups.join(', ')
         },
         markingNeeded () {
-            return this.journal.stats.submitted - this.journal.stats.graded
+            return this.journal.stats ? this.journal.stats.submitted - this.journal.stats.graded : 0
         },
         unpublished () {
-            return this.journal.stats.graded - this.journal.stats.published
+            return this.journal.stats ? this.journal.stats.graded - this.journal.stats.published : 0
         },
         squareInfo () {
             const info = []
@@ -136,6 +133,7 @@ export default {
 <style lang="sass">
 @import '~sass/partials/shadows.sass'
 @import '~sass/modules/breakpoints.sass'
+@import '~sass/modules/colors.sass'
 
 .portrait-wrapper
     position: relative
@@ -146,10 +144,16 @@ export default {
         width: 70px
         height: 70px
         border-radius: 50% !important
-    .number-badge
+    .number-badge, .badge
         position: absolute
         right: 0px
         top: 0px
+        font-family: 'Roboto Condensed', sans-serif
+        font-size: 1em
+        border-radius: 5px !important
+        border: 1px solid #CCCCCC
+        background-color: white
+        color: $theme-dark-blue
 
 .student-details
     position: relative

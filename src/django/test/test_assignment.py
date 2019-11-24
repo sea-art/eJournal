@@ -64,7 +64,6 @@ class AssignmentAPITest(TestCase):
         assignment = api.create(self, 'assignments', params=self.create_params, user=self.teacher)['assignment']
         assert 'is_group_assignment' in assignment and not assignment['is_group_assignment'], \
             'Default assignment should be individual'
-        assert 'group_size' not in assignment or assignment['group_size'] is None
 
         # Test required fields
         api.create(self, 'assignments', params={}, user=self.teacher, status=400)
@@ -77,12 +76,11 @@ class AssignmentAPITest(TestCase):
             'description': 'test_description',
             'points_possible': 10,
             'course_id': self.course.pk,
-            'group_size': 3,
+            'is_group_assignment': True,
         }
         assignment = api.create(self, 'assignments', params=params, user=self.teacher)['assignment']
         assert 'is_group_assignment' in assignment and assignment['is_group_assignment'], \
             'Assignment with group size should be a group assignment'
-        assert 'group_size' in assignment and assignment['group_size'] == 3
 
     def test_get(self):
         student = factory.Student()

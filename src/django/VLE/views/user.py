@@ -18,6 +18,7 @@ import VLE.utils.responses as response
 import VLE.validators as validators
 from VLE.models import Assignment, Content, Entry, Instance, Journal, Node, User, UserFile
 from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
+from VLE.settings.base import DEFAULT_PROFILE_PICTURE
 from VLE.tasks import send_email_verification_link
 from VLE.utils import file_handling
 from VLE.views import lti
@@ -143,7 +144,7 @@ class UserView(viewsets.ViewSet):
 
         user = factory.make_user(username=username, email=email, lti_id=lti_id, full_name=full_name,
                                  is_teacher=is_teacher, verified_email=bool(lti_id) and bool(email), password=password,
-                                 profile_picture=user_image if user_image else '/unknown-profile.png',
+                                 profile_picture=user_image if user_image else DEFAULT_PROFILE_PICTURE,
                                  is_test_student=is_test_student)
 
         if lti_id is None:

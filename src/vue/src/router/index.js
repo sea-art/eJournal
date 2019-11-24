@@ -4,7 +4,7 @@ import store from '@/store'
 import routerConstraints from '@/utils/constants/router_constraints.js'
 import Home from '@/views/Home.vue'
 import Journal from '@/views/Journal.vue'
-import CreateJoinJournal from '@/views/CreateJoinJournal.vue'
+import JoinJournal from '@/views/JoinJournal.vue'
 import Assignment from '@/views/Assignment.vue'
 import Course from '@/views/Course.vue'
 import Profile from '@/views/Profile.vue'
@@ -110,8 +110,8 @@ const router = new Router({
         props: true,
     }, {
         path: '/Home/Course/:cID/Assignment/:aID/Journal/New',
-        name: 'CreateJoinJournal',
-        component: CreateJoinJournal,
+        name: 'JoinJournal',
+        component: JoinJournal,
         props: true,
     }, {
         path: '/Home/Course/:cID/Assignment/:aID/Journal/:jID',

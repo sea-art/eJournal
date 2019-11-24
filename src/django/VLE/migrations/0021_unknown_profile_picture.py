@@ -2,12 +2,14 @@
 
 from django.db import migrations, models
 
+from VLE.settings.base import DEFAULT_PROFILE_PICTURE
+
 
 def update_unknown_profile_pic_url(apps, schema_editor):
     User = apps.get_model('VLE', 'User')
     for user in User.objects.all():
         if user.profile_picture == '/static/unknown-profile.png':
-            user.profile_picture = '/unknown-profile.png'
+            user.profile_picture = DEFAULT_PROFILE_PICTURE
             user.save()
 
 class Migration(migrations.Migration):

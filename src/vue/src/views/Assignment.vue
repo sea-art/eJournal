@@ -178,23 +178,22 @@
         >
             <div
                 v-for="journal in filteredJournals"
-                :key="journal.students[0].id"
+                :key="journal.id"
             >
                 <b-link
                     :to="{
                         name: 'Journal',
                         params: {
-                            cID: cID,
-                            aID: aID,
+                            cID: $route.params.cID,
+                            aID: assignment.id,
                             jID: journal.id
                         }
                     }"
                     tag="b-button"
                 >
-                    <student-card
+                    <journal-card
                         :listView="true"
                         :journal="journal"
-                        :stats="journal.stats"
                         :assignment="assignment"
                     />
                 </b-link>
@@ -230,7 +229,7 @@ import contentColumns from '@/components/columns/ContentColumns.vue'
 import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import statisticsCard from '@/components/assignment/StatisticsCard.vue'
-import studentCard from '@/components/assignment/StudentCard.vue'
+import journalCard from '@/components/assignment/JournalCard.vue'
 
 import store from '@/Store.vue'
 import assignmentAPI from '@/api/assignment.js'
@@ -249,7 +248,7 @@ export default {
         loadWrapper,
         mainCard,
         statisticsCard,
-        studentCard,
+        journalCard,
     },
     props: {
         cID: {
@@ -397,7 +396,7 @@ export default {
                 const allJournals = []
                 this.filteredJournals.forEach((journal) => {
                     allJournals.push(journalAPI.update(journal.id, { published: true }, {
-                        customErrorToast: `Error while publishing grades for ${journal.names}.`,
+                        customErrorToast: `Error while publishing grades for ${journal.name}.`,
                     }))
                 })
                 Promise.all(allJournals).then(() => {

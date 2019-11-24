@@ -36,6 +36,11 @@ export default {
             .then(response => response.data)
     },
 
+    lock (id, locked, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.update(`journals/${id}/lock`, { locked }, connArgs)
+            .then(response => response.data)
+    },
+
     getNodes (id, connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.get('nodes', { journal_id: id }, connArgs)
             .then(response => response.data.nodes)

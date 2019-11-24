@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.utils.timezone import now
 
 import VLE.permissions as permissions
+from VLE.settings.base import DEFAULT_PROFILE_PICTURE
 from VLE.utils import sanitization
 from VLE.utils.error_handling import (VLEParticipationError, VLEPermissionError, VLEProgrammingError,
                                       VLEUnverifiedEmailError)
@@ -770,6 +771,18 @@ class Journal(models.Model):
         default=0,
     )
 
+    max_users = models.IntegerField(
+        default=1
+    )
+
+    name = models.TextField(
+        null=True,
+    )
+
+    locked = models.BooleanField(
+        default=False,
+    )
+
     # NOTE: Any suggestions for a clear warning msg for all cases?
     outdated_link_warning_msg = 'This journal has an outdated LMS uplink and can no longer be edited. Visit  ' \
         + 'eJournal from an updated LMS connection.'
@@ -783,12 +796,22 @@ class Journal(models.Model):
         return self.assignment.active_lti_id is not None and \
             any(author.sourcedid is None for author in self.authors.all())
 
-    def get_names(self):
-        usernames = [author.user.username for author in self.authors.all()]
-        return ', '.join(usernames[:-1]) + \
-            (' and ' + usernames[-1]) if len(usernames) > 1 else usernames[0]
+    def get_name(self):
+        if self.name is not None:
+            return self.name
+
+        return self.get_full_names()
+
+    def get_image(self):
+        for author in self.authors.all():
+            if author.user.profile_picture != DEFAULT_PROFILE_PICTURE:
+                return author.user.profile_picture
+
+        return DEFAULT_PROFILE_PICTURE
 
     def get_full_names(self):
+        if self.authors.count() == 0:
+            return None
         full_names = [author.user.full_name for author in self.authors.all()]
         return ', '.join(full_names[:-1]) + \
             (' and ' + full_names[-1]) if len(full_names) > 1 else full_names[0]
@@ -799,7 +822,7 @@ class Journal(models.Model):
         if not user.can_view(self):
             return "Journal"
 
-        return "the {0} journal of {1}".format(self.assignment.name, self.get_names())
+        return "the {0} journal of {1}".format(self.assignment.name, self.get_name())
 
 
 class Node(models.Model):

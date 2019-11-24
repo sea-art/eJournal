@@ -81,11 +81,11 @@
                     class="mb-4"
                 >
                     <h3>Journal progress</h3>
-                    <student-card
+                    <journal-card
                         v-if="journal"
                         :journal="journal"
                         :assignment="assignment"
-                        :class="'mb-2 no-hover'"
+                        class="mb-2 no-hover"
                     >
                         <div
                             v-if="journal && $hasPermission('can_grade')"
@@ -113,7 +113,7 @@
                                 Save bonus
                             </b-button>
                         </div>
-                    </student-card>
+                    </journal-card>
                 </b-col>
                 <b-col
                     v-if="$hasPermission('can_publish_grades') || filteredJournals.length > 1"
@@ -161,7 +161,7 @@
 <script>
 import entryNonStudentPreview from '@/components/entry/EntryNonStudentPreview.vue'
 import timeline from '@/components/timeline/Timeline.vue'
-import studentCard from '@/components/assignment/StudentCard.vue'
+import journalCard from '@/components/assignment/JournalCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import journalStartCard from '@/components/journal/JournalStartCard.vue'
@@ -179,7 +179,7 @@ export default {
         breadCrumb,
         loadWrapper,
         timeline,
-        studentCard,
+        journalCard,
         journalStartCard,
         journalEndCard,
         progressNode,

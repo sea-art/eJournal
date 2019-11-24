@@ -171,7 +171,7 @@ export default {
             } else if (this.$hasPermission('can_view_all_journals', 'assignment', aID)) { // Teacher published route
                 route.name = 'Assignment'
             } else if (jID === -1) { // Student new group assignment route
-                route.name = 'CreateJoinJournal'
+                route.name = 'JoinJournal'
             } else { // Student with journal route
                 route.name = 'Journal'
                 route.params.jID = jID

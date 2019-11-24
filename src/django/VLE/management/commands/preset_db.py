@@ -13,6 +13,7 @@ from faker import Faker
 
 import VLE.factory as factory
 from VLE.models import Course, Field, Node, User
+from VLE.settings.base import DEFAULT_PROFILE_PICTURE
 
 faker = Faker()
 
@@ -124,7 +125,7 @@ class Command(BaseCommand):
         for key, value in users_examples.items():
             self.users[key] = User.objects.create(**value)
             self.users[key].set_password(value['password'])
-            self.users[key].profile_picture = '/unknown-profile.png'
+            self.users[key].profile_picture = DEFAULT_PROFILE_PICTURE
             self.users[key].save()
 
     def gen_courses(self):
@@ -305,10 +306,10 @@ class Command(BaseCommand):
                 assignment.courses.add(course)
             self.assignments.append(assignment)
 
-        journal = factory.make_journal(self.assignments[2], self.users["Student"])
+        journal = factory.make_journal(self.assignments[2], self.users["Student"], max_users=3)
         journal.authors.add(factory.make_assignment_participation(assignment, self.users["Student2"]))
         journal.save()
-        factory.make_journal(self.assignments[2], self.users["Student3"])
+        factory.make_journal(self.assignments[2], self.users["Student3"], max_users=3)
 
     def gen_journals(self):
         """Generate journals."""

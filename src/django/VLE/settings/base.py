@@ -26,6 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 BASELINK = os.environ['BASELINK']
 
 STATIC_URL = '/static/'
+DEFAULT_PROFILE_PICTURE = '/unknown-profile.png'
 # NOTE: Public media directory (not used as such, should probably be renamed.)
 MEDIA_URL = 'media/'
 

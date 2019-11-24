@@ -404,14 +404,15 @@ class RoleSerializer(serializers.ModelSerializer):
 class JournalSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
     students = serializers.SerializerMethodField()
-    names = serializers.SerializerMethodField()
-    full_names = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
     grade = serializers.SerializerMethodField()
     needs_lti_link = serializers.SerializerMethodField()
 
     class Meta:
         model = Journal
-        fields = ('id', 'bonus_points', 'grade', 'students', 'needs_lti_link', 'stats', 'names', 'full_names')
+        fields = ('id', 'bonus_points', 'grade', 'students', 'needs_lti_link', 'stats', 'name', 'image', 'max_users',
+                  'locked')
         read_only_fields = ('id', 'assignment', 'students', 'grade')
 
     def get_grade(self, journal):
@@ -423,13 +424,15 @@ class JournalSerializer(serializers.ModelSerializer):
     def get_students(self, journal):
         return AssignmentParticipationSerializer(journal.authors.all(), many=True, context=self.context).data
 
-    def get_names(self, journal):
-        return journal.get_names()
+    def get_name(self, journal):
+        return journal.get_name()
 
-    def get_full_names(self, journal):
-        return journal.get_full_names()
+    def get_image(self, journal):
+        return journal.get_image()
 
     def get_stats(self, journal):
+        if 'user' not in self.context or not self.context['user'].can_view(journal):
+            return None
         return {
             'acquired_points': journal.get_grade(),
             'graded': journal.node_set.filter(entry__grade__grade__isnull=False).count(),

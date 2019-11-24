@@ -34,4 +34,19 @@ class Migration(migrations.Migration):
             name='is_group_assignment',
             field=models.BooleanField(default=False),
         ),
+        migrations.AddField(
+            model_name='journal',
+            name='max_users',
+            field=models.IntegerField(default=1),
+        ),
+        migrations.AddField(
+            model_name='journal',
+            name='name',
+            field=models.TextField(null=True),
+        ),
+        migrations.AddField(
+            model_name='journal',
+            name='locked',
+            field=models.BooleanField(default=False),
+        ),
     ]

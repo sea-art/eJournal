@@ -161,12 +161,31 @@
                     </li>
                 </ul>
                 <b-button
+                    v-if="journal.locked && assignment.can_lock_journal"
+                    class="mr-1 flex-grow-1 dark-blue-button"
+                    tag="b-button"
+                    @click="lockJournal()"
+                >
+                    <icon name="unlock"/>
+                    Unlock journal
+                </b-button>
+                <b-button
+                    v-else-if="assignment.can_lock_journal"
+                    class="mr-1 flex-grow-1 delete-button"
+                    tag="b-button"
+                    @click="lockJournal()"
+                >
+                    <icon name="lock"/>
+                    Lock journal
+                </b-button>
+                <b-button
+                    v-if="!journal.locked"
                     class="mr-1 flex-grow-1 delete-button"
                     tag="b-button"
                     @click="leaveJournal()"
                 >
                     <icon name="sign-out"/>
-                    Leave group
+                    Leave journal
                 </b-button>
             </b-card>
         </b-col>
@@ -273,13 +292,19 @@ export default {
                 journalAPI.leave(this.jID)
                     .then(() => {
                         this.$router.push({
-                            name: 'CreateJoinJournal',
+                            name: 'JoinJournal',
                             params: {
                                 cID: this.cID, aID: this.aID,
                             },
                         })
                     })
             }
+        },
+        lockJournal () {
+            journalAPI.lock(this.jID, !this.journal.locked, { responseSuccessToast: true })
+                .then(() => {
+                    this.journal.locked = !this.journal.locked
+                })
         },
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData

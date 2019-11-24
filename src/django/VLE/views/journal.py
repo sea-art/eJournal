@@ -53,7 +53,7 @@ class JournalView(viewsets.ViewSet):
             request.user.check_permission('can_view_all_journals', assignment)
 
         users = course.participation_set.filter(role__can_have_journal=True).values('user')
-        queryset = assignment.journal_set.filter(authors__user__in=users).distinct()
+        queryset = assignment.journal_set.order_by('pk')
         journals = JournalSerializer(
             queryset,
             many=True,
@@ -77,7 +77,7 @@ class JournalView(viewsets.ViewSet):
             return response.bad_request('You may only be in one journal at the time.')
 
         journal = factory.make_journal(assignment, request.user)
-        serializer = JournalSerializer(journal)
+        serializer = JournalSerializer(journal, context={'user': request.user, 'course': course})
         return response.created({'journal': serializer.data})
 
     def retrieve(self, request, pk):
@@ -142,7 +142,7 @@ class JournalView(viewsets.ViewSet):
             journal.bonus_points = bonus_points
             journal.save()
             lti_grade.replace_result(journal)
-            return response.success({'journal': JournalSerializer(journal).data})
+            return response.success({'journal': JournalSerializer(journal, context={'user': request.user}).data})
 
         if not request.user.is_superuser:
             return response.forbidden('You are not allowed to edit this journal.')
@@ -156,10 +156,13 @@ class JournalView(viewsets.ViewSet):
         request.user.check_can_view(journal.assignment)
 
         if not journal.assignment.is_group_assignment:
-            return response.bad_request('This is not a group assignment.')
+            return response.bad_request('You can only join group assignments.')
 
-        if journal.authors.count() >= journal.assignment.group_size:
-            return response.bad_request('This group is already full.')
+        if journal.locked:
+            return response.bad_request('You are not allowed to join a locked journal.')
+
+        if journal.authors.count() >= journal.max_users:
+            return response.bad_request('This journal is already full.')
 
         if Journal.objects.filter(assignment=journal.assignment, authors__user=request.user).exists():
             return response.bad_request('You may only be in one journal at the time.')
@@ -167,11 +170,14 @@ class JournalView(viewsets.ViewSet):
         if not journal.assignment.is_group_assignment:
             return response.bad_request('You can only join group assignments.')
 
+        if request.user.has_permission('can_view_all_journals', journal.assignment):
+            return response.bad_request('You are not allowed to join a journal as a teacher.')
+
         student = AssignmentParticipation.objects.get(assignment=journal.assignment, user=request.user)
         journal.authors.add(student)
         journal.save()
 
-        serializer = JournalSerializer(journal)
+        serializer = JournalSerializer(journal, context={'user': request.user})
         return response.success({'journal': serializer.data})
 
     @action(['patch'], detail=True)
@@ -186,19 +192,40 @@ class JournalView(viewsets.ViewSet):
         if not journal.assignment.is_group_assignment:
             return response.bad_request('You can only leave group assignments.')
 
+        if journal.locked:
+            return response.bad_request('You are not allowed to leave a locked journal.')
+
         author = AssignmentParticipation.objects.get(user=request.user, journal=journal)
-        print(journal.authors.all())
         journal.authors.remove(author)
         journal.save()
-        print(journal.authors.all())
 
         return response.success(description='Successfully removed from the journal.')
+
+    @action(['patch'], detail=True)
+    def lock(self, request, pk):
+        journal = Journal.objects.get(pk=pk)
+
+        request.user.check_can_view(journal.assignment)
+
+        if not request.user.has_permission('can_edit_assignment', journal.assignment):
+            if not journal.authors.filter(user=request.user).exists():
+                return response.bad_request('You can only lock journals that you are in.')
+            elif not journal.assignment.can_lock_journal:
+                return response.bad_request('The teacher has disabled (un)locking journals.')
+
+        if not journal.assignment.is_group_assignment:
+            return response.bad_request('You can only lock group assignments.')
+
+        journal.locked, = utils.required_typed_params(request.data, (bool, 'locked'))
+        journal.save()
+
+        return response.success(description='Successfully {}locked the journal.'.format('' if journal.locked else 'un'))
 
     def admin_update(self, request, journal):
         req_data = request.data
         if 'published' in req_data:
             del req_data['published']
-        serializer = JournalSerializer(journal, data=req_data, partial=True)
+        serializer = JournalSerializer(journal, data=req_data, partial=True, context={'user': request.user})
         if not serializer.is_valid():
             return response.bad_request()
         serializer.save()
@@ -211,8 +238,16 @@ class JournalView(viewsets.ViewSet):
         if journal.authors.filter(sourcedid__isnull=False).exists():
             payload = lti_grade.replace_result(journal)
             if payload and 'code_mayor' in payload and payload['code_mayor'] == 'success':
-                return response.success({'lti_info': payload, 'journal': JournalSerializer(journal).data})
+                return response.success({
+                    'lti_info': payload,
+                    'journal': JournalSerializer(journal, context={'user': request.user}).data
+                })
             else:
-                return response.bad_request({'lti_info': payload, 'journal': JournalSerializer(journal).data})
+                return response.bad_request({
+                    'lti_info': payload,
+                    'journal': JournalSerializer(journal, context={'user': request.user}).data
+                })
         else:
-            return response.success({'journal': JournalSerializer(journal).data})
+            return response.success({
+                'journal': JournalSerializer(journal, context={'user': request.user}).data
+            })
