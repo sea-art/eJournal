@@ -83,12 +83,17 @@
                     />
                 </bread-crumb>
 
-                <assignment-details-card
+                <b-card
                     v-if="currentNode === -1"
-                    :class="{ 'input-disabled' : saveRequestInFlight }"
-                    :assignmentDetails="assignmentDetails"
-                    :presetNodes="presets"
-                />
+                    :class="$root.getBorderClass($route.params.cID)"
+                    class="no-hover"
+                >
+                    <assignment-details-card
+                        :class="{ 'input-disabled' : saveRequestInFlight }"
+                        :assignmentDetails="assignmentDetails"
+                        :presetNodes="presets"
+                    />
+                </b-card>
 
                 <preset-node-card
                     v-else-if="presets.length > 0 && currentNode !== -1 && currentNode < presets.length"
@@ -138,6 +143,25 @@
             xl="3"
             class="right-content-timeline-page right-content"
         >
+            <h3>Actions</h3>
+            <b-button
+                v-if="$hasPermission('can_edit_assignment') && assignmentDetails.is_group_assignment"
+                class="multi-form change-button full-width"
+                @click="editJournals"
+            >
+                <icon name="edit"/>
+                Edit journals
+            </b-button>
+            <b-button
+                v-if="$hasPermission('can_delete_assignment')"
+                :class="{'input-disabled': assignmentDetails.lti_count > 1 && assignmentDetails.active_lti_course
+                    && parseInt(assignmentDetails.active_lti_course.cID) === parseInt($route.params.cID)}"
+                class="multi-form delete-button full-width"
+                @click="deleteAssignment"
+            >
+                <icon name="trash"/>
+                {{ assignmentDetails.course_count > 1 ? 'Remove' : 'Delete' }} assignment
+            </b-button>
             <h3>Entry Templates</h3>
             <div
                 v-intro="'Every assignment contains customizable <i>templates</i> which specify what the contents of \
@@ -183,7 +207,7 @@
 <script>
 import timeline from '@/components/timeline/Timeline.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import formatAssignmentDetailsCard from '@/components/format/FormatAssignmentDetailsCard.vue'
+import assignmentDetails from '@/components/assignment/AssignmentDetails.vue'
 import formatTemplateLink from '@/components/format/FormatTemplateLink.vue'
 import formatPresetNodeCard from '@/components/format/FormatPresetNodeCard.vue'
 import formatAddPresetNode from '@/components/format/FormatAddPresetNode.vue'
@@ -191,12 +215,13 @@ import templateEdit from '@/components/template/TemplateEdit.vue'
 
 import formatAPI from '@/api/format.js'
 import preferencesAPI from '@/api/preferences.js'
+import assignmentAPI from '@/api/assignment.js'
 
 export default {
     name: 'FormatEdit',
     components: {
         breadCrumb,
-        'assignment-details-card': formatAssignmentDetailsCard,
+        'assignment-details-card': assignmentDetails,
         'template-link': formatTemplateLink,
         'preset-node-card': formatPresetNodeCard,
         'add-preset-node': formatAddPresetNode,
@@ -550,6 +575,29 @@ export default {
                 return ''
             }
             return value
+        },
+        editJournals () {
+            alert('Not implemented yet')
+        },
+        deleteAssignment () {
+            if (this.assignmentDetails.course_count > 1
+                ? window.confirm('Are you sure you want to remove this assignment from the course?')
+                : window.confirm('Are you sure you want to delete this assignment?')) {
+                assignmentAPI.delete(
+                    this.assignmentDetails.id,
+                    this.$route.params.cID,
+                    {
+                        customSuccessToast: this.assignmentDetails.course_count > 1
+                            ? 'Removed assignment' : 'Deleted assignment',
+                    },
+                )
+                    .then(() => this.$router.push({
+                        name: 'Course',
+                        params: {
+                            cID: this.$route.params.cID,
+                        },
+                    }))
+            }
         },
     },
     beforeRouteLeave (to, from, next) {

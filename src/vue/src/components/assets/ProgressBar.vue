@@ -15,7 +15,13 @@
             class="progress-bar-box multi-form"
             color="white"
         >
-            <template v-if="currentPoints < comparePoints">
+            <template v-if="comparePoints === -1">
+                <b-progress-bar
+                    :value="currentPoints"
+                    class="first-bar"
+                />
+            </template>
+            <template v-else-if="currentPoints < comparePoints">
                 <b-progress-bar
                     :value="currentPoints"
                     class="first-bar"

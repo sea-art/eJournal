@@ -43,6 +43,8 @@ export default {
 @import '~sass/modules/colors.sass'
 .number-badge
     .badge-part
+        background-color: white
+        color: $theme-dark-blue
         font-family: 'Roboto Condensed', sans-serif
         font-size: 1em
         border-radius: 5px !important

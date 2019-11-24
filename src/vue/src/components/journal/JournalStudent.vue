@@ -123,7 +123,7 @@
         >
             <h3>Journal progress</h3>
             <journal-card
-                v-if="journal"
+                v-if="!loadingNodes"
                 :journal="journal"
                 :assignment="assignment"
                 class="mb-2 no-hover"
@@ -141,57 +141,11 @@
                     />
                 </b-button>
             </transition>
-            <template
-                v-if="assignment.can_set_journal_name || assignment.can_set_journal_image ||
-                    ((assignment.can_lock_journal || !journal.locked) && assignment.is_group_assignment)"
-            >
-                <h3>Manage journal</h3>
-                <!-- Manage every assignment -->
-                <input
-                    v-if="assignment.can_set_journal_name && editingName"
-                    v-model="journalName"
-                    class="theme-input full-width multi-form"
-                    type="text"
-                    :placeholder="journal.name"
-                />
-                <b-button
-                    v-if="assignment.can_set_journal_name"
-                    class="multi-form change-button full-width"
-                    @click="changeName()"
-                >
-                    <icon name="save"/>
-                    Change name
-                </b-button>
-                <!-- Manage group assignment -->
-                <template v-if="is_group_assignment">
-                    <b-button
-                        v-if="assignment.can_lock_journal && journal.locked"
-                        class="multi-form dark-bue-button full-width"
-                        @click="lockJournal()"
-                    >
-                        <icon name="unlock"/>
-                        Unlock journal
-                    </b-button>
-                    <b-button
-                        v-else-if="assignment.can_lock_journal"
-                        class="multi-form delete-button full-width"
-                        tag="b-button"
-                        @click="lockJournal()"
-                    >
-                        <icon name="lock"/>
-                        Lock journal
-                    </b-button>
-                    <b-button
-                        v-if="!journal.locked && assignment.is_group_assignment"
-                        class="multi-form delete-button full-width"
-                        tag="b-button"
-                        @click="leaveJournal()"
-                    >
-                        <icon name="sign-out"/>
-                        Leave journal
-                    </b-button>
-                </template>
-            </template>
+            <manage-journal
+                v-if="!loadingNodes"
+                :journal="journal"
+                :assignment="assignment"
+            />
             <template v-if="assignment.is_group_assignment">
                 <h3>Members</h3>
                 <student-card
@@ -200,30 +154,6 @@
                     :user="student.user"
                 />
             </template>
-            <!-- <b-card
-                v-if="assignment.is_group_assignment"
-                :class="$root.getBorderClass($route.params.cID)"
-                class="no-hover"
-            >
-                <b-button
-                    v-else-if="assignment.can_lock_journal"
-                    class="mr-1 flex-grow-1 delete-button"
-                    tag="b-button"
-                    @click="lockJournal()"
-                >
-                    <icon name="lock"/>
-                    Lock journal
-                </b-button>
-                <b-button
-                    v-if="!journal.locked"
-                    class="mr-1 flex-grow-1 delete-button"
-                    tag="b-button"
-                    @click="leaveJournal()"
-                >
-                    <icon name="sign-out"/>
-                    Leave journal
-                </b-button>
-            </b-card> -->
         </b-col>
     </b-row>
 </template>
@@ -254,6 +184,7 @@ import journalEndCard from '@/components/journal/JournalEndCard.vue'
 import studentCard from '@/components/assignment/StudentCard.vue'
 import journalCard from '@/components/assignment/JournalCard.vue'
 import progressNode from '@/components/entry/ProgressNode.vue'
+import manageJournal from '@/components/journal/ManageJournal.vue'
 
 import journalAPI from '@/api/journal.js'
 import assignmentAPI from '@/api/assignment.js'
@@ -272,6 +203,7 @@ export default {
         journalEndCard,
         studentCard,
         journalCard,
+        manageJournal,
     },
     props: ['cID', 'aID', 'jID'],
     data () {
@@ -327,37 +259,6 @@ export default {
             .then((journal) => { this.journal = journal })
     },
     methods: {
-        leaveJournal () {
-            if (window.confirm('Are you sure you want to leave this journal?')) {
-                journalAPI.leave(this.jID)
-                    .then(() => {
-                        this.$router.push({
-                            name: 'JoinJournal',
-                            params: {
-                                cID: this.cID, aID: this.aID,
-                            },
-                        })
-                    })
-            }
-        },
-        lockJournal () {
-            journalAPI.lock(this.jID, !this.journal.locked, { responseSuccessToast: true })
-                .then(() => {
-                    this.journal.locked = !this.journal.locked
-                })
-        },
-        changeName () {
-            if (this.editingName) {
-                journalAPI.update(
-                    this.jID, { name: this.journalName }, { customSuccessToast: 'Successfully set journal name' })
-                    .then(() => {
-                        this.journal.name = this.journalName
-                        this.editingName = false
-                    })
-            } else {
-                this.editingName = true
-            }
-        },
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
             entryAPI.update(this.nodes[this.currentNode].entry.id, { content: editedData.entry.content })

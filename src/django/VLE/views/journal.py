@@ -167,20 +167,20 @@ class JournalView(viewsets.ViewSet):
         if not journal.assignment.is_group_assignment:
             return response.bad_request('You can only join group assignments.')
 
+        if request.user.has_permission('can_view_all_journals', journal.assignment):
+            return response.bad_request('You are not allowed to join a journal as a teacher.')
+
         if journal.locked:
             return response.bad_request('You are not allowed to join a locked journal.')
 
-        if journal.authors.count() >= journal.max_users:
-            return response.bad_request('This journal is already full.')
+        if journal.authors.filter(user=request.user).exists():
+            return response.bad_request('You are already in this journal.')
 
         if Journal.objects.filter(assignment=journal.assignment, authors__user=request.user).exists():
             return response.bad_request('You may only be in one journal at the time.')
 
-        if not journal.assignment.is_group_assignment:
-            return response.bad_request('You can only join group assignments.')
-
-        if request.user.has_permission('can_view_all_journals', journal.assignment):
-            return response.bad_request('You are not allowed to join a journal as a teacher.')
+        if journal.authors.count() >= journal.max_users:
+            return response.bad_request('This journal is already full.')
 
         student = AssignmentParticipation.objects.get(assignment=journal.assignment, user=request.user)
         journal.authors.add(student)
@@ -195,11 +195,11 @@ class JournalView(viewsets.ViewSet):
 
         request.user.check_can_view(journal.assignment)
 
-        if not journal.authors.filter(user=request.user).exists():
-            return response.bad_request('You are currently not in this journal.')
-
         if not journal.assignment.is_group_assignment:
             return response.bad_request('You can only leave group assignments.')
+
+        if not journal.authors.filter(user=request.user).exists():
+            return response.bad_request('You are currently not in this journal.')
 
         if journal.locked:
             return response.bad_request('You are not allowed to leave a locked journal.')
