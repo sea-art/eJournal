@@ -12,12 +12,12 @@
                     />
                 </div>
                 <div class="student-details">
+                    <slot/>
                     <b>{{ user.full_name }}</b>
                     <p>({{ user.username }})</p>
                 </div>
             </div>
         </div>
-        <slot/>
     </b-card>
 </template>
 

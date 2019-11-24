@@ -39,6 +39,40 @@
                 />
             </b-col>
         </b-row>
+        <div v-else-if="editView">
+            <div class="d-flex multi-form">
+                <div class="portrait-wrapper">
+                    <img
+                        class="no-hover"
+                        :src="journal.image"
+                    />
+                </div>
+                <div class="student-details">
+                    <h4>{{ journal.name ? journal.name : 'Empty journal' }}</h4>
+                    <draggable
+                        class="list-group"
+                        :list="journal.students"
+                        group="journals"
+                        @change="log"
+                    >
+                        <student-card
+                            v-for="student in journal.students"
+                            :key="student.user.id"
+                            :user="student.user"
+                        >
+                            <div class="handle d-inline d-sm-block float-right">
+                                <icon
+                                    class="move-icon"
+                                    name="arrows"
+                                    scale="1.75"
+                                />
+                            </div>
+                        </student-card>
+                    </draggable>
+                    <div class="invisible"/>
+                </div>
+            </div>
+        </div>
         <div v-else>
             <div class="d-flex multi-form">
                 <div class="portrait-wrapper">
@@ -66,11 +100,15 @@
 <script>
 import progressBar from '@/components/assets/ProgressBar.vue'
 import numberBadge from '@/components/assets/NumberBadge.vue'
+import studentCard from '@/components/assignment/StudentCard.vue'
+import draggable from 'vuedraggable'
 
 export default {
     components: {
         progressBar,
         numberBadge,
+        studentCard,
+        draggable,
     },
     props: {
         assignment: {
@@ -81,6 +119,9 @@ export default {
             required: true,
         },
         listView: {
+            default: false,
+        },
+        editView: {
             default: false,
         },
     },
@@ -121,6 +162,11 @@ export default {
             }
             const s = info.join(' and ')
             return `${s.charAt(0).toUpperCase()}${s.slice(1)}`
+        },
+    },
+    methods: {
+        log (evt) {
+            window.console.log(evt);
         },
     },
 }

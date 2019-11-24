@@ -147,7 +147,10 @@
             <b-button
                 v-if="$hasPermission('can_edit_assignment') && assignmentDetails.is_group_assignment"
                 class="multi-form change-button full-width"
-                @click="editJournals"
+                @click.prevent.stop="$router.push({
+                    name: 'JournalsEdit',
+                    params: { cID: cID, aID: aID, assignment: assignmentDetails }
+                })"
             >
                 <icon name="edit"/>
                 Edit journals
