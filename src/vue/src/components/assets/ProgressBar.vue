@@ -15,20 +15,26 @@
             class="progress-bar-box multi-form"
             color="white"
         >
-            <b-progress-bar
-                :value="zeroIfNull(comparePoints === -1 ? currentPoints : Math.min(currentPoints, comparePoints))"
-                class="own-bar"
-            />
-            <b-progress-bar
-                v-if="currentPoints < totalPoints && comparePoints !== -1 && comparePoints > currentPoints"
-                :value="Math.min(totalPoints - currentPoints, Math.abs(comparePoints - currentPoints))"
-                class="compare-bar"
-            />
-            <b-progress-bar
-                v-else-if="currentPoints < totalPoints && comparePoints !== -1"
-                :value="Math.max(totalPoints - currentPoints, Math.abs(comparePoints - currentPoints))"
-                class="compare-bar ahead"
-            />
+            <template v-if="currentPoints < comparePoints">
+                <b-progress-bar
+                    :value="currentPoints"
+                    class="first-bar"
+                />
+                <b-progress-bar
+                    :value="Math.min(totalPoints, comparePoints) - currentPoints"
+                    class="compare-bar"
+                />
+            </template>
+            <template v-else>
+                <b-progress-bar
+                    :value="comparePoints"
+                    class="first-bar"
+                />
+                <b-progress-bar
+                    :value="Math.min(totalPoints, currentPoints) - comparePoints"
+                    class="compare-bar ahead"
+                />
+            </template>
         </b-progress>
         <span v-if="bonusPoints != 0">
             <icon
@@ -133,7 +139,7 @@ export default {
     border: 1px solid $theme-dark-grey
     border-radius: 5px !important
 
-.own-bar
+.first-bar
     background-color: $theme-blue !important
 .compare-bar
     background-color: $theme-orange !important
