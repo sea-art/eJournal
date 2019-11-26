@@ -13,7 +13,7 @@ export default {
     props: {
         custonClass: {
             required: false,
-            default: "",
+            default: '',
             String,
         },
         icon: {

@@ -18,6 +18,10 @@ class AssignmentFactory(factory.django.DjangoModelFactory):
     unlock_date = timezone.now()
     due_date = timezone.now() + datetime.timedelta(weeks=1)
     lock_date = timezone.now() + datetime.timedelta(weeks=2)
+    is_group_assignment = False
+    can_set_journal_name = False
+    can_set_journal_image = False
+    can_lock_journal = False
 
     format = factory.SubFactory('test.factory.format.FormatFactory')
 
@@ -74,3 +78,4 @@ class LtiAssignmentFactory(AssignmentFactory):
 
 class GroupAssignmentFactory(AssignmentFactory):
     is_group_assignment = True
+    can_lock_journal = True

@@ -119,9 +119,9 @@ class AssignmentView(viewsets.ViewSet):
         assignment = factory.make_assignment(
             name, description, courses=[course], author=request.user, active_lti_id=active_lti_id,
             points_possible=points_possible, unlock_date=unlock_date, due_date=due_date,
-            lock_date=lock_date, is_published=is_published, is_group_assignment=is_group_assignment,
-            can_set_journal_name=can_set_journal_name, can_set_journal_image=can_set_journal_image,
-            can_lock_journal=can_lock_journal)
+            lock_date=lock_date, is_published=is_published, is_group_assignment=is_group_assignment or False,
+            can_set_journal_name=can_set_journal_name or False, can_set_journal_image=can_set_journal_image or False,
+            can_lock_journal=can_lock_journal or False)
 
         if active_lti_id is not None:
             course.set_assignment_lti_id_set(active_lti_id)
