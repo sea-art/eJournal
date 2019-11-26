@@ -11,7 +11,7 @@ import VLE.lti_grade_passback as lti_grade
 import VLE.utils.generic_utils as utils
 import VLE.utils.grading as grading
 import VLE.utils.responses as response
-from VLE.models import Assignment, AssignmentParticipation, Course, Journal
+from VLE.models import Assignment, AssignmentParticipation, Course, Journal, User
 from VLE.serializers import JournalSerializer
 
 
@@ -52,8 +52,11 @@ class JournalView(viewsets.ViewSet):
         if not assignment.is_group_assignment:
             request.user.check_permission('can_view_all_journals', assignment)
 
-        users = course.participation_set.filter(role__can_have_journal=True).values('user')
-        queryset = assignment.journal_set.order_by('pk')
+        if assignment.is_group_assignment:
+            queryset = assignment.journal_set.order_by('pk')
+        else:
+            users = course.participation_set.filter(role__can_have_journal=True).values('user')
+            queryset = assignment.journal_set.filter(authors__user__in=users).distinct().order_by('pk')
         journals = JournalSerializer(
             queryset,
             many=True,
@@ -77,7 +80,8 @@ class JournalView(viewsets.ViewSet):
             return response.bad_request('You may only be in one journal at the time.')
 
         journal = factory.make_journal(assignment, request.user)
-        serializer = JournalSerializer(journal, context={'user': request.user, 'course': course})
+        serializer = JournalSerializer(
+            journal, context={'user': request.user, 'course': assignment.get_active_course()})
         return response.created({'journal': serializer.data})
 
     def retrieve(self, request, pk):
@@ -160,25 +164,28 @@ class JournalView(viewsets.ViewSet):
 
     @action(['patch'], detail=True)
     def join(self, request, pk):
+        """Add a student to the journal
+
+        Arguments:
+        request -- request data
+            user_id -- (optional) user of student who joins the journal
+        """
         journal = Journal.objects.get(pk=pk)
 
+        # Check if user is student in assignment
         request.user.check_can_view(journal.assignment)
+        request.user.check_permission('can_have_journal', journal.assignment)
 
         if not journal.assignment.is_group_assignment:
-            return response.bad_request('You can only join group assignments.')
-
-        if request.user.has_permission('can_view_all_journals', journal.assignment):
-            return response.bad_request('You are not allowed to join a journal as a teacher.')
-
+            return response.bad_request('Joining journals is only allowed for group assignments.')
         if journal.locked:
             return response.bad_request('You are not allowed to join a locked journal.')
 
+        # Check if it is valid to join journal
         if journal.authors.filter(user=request.user).exists():
             return response.bad_request('You are already in this journal.')
-
         if Journal.objects.filter(assignment=journal.assignment, authors__user=request.user).exists():
             return response.bad_request('You may only be in one journal at the time.')
-
         if journal.authors.count() >= journal.max_users:
             return response.bad_request('This journal is already full.')
 
@@ -190,7 +197,45 @@ class JournalView(viewsets.ViewSet):
         return response.success({'journal': serializer.data})
 
     @action(['patch'], detail=True)
+    def add_student(self, request, pk):
+        """Add a student to the journal
+
+        Arguments:
+        request -- request data
+            user_id -- user of student who joins the journal
+        """
+        journal = Journal.objects.get(pk=pk)
+
+        request.user.check_permission('can_edit_assignment', journal.assignment)
+
+        user_id, = utils.required_typed_params(request.data, (int, 'user_id'))
+        user = User.objects.get(pk=user_id)
+
+        if not journal.assignment.is_group_assignment:
+            return response.bad_request('Joining journals is only allowed for group assignments.')
+
+        # Check if user is student in assignment
+        user.check_participation(journal.assignment)
+        user.check_permission('can_have_journal', journal.assignment)
+
+        # Check if it is valid to join journal
+        if journal.authors.filter(user=user).exists():
+            return response.bad_request('Student is already in this journal.')
+        if Journal.objects.filter(assignment=journal.assignment, authors__user=user).exists():
+            return response.bad_request('Students can only be in one journal at the time.')
+        if journal.authors.count() >= journal.max_users:
+            return response.bad_request('This journal is already full.')
+
+        student = AssignmentParticipation.objects.get(assignment=journal.assignment, user=user)
+        journal.authors.add(student)
+        journal.save()
+
+        serializer = JournalSerializer(journal, context={'user': request.user})
+        return response.success({'journal': serializer.data})
+
+    @action(['patch'], detail=True)
     def leave(self, request, pk):
+        """Leave a journal"""
         journal = Journal.objects.get(pk=pk)
 
         request.user.check_can_view(journal.assignment)
@@ -203,6 +248,33 @@ class JournalView(viewsets.ViewSet):
 
         if journal.locked:
             return response.bad_request('You are not allowed to leave a locked journal.')
+
+        author = AssignmentParticipation.objects.get(user=request.user, journal=journal)
+        journal.authors.remove(author)
+        journal.save()
+
+        return response.success(description='Successfully removed from the journal.')
+
+    @action(['patch'], detail=True)
+    def kick(self, request, pk):
+        """Kick a student from the journal
+
+        Arguments:
+        request -- request data
+            user_id -- user of student who gets kicked from the journal
+        """
+        journal = Journal.objects.get(pk=pk)
+
+        request.user.check_permission('can_edit_assignment', journal.assignment)
+
+        user_id, = utils.required_typed_params(request.data, (int, 'user_id'))
+        user = User.objects.get(pk=user_id)
+
+        if not journal.assignment.is_group_assignment:
+            return response.bad_request('Student can only be kicked from group assignments.')
+
+        if not journal.authors.filter(user=user).exists():
+            return response.bad_request('Student is currently not in this journal.')
 
         author = AssignmentParticipation.objects.get(user=request.user, journal=journal)
         journal.authors.remove(author)

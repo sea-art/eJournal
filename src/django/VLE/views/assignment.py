@@ -107,7 +107,7 @@ class AssignmentView(viewsets.ViewSet):
         name, description, course_id = utils.required_typed_params(
             request.data, (str, 'name'), (str, 'description'), (int, 'course_id'))
         unlock_date, due_date, lock_date, active_lti_id, is_published, points_possible, is_group_assignment, \
-        can_set_journal_name, can_set_journal_image, can_lock_journal = \
+            can_set_journal_name, can_set_journal_image, can_lock_journal = \
             utils.optional_typed_params(
                 request.data, (str, 'unlock_date'), (str, 'due_date'), (str, 'lock_date'), (str, 'lti_id'),
                 (bool, 'is_published'), (float, 'points_possible'), (bool, 'is_group_assignment'),
