@@ -249,7 +249,7 @@ class AssignmentAPITest(TestCase):
         factory.Participation(user=student, course=course, role=Role.objects.get(course=course, name='Student'))
         assert Participation.objects.filter(course=course).count() == 2
         source_student_journal = Journal.objects.get(user=student, assignment=source_assignment)
-        VLE.factory.make_journal(user=teacher, assignment=source_assignment)
+        VLE.factory.make_journal(author=teacher, assignment=source_assignment)
         assert Journal.objects.filter(assignment=source_assignment).count() == 2
         source_entries = []
         number_of_source_student_journal_entries = 4

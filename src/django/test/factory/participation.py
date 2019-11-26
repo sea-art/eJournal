@@ -18,7 +18,7 @@ class ParticipationFactory(factory.django.DjangoModelFactory):
             return
 
         for assignment in VLE.models.Assignment.objects.filter(courses__in=[self.course]):
-            VLE.factory.make_journal(user=self.user, assignment=assignment)
+            VLE.factory.make_journal(author=self.user, assignment=assignment)
 
 
 class GroupParticipationFactory(ParticipationFactory):

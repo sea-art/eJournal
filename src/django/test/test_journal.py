@@ -34,11 +34,11 @@ class JournalAPITest(TestCase):
         api.get(self, 'journals', params={'pk': self.journal.pk}, user=factory.Teacher(), status=403)
 
     def test_update(self):
-        # Check if students cannot update journals
-        api.update(self, 'journals', params={'pk': self.journal.pk}, user=self.student, status=403)
+        # Check if students need to specify a name to update journals
+        api.update(self, 'journals', params={'pk': self.journal.pk}, user=self.student, status=400)
 
         # Check if teacher can only update the published state
-        api.update(self, 'journals', params={'pk': self.journal.pk}, user=self.teacher, status=403)
+        api.update(self, 'journals', params={'pk': self.journal.pk}, user=self.teacher, status=400)
         api.update(self, 'journals', params={'pk': self.journal.pk, 'published': True}, user=self.teacher)
 
         # Check if the admin can update the journal
