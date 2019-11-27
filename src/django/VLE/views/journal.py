@@ -67,23 +67,6 @@ class JournalView(viewsets.ViewSet):
 
         return response.success({'journals': journals})
 
-    def create(self, request):
-        """Create a journal.
-
-        This is used for group assignments when the student needs to create their own journal.
-        """
-        assignment_id, = utils.required_typed_params(request.data, (int, "assignment_id"))
-        assignment = Assignment.objects.get(pk=assignment_id)
-
-        request.user.check_can_view(assignment)
-        if Journal.objects.filter(assignment=assignment, authors__user=request.user).exists():
-            return response.bad_request('You may only be in one journal at the time.')
-
-        journal = factory.make_journal(assignment, request.user)
-        serializer = JournalSerializer(
-            journal, context={'user': request.user, 'course': assignment.get_active_course()})
-        return response.created({'journal': serializer.data})
-
     def retrieve(self, request, pk):
         """Get a student submitted journal.
 

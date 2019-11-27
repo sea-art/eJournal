@@ -11,11 +11,6 @@ export default {
             .then(response => response.data.journal)
     },
 
-    create (aID, connArgs = auth.DEFAULT_CONN_ARGS) {
-        return auth.create('journals', { assignment_id: aID }, connArgs)
-            .then(response => response.data.journal)
-    },
-
     update (id, data, connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.update(`journals/${id}`, data, connArgs)
             .then(response => response.data.journal)
