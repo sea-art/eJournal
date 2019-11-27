@@ -274,7 +274,8 @@ class UserAPITest(TestCase):
         User.objects.create(**params)
 
     def test_gdpr(self):
-        user = factory.Student()
+        entry = factory.Entry()
+        user = entry.node.journal.authors.first().user
         user2 = factory.Student()
         admin = factory.Admin()
 

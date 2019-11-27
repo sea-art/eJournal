@@ -72,17 +72,17 @@ class FormatView(viewsets.ViewSet):
 
         is_published, can_set_journal_name, can_set_journal_image, can_lock_journal = \
             utils.optional_typed_params(
-                request.data, (bool, 'is_published'),
+                assignment_details, (bool, 'is_published'),
                 (bool, 'can_set_journal_name'), (bool, 'can_set_journal_image'), (bool, 'can_lock_journal'))
 
         # Check for any property that cannot be changed after publishing
+        print(is_published)
         if assignment.is_published:
             if is_published is False:
                 return response.bad_request("You cannot unpublish an assignment after its published.")
 
         # Remove data that must not be changed by the serializer
         req_data = assignment_details or {}
-        req_data.pop('published', None)
         req_data.pop('author', None)
 
         for key in req_data:

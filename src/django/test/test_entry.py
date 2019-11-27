@@ -23,16 +23,16 @@ class EntryAPITest(TestCase):
         self.journal_teacher.save()
         # self.teacher = self.journal_teacher.authors.first().user
         self.format = self.journal.assignment.format
-        factory.Template(format=self.format)
+        self.template = factory.Template(format=self.format)
         factory.Template(format=self.format)
         factory.Template(format=self.format)
 
         self.valid_create_params = {
             'journal_id': self.journal.pk,
-            'template_id': self.format.template_set.first().pk,
+            'template_id': self.template.pk,
             'content': []
         }
-        fields = Field.objects.filter(template=self.format.template_set.first())
+        fields = Field.objects.filter(template=self.template)
         self.valid_create_params['content'] = [{'data': 'test data', 'id': field.id} for field in fields]
 
     def test_create(self):
@@ -132,10 +132,10 @@ class EntryAPITest(TestCase):
         # Creation with only required params should work
         required_only_creation = {
             'journal_id': self.journal.pk,
-            'template_id': self.format.template_set.first().pk,
+            'template_id': self.template.pk,
             'content': []
         }
-        fields = Field.objects.filter(template=self.format.template_set.first())
+        fields = Field.objects.filter(template=self.template)
         required_only_creation['content'] = [{'data': 'test data', 'id': field.id}
                                              for field in fields if field.required]
         api.create(self, 'entries', params=required_only_creation, user=self.student)
@@ -152,7 +152,7 @@ class EntryAPITest(TestCase):
         api.update(self, 'entries', params=params.copy(), user=self.student, status=400)
 
         # Student should be able to update only the required fields, leaving the optinal fields empty
-        fields = Field.objects.filter(template=self.format.template_set.first())
+        fields = Field.objects.filter(template=self.template)
         params = {
             'pk': entry['id'],
             'content': [{

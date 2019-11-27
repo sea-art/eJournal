@@ -97,6 +97,11 @@ class AssignmentAPITest(TestCase):
                        user=self.teacher)['assignment']
         assert resp['journals'] is not None, 'Response should include teacher serializer'
 
+        # Check group assignment
+        group_assignment = factory.GroupAssignment()
+        student = factory.AssignmentParticipation(assignment=group_assignment).user
+        api.get(self, 'assignments', params={'pk': group_assignment.pk}, user=student)
+
     def test_list(self):
         course2 = factory.Course(author=self.teacher)
         factory.Assignment(courses=[self.course])
@@ -121,7 +126,6 @@ class AssignmentAPITest(TestCase):
         assignment = api.create(self, 'assignments', params=self.create_params, user=self.teacher)['assignment']
 
         # Try to publish the assignment
-        # TODO: Test cannot unpublish when there are entries inside
         api.update(self, 'assignments', params={'pk': assignment['id'], 'published': True},
                    user=factory.Student(), status=403)
         api.update(self, 'assignments', params={'pk': assignment['id'], 'published': True},

@@ -46,3 +46,23 @@ class FormatAPITest(TestCase):
                 'templates': [], 'presets': [], 'removed_presets': [],
                 'removed_templates': []
             }, user=factory.Admin())
+
+        # Try to publish the assignment
+        api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
+                   user=factory.Student(), status=403)
+        api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
+                   user=self.teacher)
+        api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
+                   user=factory.Admin())
+
+        # Check cannot unpublish
+        self.update_dict['assignment_details']['is_published'] = False
+        api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
+                   user=self.teacher, status=400)
+        self.update_dict['assignment_details']['is_published'] = True
+
+        # Test script sanitation
+        self.update_dict['assignment_details']['description'] = '<script>alert("asdf")</script>Rest'
+        resp = api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
+                          user=self.teacher)
+        assert resp['assignment_details']['description'] == 'Rest'

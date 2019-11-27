@@ -17,8 +17,8 @@ class JournalAPITest(TestCase):
         self.group_assignment = factory.GroupAssignment()
         self.group_journal = factory.GroupJournal(assignment=self.group_assignment)
         self.group_journal2 = factory.GroupJournal(assignment=self.group_assignment)
-        ap = factory.AssignmentParticipation(assignment=self.group_assignment)
-        self.g_student = ap.user
+        self.ap = factory.AssignmentParticipation(assignment=self.group_assignment)
+        self.g_student = self.ap.user
         group_course = self.group_assignment.courses.first()
         self.g_teacher = group_course.author
 
@@ -45,10 +45,10 @@ class JournalAPITest(TestCase):
         api.update(self, 'journals', params={'pk': self.journal.pk, 'user': factory.Student().pk}, user=factory.Admin())
 
     def test_join(self):
-        assert not Journal.objects.get(pk=self.group_journal.pk).authors.filter(user=self.g_student).exists(), \
+        assert not self.group_journal.authors.filter(user=self.g_student).exists(), \
             'Check if student is not yet in the journal'
         api.update(self, 'journals/join', params={'pk': self.group_journal.pk}, user=self.g_student)
-        assert Journal.objects.get(pk=self.group_journal.pk).authors.filter(user=self.g_student).exists(), \
+        assert self.group_journal.authors.filter(user=self.g_student).exists(), \
             'Check if student is added to the journal'
         # Check already joined
         api.update(self, 'journals/join', params={'pk': self.group_journal.pk}, user=self.g_student, status=400)
@@ -113,3 +113,50 @@ class JournalAPITest(TestCase):
         api.update(
             self, 'journals/add_student', params={'pk': self.group_journal.pk, 'user_id': student.pk},
             user=self.g_teacher)
+
+    def test_leave(self):
+        self.group_journal.authors.add(self.ap)
+        self.group_journal.save()
+
+        assert self.group_journal.authors.filter(user=self.g_student).exists(), \
+            'Check if student is added to the journal'
+        api.update(self, 'journals/leave', params={'pk': self.group_journal.pk}, user=self.g_student)
+        assert not self.group_journal.authors.filter(user=self.g_student).exists(), \
+            'Check if student is not yet in the journal'
+
+        # Check not in journal
+        api.update(self, 'journals/leave', params={'pk': self.group_journal.pk}, user=self.g_student, status=400)
+        # check not possible to leave non group assignment
+        api.update(self, 'journals/leave', params={'pk': self.journal.pk}, user=self.student, status=400)
+        # Check leave locked journal
+        self.group_journal.authors.add(self.ap)
+        self.group_journal.locked = True
+        self.group_journal.save()
+        api.update(self, 'journals/leave', params={'pk': self.group_journal.pk}, user=self.g_student, status=400)
+
+    def test_kick(self):
+        self.group_journal.authors.add(self.ap)
+        self.group_journal.save()
+
+        assert self.group_journal.authors.filter(user=self.g_student).exists(), \
+            'Check if student is added to the journal'
+        api.update(self, 'journals/kick', params={'pk': self.group_journal.pk, 'user_id': self.g_student.pk},
+                   user=self.g_teacher)
+        assert not self.group_journal.authors.filter(user=self.g_student).exists(), \
+            'Check if student is not yet in the journal'
+
+        # Check not in journal
+        api.update(self, 'journals/kick', params={'pk': self.group_journal.pk, 'user_id': self.g_student.pk},
+                   user=self.g_teacher, status=400)
+        self.group_journal.authors.add(self.ap)
+        self.group_journal.locked = True
+        self.group_journal.save()
+        # check not possible to kick from non group assignment
+        api.update(self, 'journals/kick', params={'pk': self.journal.pk, 'user_id': self.student.pk},
+                   user=self.teacher, status=400)
+        # Check student cannot kick others
+        api.update(self, 'journals/kick', params={'pk': self.group_journal.pk, 'user_id': self.g_student.pk},
+                   user=factory.AssignmentParticipation(assignment=self.group_assignment).user, status=403)
+        # Check kick locked journal
+        api.update(self, 'journals/kick', params={'pk': self.group_journal.pk, 'user_id': self.g_student.pk},
+                   user=self.g_teacher)

@@ -4,7 +4,7 @@ import test.factory.course
 import factory
 from django.utils import timezone
 
-from VLE.models import Template
+from VLE.models import Field, Template
 
 
 class AssignmentFactory(factory.django.DjangoModelFactory):
@@ -48,10 +48,14 @@ class TemplateAssignmentFactory(AssignmentFactory):
         if not create:
             return
 
-        template = Template.objects.create(format=self.format, name="template 1")
+        template = Template.objects.create(format=self.format, name="template 1 - required summary")
         self.format.template_set.add(template)
-        template = Template.objects.create(format=self.format, name="template 2")
+        Field.objects.create(type=Field.TEXT, title="Title", location=1, template=template, required=True)
+        Field.objects.create(type=Field.RICH_TEXT, title="Summary", location=2, template=template, required=True)
+        template = Template.objects.create(format=self.format, name="template 2 - optional summary")
         self.format.template_set.add(template)
+        Field.objects.create(type=Field.TEXT, title="Title", location=1, template=template, required=False)
+        Field.objects.create(type=Field.RICH_TEXT, title="Summary", location=2, template=template, required=False)
 
 
 class LtiAssignmentFactory(AssignmentFactory):

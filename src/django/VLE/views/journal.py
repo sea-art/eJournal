@@ -276,7 +276,7 @@ class JournalView(viewsets.ViewSet):
         if not journal.authors.filter(user=user).exists():
             return response.bad_request('Student is currently not in this journal.')
 
-        author = AssignmentParticipation.objects.get(user=request.user, journal=journal)
+        author = AssignmentParticipation.objects.get(user=user, journal=journal)
         journal.authors.remove(author)
         journal.save()
 
