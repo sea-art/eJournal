@@ -153,13 +153,26 @@ class JournalView(viewsets.ViewSet):
             lti_grade.replace_result(journal)
             return response.success({'journal': JournalSerializer(journal, context={'user': request.user}).data})
 
-        name, = utils.optional_typed_params(request.data, (str, 'name'))
-        if name is not None:
-            if not request.user.has_permission('can_edit_assignment', journal.assignment):
-                if not journal.assignment.can_set_journal_name:
-                    return response.forbidden('You are not allowed to change the journal name.')
-            journal.name = name
-            journal.save()
+        name, max_users = utils.optional_typed_params(request.data, (str, 'name'), (int, 'max_users'))
+        if name is not None or max_users is not None:
+            # Update name if allowed
+            if name is not None:
+                if not request.user.has_permission('can_edit_assignment', journal.assignment):
+                    if not journal.assignment.can_set_journal_name:
+                        return response.forbidden('You are not allowed to change the journal name.')
+                journal.name = name
+                journal.save()
+            # Update max_users if allowed
+            if max_users is not None:
+                if not request.user.has_permission('can_edit_assignment', journal.assignment):
+                    return response.forbidden('You are not allowed to change the max users.')
+                if not journal.assignment.is_group_assignment:
+                    return response.bad_request('You can only set max_users for group assignments.')
+                if journal.authors.count() > max_users:
+                    return response.bad_request('There are too many student in this journal.')
+                journal.max_users = max_users
+                journal.save()
+                return response.success({'journal': JournalSerializer(journal, context={'user': request.user}).data})
             return response.success({'journal': JournalSerializer(journal, context={'user': request.user}).data})
 
         if request.user.is_superuser:
