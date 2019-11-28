@@ -6,7 +6,6 @@ In this file are all the journal api requests.
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
 import VLE.utils.generic_utils as utils
 import VLE.utils.grading as grading
@@ -90,6 +89,29 @@ class JournalView(viewsets.ViewSet):
             'user': request.user,
         })
         return response.success({'journal': serializer.data})
+
+    def create(self, request):
+        """Create a batch of journals.
+
+        Arguments:
+        request -- request data
+            amount -- amount of journals to create
+            max_users -- maximum amount of users in journal
+            assignment_id -- assignment to create the journals in
+        """
+        amount, max_users, assignment_id = utils.required_typed_params(
+            request.data, (int, 'amount'), (int, 'max_users'), (int, 'assignment_id'))
+        assignment = Assignment.objects.get(pk=assignment_id)
+        if amount < 1:
+            return response.bad_request('Amount needs to be higher then 1.')
+
+        request.user.check_permission('can_edit_assignment', assignment)
+
+        journals = Journal.objects.bulk_create(
+            [Journal(assignment=assignment, max_users=max_users) for _ in range(amount)])
+
+        serializer = JournalSerializer(journals, many=True, context={'user': request.user})
+        return response.created({'journals': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing journal.

@@ -106,7 +106,6 @@ class AssignmentView(viewsets.ViewSet):
         """
         name, description, course_id = utils.required_typed_params(
             request.data, (str, 'name'), (str, 'description'), (int, 'course_id'))
-        print(request.data)
         unlock_date, due_date, lock_date, active_lti_id, is_published, points_possible, is_group_assignment, \
             can_set_journal_name, can_set_journal_image, can_lock_journal = \
             utils.optional_typed_params(
@@ -128,7 +127,7 @@ class AssignmentView(viewsets.ViewSet):
             course.set_assignment_lti_id_set(active_lti_id)
             course.save()
 
-        if is_group_assignment is True:
+        if is_group_assignment:
             for user in course.users.all():
                 factory.make_journal(assignment, user)
 

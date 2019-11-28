@@ -33,6 +33,27 @@ class JournalAPITest(TestCase):
         api.get(self, 'journals', params={'pk': self.journal.pk}, user=self.teacher)
         api.get(self, 'journals', params={'pk': self.journal.pk}, user=factory.Teacher(), status=403)
 
+    def test_create_journal(self):
+        payload = {'pk': self.group_journal.pk, 'assignment_id': self.group_assignment.pk, 'max_users': 3, 'amount': 2}
+        before_count = Journal.objects.filter(assignment=self.group_assignment).count()
+
+        # Check invalid users
+        api.create(self, 'journals', params=payload, user=self.g_student, status=403)
+        api.create(self, 'journals', params=payload, user=self.teacher, status=403)
+
+        # Check valid creation of 2 journals
+        api.create(self, 'journals', params=payload, user=self.g_teacher)
+
+        # Check invalid amount
+        payload['amount'] = 0
+        api.create(self, 'journals', params=payload, user=self.g_teacher, status=400)
+
+        after_count = Journal.objects.filter(assignment=self.group_assignment).count()
+
+        assert before_count + 2 == after_count, '2 new journals should be added'
+        assert Journal.objects.filter(assignment=self.group_assignment).last().max_users == 3, \
+            'Journal should have the proper max amount of users'
+
     def test_update(self):
         # Check if students need to specify a name to update journals
         api.update(self, 'journals', params={'pk': self.journal.pk}, user=self.student, status=400)
@@ -160,3 +181,36 @@ class JournalAPITest(TestCase):
         # Check kick locked journal
         api.update(self, 'journals/kick', params={'pk': self.group_journal.pk, 'user_id': self.g_student.pk},
                    user=self.g_teacher)
+
+    def test_lock(self):
+        self.group_journal.authors.add(self.ap)
+        self.group_journal.save()
+
+        api.update(self, 'journals/lock', params={
+                'pk': self.group_journal.pk,
+                'locked': True
+            }, user=self.g_student)
+        assert Journal.objects.get(pk=self.group_journal.pk).locked, \
+            'Should be locked after student locks'
+        api.update(self, 'journals/lock', params={
+                'pk': self.group_journal.pk,
+                'locked': False
+            }, user=self.g_student)
+        assert not Journal.objects.get(pk=self.group_journal.pk).locked, \
+            'Should be unlocked after student unlocks'
+
+        self.group_assignment.can_lock_journal = False
+        self.group_assignment.save()
+        api.update(self, 'journals/lock', params={
+                'pk': self.group_journal.pk,
+                'locked': True
+            }, user=self.g_student, status=400)
+        assert not Journal.objects.get(pk=self.group_journal.pk).locked, \
+            'Should still be unlocked after failed attempt at locking'
+
+        api.update(self, 'journals/lock', params={
+                'pk': self.group_journal.pk,
+                'locked': True
+            }, user=self.g_teacher)
+        assert Journal.objects.get(pk=self.group_journal.pk).locked, \
+            'Teacher should sitll be able to lock journal'
