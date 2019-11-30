@@ -5,7 +5,7 @@
             :key="`linkable-${linkable.course.id}`"
         >
             <main-card
-                v-if="linkable.course.id !== page.cID"
+                v-if="linkable.assignments.length > 0"
                 :key="`course-${linkable.course.id}-copy`"
                 :line1="linkable.course.name"
                 :line2="linkable.course.startdate ? (linkable.course.startdate.substring(0, 4) +

@@ -17,7 +17,7 @@ from django.utils.timezone import now
 
 import VLE.permissions as permissions
 from VLE.utils import sanitization
-from VLE.utils.error_handling import (VLEParticipationError, VLEPermissionError, VLEProgrammingError,
+from VLE.utils.error_handling import (VLEBadRequest, VLEParticipationError, VLEPermissionError, VLEProgrammingError,
                                       VLEUnverifiedEmailError)
 from VLE.utils.file_handling import get_feedback_file_path, get_path
 
@@ -388,7 +388,7 @@ class Course(models.Model):
         default=list,
     )
 
-    def set_assignment_lti_id_set(self, lti_id):
+    def add_assignment_lti_id(self, lti_id):
         if lti_id not in self.assignment_lti_id_set:
             self.assignment_lti_id_set.append(lti_id)
 
@@ -681,13 +681,33 @@ class Assignment(models.Model):
 
         return None
 
-    def get_course_lti_id(self, course):
+    def get_lti_id_from_course(self, course):
         """Gets the assignment lti_id that belongs to the course assignment pair if it exists."""
         if not isinstance(course, Course):
             raise VLEProgrammingError("Expected instance of type Course.")
 
         intersection = list(set(self.lti_id_set).intersection(course.assignment_lti_id_set))
         return intersection[0] if intersection else None
+
+    def set_active_lti_course(self, course):
+        active_lti_id = self.get_lti_id_from_course(course)
+        if active_lti_id:
+            self.active_lti_id = active_lti_id
+            self.save()
+        else:
+            raise VLEBadRequest("This course is not connected to the assignment")
+
+    def add_lti_id(self, lti_id, course):
+        if self.get_lti_id_from_course(course) is not None:
+            raise VLEBadRequest('Assignment already used in course.')
+        # Update assignment
+        self.active_lti_id = lti_id
+        if not self.courses.filter(pk=course.pk).exists():
+            self.courses.add(course)
+        self.save()
+        # Update course
+        course.add_assignment_lti_id(lti_id)
+        course.save()
 
     def can_unpublish(self):
         return not (self.is_published and Entry.objects.filter(node__journal__assignment=self).exists())
