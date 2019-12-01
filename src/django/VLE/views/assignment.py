@@ -127,10 +127,6 @@ class AssignmentView(viewsets.ViewSet):
             course.set_assignment_lti_id_set(active_lti_id)
             course.save()
 
-        if is_group_assignment:
-            for user in course.users.all():
-                factory.make_journal(assignment, user)
-
         serializer = AssignmentSerializer(
             assignment,
             context={'user': request.user, 'course': course,
@@ -213,23 +209,6 @@ class AssignmentView(viewsets.ViewSet):
             utils.optional_typed_params(
                 request.data, (bool, 'is_published'),
                 (bool, 'can_set_journal_name'), (bool, 'can_set_journal_image'), (bool, 'can_lock_journal'))
-        # Check for any property that cannot be changed after publishing
-        if assignment.is_published:
-            if is_published is False:
-                return response.bad_request("You cannot unpublish an assignment after its published.")
-
-        # Make journals when published and it is not a group assignment
-        # For group assignments, journals are created once they login themself
-        # TODO: improve this loop
-        if is_published and not assignment.is_group_assignment:
-            for course in assignment.courses:
-                for user in course.users.all():
-                    factory.make_journal(assignment, user)
-
-        # Check if the assignment can be unpublished
-        is_published, = utils.optional_params(request.data, 'is_published')
-        if not assignment.can_unpublish() and is_published is False:
-            return response.bad_request('You cannot unpublish an assignment that already has submissions.')
 
         active_lti_course, = utils.optional_typed_params(request.data, (int, 'active_lti_course'))
         if active_lti_course is not None:
@@ -248,10 +227,8 @@ class AssignmentView(viewsets.ViewSet):
                 return response.bad_request('Assignment already used in course.')
             course.set_assignment_lti_id_set(req_data['lti_id'])
             course.save()
-            assignment.courses.add(course)
+            assignment.add_course(course)
             assignment.save()
-            for user in User.objects.filter(participation__course=course).exclude(journal__assignment=assignment):
-                factory.make_journal(assignment, user)
             req_data['active_lti_id'] = req_data.pop('lti_id')
 
         # Update the other data
@@ -476,7 +453,8 @@ class AssignmentView(viewsets.ViewSet):
         assignment.save()
 
         # Many to many field requires manual update, only set the course we are copying into
-        assignment.courses.set([course])
+        assignment.courses.set([])
+        assignment.add_course(course)
         assignment.save()
 
         template_dict = {}
@@ -493,6 +471,7 @@ class AssignmentView(viewsets.ViewSet):
                 field.template = template
                 field.save()
 
+        journals = Journal.objects.filter(assignment=assignment)
         for preset in PresetNode.objects.filter(format=source_format_id):
             preset.pk = None
             preset.format = format
@@ -504,8 +483,6 @@ class AssignmentView(viewsets.ViewSet):
             if preset.forced_template:
                 preset.forced_template = Template.objects.get(pk=template_dict[preset.forced_template.pk])
             preset.save()
-
-        for user in course.users.all():
-            factory.make_journal(assignment, user)
+            utils.update_journals(journals, preset)
 
         return response.success({'assignment_id': assignment.pk})

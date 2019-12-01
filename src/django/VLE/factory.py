@@ -12,6 +12,7 @@ import VLE.validators as validators
 from VLE.models import (Assignment, AssignmentParticipation, Comment, Content, Course, Entry, Field, Format, Grade,
                         Group, Instance, Journal, Node, Participation, PresetNode, Role, Template, User, UserFile)
 from VLE.settings.base import DEFAULT_PROFILE_PICTURE
+from VLE.utils.error_handling import VLEBadRequest
 
 
 def make_instance(allow_standalone_registration=None):
@@ -66,9 +67,6 @@ def make_participation(user=None, course=None, role=None, groups=None):
         participation.groups.set(groups)
         participation.save()
 
-    for assignment in course.assignment_set.filter(is_published=True):
-        if not Journal.objects.filter(assignment=assignment, authors__user=user).exists():
-            make_journal(assignment, user)
     return participation
 
 
@@ -142,13 +140,6 @@ def make_assignment(name, description, author=None, format=None, active_lti_id=N
                         is_group_assignment=is_group_assignment, active_lti_id=active_lti_id,
                         can_set_journal_name=can_set_journal_name, can_set_journal_image=can_set_journal_image,
                         can_lock_journal=can_lock_journal)
-    assign.save()
-    if course_ids:
-        for course_id in course_ids:
-            assign.courses.add(Course.objects.get(pk=course_id))
-    if courses:
-        for course in courses:
-            assign.courses.add(course)
     if points_possible is not None:
         assign.points_possible = points_possible
     if is_published is not None:
@@ -166,11 +157,12 @@ def make_assignment(name, description, author=None, format=None, active_lti_id=N
             lock_date = lock_date[:-1-len(lock_date.split(' ')[2])]
         assign.lock_date = lock_date
     assign.save()
-
-    if assign.is_published:
-        for user in User.objects.filter(participation__course__in=assign.courses.all()).distinct():
-            if not Journal.objects.filter(assignment=assign, authors__user=user).exists():
-                make_journal(assign, user)
+    if course_ids:
+        for course_id in course_ids:
+            assign.add_course(Course.objects.get(pk=course_id))
+    if courses:
+        for course in courses:
+            assign.add_course(course)
 
     return assign
 
@@ -234,12 +226,13 @@ def make_node(journal, entry=None, type=Node.ENTRY, preset=None):
     journal -- journal the node belongs to.
     entry -- entry the node belongs to.
     """
-    node = Node(type=type, entry=entry, preset=preset, journal=journal)
-    node.save()
+    node = Node.objects.filter(type=type, entry=entry, preset=preset, journal=journal).first()
+    if node is None:
+        node = Node.objects.create(type=type, entry=entry, preset=preset, journal=journal)
     return node
 
 
-def make_journal(assignment, author, max_users=1):
+def make_journal(assignment, author=None, max_users=None):
     """Make a new journal.
 
     First creates all nodes defined by the format.
@@ -247,29 +240,30 @@ def make_journal(assignment, author, max_users=1):
     as those in the format, so any changes should
     be reflected in the Nodes as well.
     """
-    if Journal.objects.filter(assignment=assignment, authors__user=author).exists():
-        return Journal.objects.get(assignment=assignment, authors__user=author)
-    preset_nodes = assignment.format.presetnode_set.all()
-    journal = Journal.objects.create(assignment=assignment, max_users=max_users)
-    journal.authors.add(make_assignment_participation(assignment, author))
-    journal.save()
+    if assignment.is_group_assignment:
+        if author is not None:
+            raise VLEBadRequest('Group journals should not be initialized with an author')
+        journal = Journal.objects.create(assignment=assignment, max_users=max_users)
 
-    for preset_node in preset_nodes:
-        Node(type=preset_node.type,
-             journal=journal,
-             preset=preset_node).save()
+    else:
+        if max_users is not None:
+            raise VLEBadRequest('Non group-journals should not be initialized max_users')
+        if Journal.objects.filter(assignment=assignment, authors__user=author).exists():
+            return Journal.objects.get(assignment=assignment, authors__user=author)
+
+        ap = AssignmentParticipation.objects.filter(assignment=assignment, user=author).first()
+        if ap is None:
+            ap = AssignmentParticipation.objects.create(assignment=assignment, user=author)
+            journal = Journal.objects.get(assignment=assignment, authors__in=[ap])
+        else:
+            journal = Journal.objects.create(assignment=assignment)
+            journal.authors.add(ap)
+
     return journal
 
 
 def make_assignment_participation(assignment, author):
-    """Make a new assignment participation.
-
-    returns the assignment_participation if it already exists, as there should always only be one
-    """
-    assignment_participation = AssignmentParticipation.objects.filter(assignment=assignment, user=author)
-    if assignment_participation.exists():
-        return assignment_participation.first()
-
+    """Make a new assignment participation."""
     return AssignmentParticipation.objects.create(assignment=assignment, user=author)
 
 

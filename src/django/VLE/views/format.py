@@ -75,12 +75,6 @@ class FormatView(viewsets.ViewSet):
                 assignment_details, (bool, 'is_published'),
                 (bool, 'can_set_journal_name'), (bool, 'can_set_journal_image'), (bool, 'can_lock_journal'))
 
-        # Check for any property that cannot be changed after publishing
-        print(is_published)
-        if assignment.is_published:
-            if is_published is False:
-                return response.bad_request("You cannot unpublish an assignment after its published.")
-
         # Remove data that must not be changed by the serializer
         req_data = assignment_details or {}
         req_data.pop('author', None)
@@ -93,7 +87,7 @@ class FormatView(viewsets.ViewSet):
         serializer = AssignmentDetailsSerializer(assignment, data=req_data, context={'user': request.user},
                                                  partial=True)
         if not serializer.is_valid():
-            return response.bad_request('Invalid data.')
+            return response.bad_request('Invalid assignment data.')
         serializer.save()
 
         new_ids = utils.update_templates(format, templates)

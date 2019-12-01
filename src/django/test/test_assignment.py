@@ -253,20 +253,18 @@ class AssignmentAPITest(TestCase):
         factory.Participation(user=student, course=course, role=Role.objects.get(course=course, name='Student'))
         assert Participation.objects.filter(course=course).count() == 2
         source_student_journal = Journal.objects.get(authors__user=student, assignment=source_assignment)
-        VLE.factory.make_journal(author=teacher, assignment=source_assignment)
-        assert Journal.objects.filter(assignment=source_assignment).count() == 2
         source_entries = []
         number_of_source_student_journal_entries = 4
         for _ in range(number_of_source_student_journal_entries):
             source_entries.append(factory.Entry(template=source_template, node__journal=source_student_journal))
 
-        assert Node.objects.count() == 8, \
+        assert Node.objects.count() == 10, \
             '2 nodes for the presets for teacher and student each, 4 for the student entries'
         assert source_entries[0].node.journal == source_student_journal
         assert Entry.objects.filter(
             node__journal=source_student_journal).count() == number_of_source_student_journal_entries, \
             'Only the entries explicitly created above exist for the source journal'
-        assert Journal.objects.filter(assignment=source_assignment).count() == 2, \
+        assert Journal.objects.filter(assignment=source_assignment).count() == 3, \
             'The source assignment only holds the journals explicitly created above'
 
         before_source_preset_nodes = PresetNode.objects.filter(format=source_assignment.format)
@@ -288,8 +286,9 @@ class AssignmentAPITest(TestCase):
 
         assert pre_copy_format_count + 1 == Format.objects.count(), 'One additional format is created'
         assert created_format == Format.objects.last(), 'Last created format should be the new assignment format'
-        assert pre_copy_journal_count * 2 == Journal.objects.count(), \
-            'A journal should be created for each of the existing course users'
+        assert pre_copy_journal_count * 2 - 1 == Journal.objects.count(), \
+            '''A journal should be created for each of the existing course users.
+               However, old teacher should not get journal'''
         assert pre_copy_entry_count == Entry.objects.count(), 'No additional entries are created'
         assert pre_copy_node_count + 4 == Node.objects.count(), 'Both student and teacher receive nodes for the presets'
         assert pre_copy_preset_node_count + 2 == PresetNode.objects.count(), \
@@ -489,7 +488,7 @@ class AssignmentAPITest(TestCase):
         assert resp[0]['deadline']['name'] == assignment.format.template_set.first().name, \
             'When not having completed an entry deadline, that should be shown'
 
-        entry = factory.Entry(node=Node.objects.get(preset=entrydeadline))
+        entry = factory.Entry(node=Node.objects.get(journal=journal, preset=entrydeadline))
 
         resp = api.get(self, 'assignments/upcoming', user=teacher)['upcoming']
         assert resp[0]['deadline']['date'] is not None, \
@@ -601,3 +600,40 @@ class AssignmentAPITest(TestCase):
         assert assignment.unlock_date is None and assignment.due_date is None \
             and assignment.lock_date is None, \
             'Unset dates should not be modified'
+
+    def test_create_journals(self):
+        course_before = factory.Course()
+        course_after = factory.Course()
+        teacher = course_before.author
+        student_before = factory.Student()
+        student_after = factory.Student()
+        normal_before = factory.Assignment(courses=[course_before])
+        factory.GroupAssignment(courses=[course_before])
+        normal_unpublished = factory.Assignment(courses=[course_before], is_published=False)
+        factory.Participation(user=student_before, course=course_before)
+        normal_after = factory.Assignment(courses=[course_before])
+        group_after = factory.GroupAssignment(courses=[course_before])
+        journals = Journal.objects.filter(authors__user=student_before)
+
+        assert journals.filter(assignment=normal_before).exists(), 'Normal assignment should get journals'
+        assert journals.filter(assignment=normal_after).exists(), \
+            'Journal needs to be created even when student is added later'
+        assert journals.count() == 2, 'Two journals should be created'
+        journals = Journal.objects.filter(authors__user=teacher)
+        assert journals.count() == 2, 'Teacher should also get 2 journals'
+
+        normal_unpublished.is_group_assignment = False
+        normal_unpublished.is_published = True
+        normal_unpublished.save()
+        journals = Journal.objects.filter(authors__user=student_before)
+        assert journals.count() == 3, 'After publishing an extra journal needs to be created'
+        journals = Journal.objects.filter(authors__user=teacher)
+        assert journals.count() == 3, 'Teacher should also get 3 journals'
+
+        factory.Participation(user=student_after, course=course_after)
+        normal_after.add_course(course_after)
+        group_after.add_course(course_after)
+        journals = Journal.objects.filter(authors__user=student_after)
+        assert journals.filter(assignment=normal_after, authors__user=student_after).exists(), \
+            'Normal assignment should get journals also for students where course is added later'
+        assert journals.count() == 1, 'Only normal_after should generate journal for that student'

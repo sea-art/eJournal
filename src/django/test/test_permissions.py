@@ -267,7 +267,7 @@ class PermissionTests(TestCase):
 
         role = factory.make_role_default_no_perms("SD", self.course1)
         factory.make_participation(student, self.course1, role)
-        factory.make_journal(self.assignment, student)
+        factory.make_journal(self.assignment, author=student)
 
         assert permissions.is_user_supervisor_of(self.user, student)
         assert permissions.is_user_supervisor_of(self.user, middle)

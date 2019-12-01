@@ -11,7 +11,7 @@ class AssignmentFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'VLE.Assignment'
 
-    name = 'Logboek'
+    name = factory.Sequence(lambda x: "Assignment_{}".format(x))
     description = 'Logboek for all your logging purposes'
     is_published = True
     author = factory.SubFactory('test.factory.user.TeacherFactory')
@@ -32,7 +32,7 @@ class AssignmentFactory(factory.django.DjangoModelFactory):
 
         if extracted:
             for course in extracted:
-                self.courses.add(course)
+                self.add_course(course)
                 p = factory.SubFactory('test.factory.participation.ParticipationFactory')
                 p.user = self.author
                 p.course = course

@@ -256,7 +256,7 @@ class User(AbstractUser):
         if self.email == '':
             self.email = None
 
-        super(User, self).save(*args, **kwargs)
+        return super(User, self).save(*args, **kwargs)
 
 
 @receiver(models.signals.post_save, sender=User)
@@ -541,6 +541,16 @@ class Participation(models.Model):
         default=None,
     )
 
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding
+        super(Participation, self).save(*args, **kwargs)
+
+        # Instance is being created (not modified)
+        if is_new:
+            existing = AssignmentParticipation.objects.filter(user=self.user).values('assignment')
+            for assignment in Assignment.objects.filter(courses__in=[self.course]).exclude(pk__in=existing):
+                AssignmentParticipation.objects.create(assignment=assignment, user=self.user)
+
     class Meta:
         """Meta data for the model: unique_together."""
 
@@ -627,6 +637,13 @@ class Assignment(models.Model):
     def is_locked(self):
         return self.unlock_date and self.unlock_date > now() or self.lock_date and self.lock_date < now()
 
+    def add_course(self, course, *args, **kwargs):
+        if not self.courses.filter(pk=course.pk).exists():
+            self.courses.add(course)
+            existing = AssignmentParticipation.objects.filter(assignment=self).values('user')
+            for user in course.users.exclude(pk__in=existing):
+                AssignmentParticipation.objects.create(assignment=self, user=user)
+
     def save(self, *args, **kwargs):
         self.description = sanitization.strip_script_tags(self.description)
 
@@ -639,6 +656,12 @@ class Assignment(models.Model):
             if self.pk:
                 pre_save = Assignment.objects.get(pk=self.pk)
                 active_lti_id_modified = pre_save.active_lti_id != self.active_lti_id
+
+                if pre_save.is_published:
+                    if not self.is_published:
+                        raise ValidationError('Cannot unpublish an assignment after its published.')
+                    if pre_save.is_group_assignment != self.is_group_assignment:
+                        raise ValidationError('Cannot change assignment type after its published.')
             # A copy is being made of the original instance
             else:
                 self.active_lti_id = None
@@ -657,7 +680,29 @@ class Assignment(models.Model):
                 raise ValidationError(
                     "A lti_id should be unique, and only part of a single assignment's lti_id_set.")
 
-        return super(Assignment, self).save(*args, **kwargs)
+        is_new = self._state.adding
+        if not self._state.adding and self.pk:
+            old_publish = Assignment.objects.get(pk=self.pk).is_published
+        else:
+            old_publish = self.is_published
+
+        super(Assignment, self).save(*args, **kwargs)
+
+        # When changing the published state, create journals if it is no group assignment
+        if is_new or not old_publish:
+            if self.is_published and not self.is_group_assignment:
+                users = self.courses.values('users').distinct()
+                if is_new:
+                    existing = []
+                    for user in users:
+                        ap = AssignmentParticipation.objects.create(assignment=self, user=user['users'])
+                else:
+                    existing = Journal.objects.filter(assignment=self.pk).values('authors__user')
+                for user in users.exclude(pk__in=existing):
+                    ap = AssignmentParticipation.objects.get(assignment=self, user=user['users'])
+                    if not Journal.objects.filter(assignment=self, authors__in=[ap]).exists():
+                        journal = Journal.objects.create(assignment=self)
+                        journal.authors.add(ap)
 
     def get_active_lti_course(self):
         """"Query for retrieving the course which matches the active lti id of the assignment."""
@@ -737,6 +782,16 @@ class AssignmentParticipation(models.Model):
     def name(self):
         self.user.username
 
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding
+        super(AssignmentParticipation, self).save(*args, **kwargs)
+
+        # Instance is being created (not modified)
+        if is_new:
+            if self.assignment.is_published and not self.assignment.is_group_assignment:
+                journal = Journal.objects.create(assignment=self.assignment)
+                journal.authors.add(self)
+
     def to_string(self, user=None):
         if user is None:
             return "Journal"
@@ -815,6 +870,15 @@ class Journal(models.Model):
         full_names = [author.user.full_name for author in self.authors.all()]
         return ', '.join(full_names[:-1]) + \
             (' and ' + full_names[-1]) if len(full_names) > 1 else full_names[0]
+
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding
+        super(Journal, self).save(*args, **kwargs)
+        # On create add preset nodes
+        if is_new:
+            preset_nodes = self.assignment.format.presetnode_set.all()
+            for preset_node in preset_nodes:
+                Node.objects.create(type=preset_node.type, journal=self, preset=preset_node)
 
     def to_string(self, user=None):
         if user is None:

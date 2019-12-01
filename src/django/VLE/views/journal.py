@@ -107,8 +107,9 @@ class JournalView(viewsets.ViewSet):
 
         request.user.check_permission('can_edit_assignment', assignment)
 
-        journals = Journal.objects.bulk_create(
-            [Journal(assignment=assignment, max_users=max_users) for _ in range(amount)])
+        journals = []
+        for _ in range(amount):
+            journals.append(Journal.objects.create(assignment=assignment, max_users=max_users))
 
         serializer = JournalSerializer(journals, many=True, context={'user': request.user})
         return response.created({'journals': serializer.data})

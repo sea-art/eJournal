@@ -184,12 +184,10 @@ def select_create_journal(request, user, assignment):
     if assignment is None or user is None:
         return None
 
-    journals = Journal.objects.filter(authors__user=user, assignment=assignment)
-    if journals.exists():
-        journal = journals.first()
-    else:
-        journal = factory.make_journal(assignment, user)
-    author = AssignmentParticipation.objects.get(assignment=assignment, user=user)
+    author = AssignmentParticipation.objects.filter(user=user, assignment=assignment).first()
+    if author is None:
+        author = AssignmentParticipation.objects.create(user=user, assignment=assignment)
+    journal = Journal.objects.filter(authors__in=[author], assignment=assignment).first()
     # Update the grade_url and sourcedid if the active LMS link is followed.
     if assignment.active_lti_id == request['custom_assignment_id']:
         passback_changed = False
@@ -201,7 +199,7 @@ def select_create_journal(request, user, assignment):
             passback_changed = True
             author.sourcedid = request['lis_result_sourcedid']
             author.save()
-        if passback_changed:
+        if passback_changed and journal:
             send_journal_grade_to_LMS.delay(journal.pk)
 
     return journal

@@ -12,7 +12,7 @@ from django.core.management.base import BaseCommand
 from faker import Faker
 
 import VLE.factory as factory
-from VLE.models import Course, Field, Node, User
+from VLE.models import AssignmentParticipation, Course, Field, Journal, Node, User
 from VLE.settings.base import DEFAULT_PROFILE_PICTURE
 
 faker = Faker()
@@ -298,27 +298,25 @@ class Command(BaseCommand):
         for a in assign_examples:
             format = self.formats[a["format"]]
             faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
-            assignment = factory.make_assignment(a["name"], a["description"], a["author"], format,
+            assignment = factory.make_assignment(a["name"], a["description"], a["author"], format, courses=a["courses"],
                                                  is_published=True, is_group_assignment=a["is_group_assignment"])
-            for user in self.users.values():
-                factory.make_assignment_participation(assignment, user)
-            for course in a["courses"]:
-                assignment.courses.add(course)
             self.assignments.append(assignment)
 
-        journal = factory.make_journal(self.assignments[2], self.users["Student"], max_users=3)
-        journal.authors.add(factory.make_assignment_participation(assignment, self.users["Student2"]))
+        journal = factory.make_journal(self.assignments[2], max_users=3)
+        journal.authors.add(AssignmentParticipation.objects.get(assignment=assignment, user=self.users["Student2"]))
+        journal.authors.add(AssignmentParticipation.objects.get(assignment=assignment, user=self.users["Student"]))
         journal.save()
-        factory.make_journal(self.assignments[2], self.users["Student3"], max_users=3)
+        journal = factory.make_journal(self.assignments[2], max_users=3)
+        journal.authors.add(AssignmentParticipation.objects.get(assignment=assignment, user=self.users["Student3"]))
 
     def gen_journals(self):
         """Generate journals."""
-        self.journals = []
-        for a in self.assignments:
-            if not a.is_group_assignment:
-                for u in self.users.values():
-                    journal = factory.make_journal(a, u)
-                    self.journals.append(journal)
+        self.journals = Journal.objects.all()
+        # for a in self.assignments:
+        #     if not a.is_group_assignment:
+        #         for u in self.users.values():
+        #             journal = factory.make_journal(a, author=u)
+        #             self.journals.append(journal)
 
     def gen_entries(self):
         """Generate entries."""

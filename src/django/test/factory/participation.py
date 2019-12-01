@@ -12,14 +12,6 @@ class ParticipationFactory(factory.django.DjangoModelFactory):
     course = factory.SubFactory('test.factory.course.CourseFactory')
     role = factory.SubFactory('test.factory.role.RoleFactory', course=factory.SelfAttribute('..course'))
 
-    @factory.post_generation
-    def journals(self, create, extracted):
-        if not create:
-            return
-
-        for assignment in VLE.models.Assignment.objects.filter(courses__in=[self.course]):
-            VLE.factory.make_journal(author=self.user, assignment=assignment)
-
 
 class GroupParticipationFactory(ParticipationFactory):
     group = factory.SubFactory('test.factory.group.GroupFactory')
