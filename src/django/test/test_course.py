@@ -94,8 +94,8 @@ class CourseAPITest(TestCase):
 
     def test_functions(self):
         course = factory.Course()
-        course.set_assignment_lti_id_set('lti_id1')
-        assert 'lti_id1' in course.assignment_lti_id_set, 'test if set_assignment_lti_id_set works'
-        course.set_assignment_lti_id_set('lti_id2')
-        course.set_assignment_lti_id_set('lti_id2')
-        assert len(course.assignment_lti_id_set) == 2, 'test if set_assignment_lti_id_set does not add duplicates'
+        course.add_assignment_lti_id('lti_id1')
+        assert 'lti_id1' in course.assignment_lti_id_set, 'test if add_assignment_lti_id works'
+        course.add_assignment_lti_id('lti_id2')
+        course.add_assignment_lti_id('lti_id2')
+        assert len(course.assignment_lti_id_set) == 2, 'test if add_assignment_lti_id does not add duplicates'

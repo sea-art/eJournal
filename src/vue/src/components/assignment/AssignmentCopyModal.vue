@@ -120,6 +120,10 @@ export default {
         cID: {
             required: true,
         },
+        lti: {
+            default: {},
+            required: false,
+        },
     },
     data () {
         return {
@@ -146,6 +150,7 @@ export default {
                 assignmentAPI.copy(this.selectedAssignment, {
                     course_id: this.cID,
                     months_offset: (!this.shiftCopyDates || this.months === '') ? 0 : this.months,
+                    lti_id: this.lti.ltiAssignID,
                 }, { customSuccessToast: 'Assignment succesfully copied!' }).then((response) => {
                     this.assignmentCopyInFlight = false
 

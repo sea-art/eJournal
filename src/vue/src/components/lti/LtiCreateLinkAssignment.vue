@@ -38,13 +38,17 @@
             <assignment-copy-modal
                 modalID="lti-assignment-copy-modal"
                 :cID="page.cID"
+                :lti="lti"
             />
             <hr/>
             If you want to create a new assignment that is identical to an assignment that you have
             already configured, click the button above to copy it. Existing journals are not copied
             and will remain accessible only from the original assignment.
         </b-card>
-        <b-card class="no-hover">
+        <b-card
+            v-if="linkableAssignments.some(linkable => linkable.assignments.length > 0)"
+            class="no-hover"
+        >
             <b-button
                 class="change-button big-button-text full-width"
                 @click="showModal('linkAssignmentRef')"

@@ -300,6 +300,17 @@ class AssignmentAPITest(TestCase):
         assert created_assignment.courses.count() == 1 and course in created_assignment.courses.all(), \
             'Only the course where we call copy from should be part of the created assignment course set'
 
+        resp = api.post(self, 'assignments/{}/copy'.format(source_assignment.pk), params={
+                'course_id': course.pk,
+                'months_offset': 0,
+                'lti_id': 'test'
+            }, user=teacher)
+        created_assignment = Assignment.objects.get(pk=resp['assignment_id'])
+        created_format = created_assignment.format
+        assert created_assignment.author == teacher
+        assert created_assignment.active_lti_id == 'test', 'Copied assignment should not be linked to LTI'
+        assert created_assignment.lti_id_set == ['test'], 'Copied assignment should not be linked to LTI'
+
         after_source_preset_nodes = PresetNode.objects.filter(format=source_assignment.format)
         after_source_templates = Template.objects.filter(format=source_assignment.format)
         after_source_format_resp = api.get(self, 'formats', params={'pk': source_assignment.pk}, user=teacher)

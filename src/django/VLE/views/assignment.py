@@ -106,7 +106,7 @@ class AssignmentView(viewsets.ViewSet):
         """
         name, description, course_id = utils.required_typed_params(
             request.data, (str, 'name'), (str, 'description'), (int, 'course_id'))
-        unlock_date, due_date, lock_date, active_lti_id, is_published, points_possible, is_group_assignment, \
+        unlock_date, due_date, lock_date, lti_id, is_published, points_possible, is_group_assignment, \
             can_set_journal_name, can_set_journal_image, can_lock_journal = \
             utils.optional_typed_params(
                 request.data, (str, 'unlock_date'), (str, 'due_date'), (str, 'lock_date'), (str, 'lti_id'),
@@ -117,15 +117,19 @@ class AssignmentView(viewsets.ViewSet):
         request.user.check_permission('can_add_assignment', course)
 
         assignment = factory.make_assignment(
-            name, description, courses=[course], author=request.user, active_lti_id=active_lti_id,
+            name, description, courses=[course], author=request.user, active_lti_id=lti_id,
             points_possible=points_possible, unlock_date=unlock_date, due_date=due_date,
             lock_date=lock_date, is_published=is_published, is_group_assignment=is_group_assignment or False,
             can_set_journal_name=can_set_journal_name or False, can_set_journal_image=can_set_journal_image or False,
             can_lock_journal=can_lock_journal or False)
 
-        if active_lti_id is not None:
-            course.set_assignment_lti_id_set(active_lti_id)
-            course.save()
+        # Add new lti id to assignment
+        if lti_id is not None:
+            request.user.check_permission('can_add_assignment', course)
+            assignment.add_lti_id(lti_id, course)
+            for user in course.users.all():
+                factory.make_journal(assignment, user)
+            request.data.pop('lti_id')
 
         serializer = AssignmentSerializer(
             assignment,
@@ -198,8 +202,6 @@ class AssignmentView(viewsets.ViewSet):
 
         request.user.check_permission('can_edit_assignment', assignment)
 
-        response_data = {}
-
         # Remove data that must not be changed by the serializer
         req_data = request.data
         if not (request.user.is_superuser or request.user == assignment.author):
@@ -210,26 +212,20 @@ class AssignmentView(viewsets.ViewSet):
                 request.data, (bool, 'is_published'),
                 (bool, 'can_set_journal_name'), (bool, 'can_set_journal_image'), (bool, 'can_lock_journal'))
 
+        # Set active lti course
         active_lti_course, = utils.optional_typed_params(request.data, (int, 'active_lti_course'))
         if active_lti_course is not None:
-            course = Course.objects.get(pk=active_lti_course)
-            active_lti_id = assignment.get_course_lti_id(course)
-            if active_lti_id:
-                assignment.active_lti_id = active_lti_id
-                assignment.save()
+            assignment.set_active_lti_course(Course.objects.get(pk=active_lti_course))
+            request.data.pop('active_lti_course')
 
-        # Rename lti id key for serializer
-        if 'lti_id' in req_data:
-            course_id, = utils.required_params(request.data, 'course_id')
+        # Add new lti id to assignment
+        lti_id, = utils.optional_typed_params(request.data, (str, 'lti_id'))
+        if lti_id is not None:
+            course_id, = utils.required_typed_params(request.data, (int, 'course_id'))
             course = Course.objects.get(pk=course_id)
             request.user.check_permission('can_add_assignment', course)
-            if course in assignment.courses.all():
-                return response.bad_request('Assignment already used in course.')
-            course.set_assignment_lti_id_set(req_data['lti_id'])
-            course.save()
-            assignment.add_course(course)
-            assignment.save()
-            req_data['active_lti_id'] = req_data.pop('lti_id')
+            assignment.add_lti_id(lti_id, course)
+            request.data.pop('lti_id')
 
         # Update the other data
         serializer = AssignmentSerializer(
@@ -237,9 +233,8 @@ class AssignmentView(viewsets.ViewSet):
         if not serializer.is_valid():
             return response.bad_request()
         serializer.save()
-        response_data['assignment'] = serializer.data
 
-        return response.success(response_data)
+        return response.success({'assignment': serializer.data})
 
     def destroy(self, request, *args, **kwargs):
         """Delete an existing assignment from a course.
@@ -266,7 +261,7 @@ class AssignmentView(viewsets.ViewSet):
 
         request.user.check_permission('can_delete_assignment', course)
 
-        intersecting_assignment_lti_id = assignment.get_course_lti_id(course)
+        intersecting_assignment_lti_id = assignment.get_lti_id_from_course(course)
         if intersecting_assignment_lti_id:
             if assignment.active_lti_id == intersecting_assignment_lti_id and len(assignment.lti_id_set) > 1:
                 return response.bad_request('This assignment cannot be removed from this course, since it is' +
@@ -484,5 +479,15 @@ class AssignmentView(viewsets.ViewSet):
                 preset.forced_template = Template.objects.get(pk=template_dict[preset.forced_template.pk])
             preset.save()
             utils.update_journals(journals, preset)
+
+        # Add new lti id to new assignment
+        lti_id, = utils.optional_typed_params(request.data, (str, 'lti_id'))
+        if lti_id is not None:
+            assignment.add_lti_id(lti_id, course)
+            request.data.pop('lti_id')
+
+        # Update author also
+        assignment.author = request.user
+        assignment.save()
 
         return response.success({'assignment_id': assignment.pk})

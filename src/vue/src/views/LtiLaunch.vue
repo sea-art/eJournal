@@ -20,7 +20,7 @@
                 v-else-if="handleAssignmentChoice"
                 :lti="lti"
                 :page="page"
-                :linkableAssignments="assignments"
+                :linkableAssignments="linkableAssignments"
                 @handleAction="handleActions"
             />
         </b-card>
@@ -105,6 +105,7 @@ export default {
 
             courses: null,
             assignments: null,
+            linkableAssignments: null,
         }
     },
     watch: {
@@ -248,8 +249,13 @@ export default {
                 break
             case this.states.new_assign:
                 assignmentAPI.getCopyable().then((assignments) => {
-                    this.assignments = assignments.filter(
-                        assignment => parseInt(assignment.course.cID, 10) !== this.page.cID)
+                    this.assignments = assignments
+                    this.linkableAssignments = assignments.slice()
+                    for (let i = 0; i < this.linkableAssignments.length; i++) {
+                        this.linkableAssignments[i].assignments = this.linkableAssignments[i].assignments.filter(
+                            assignment => assignment.active_lti_course === null
+                            || assignment.active_lti_course.cID !== this.page.cID)
+                    }
                     if (this.assignments.length) {
                         this.currentPage = 'Assignment setup'
                         this.handleAssignmentChoice = true
