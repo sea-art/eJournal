@@ -312,11 +312,6 @@ class Command(BaseCommand):
     def gen_journals(self):
         """Generate journals."""
         self.journals = Journal.objects.all()
-        # for a in self.assignments:
-        #     if not a.is_group_assignment:
-        #         for u in self.users.values():
-        #             journal = factory.make_journal(a, author=u)
-        #             self.journals.append(journal)
 
     def gen_entries(self):
         """Generate entries."""

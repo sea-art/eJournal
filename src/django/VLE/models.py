@@ -814,9 +814,9 @@ class AssignmentParticipation(models.Model):
 
     def to_string(self, user=None):
         if user is None:
-            return "Journal"
-        if not user.can_view(self):
-            return "Journal"
+            return "Participant"
+        if not user.can_view(self.assignment):
+            return "Participant"
 
         return "{0} in {1}".format(self.user.username, self.assignment.name)
 
