@@ -19,7 +19,7 @@
                 :template="template"
                 :completeContent="completeContent"
                 :displayMode="false"
-                :nodeID="nodeID"
+                :nodeID="nID"
             />
 
             <b-alert
@@ -32,6 +32,7 @@
             </b-alert>
             <b-button
                 class="add-button float-right"
+                :class="{ 'input-disabled': saveRequestInFlight }"
                 @click="save"
             >
                 <icon name="paper-plane"/>
@@ -44,17 +45,34 @@
 <script>
 import entryFields from '@/components/entry/EntryFields.vue'
 
+import entryAPI from '@/api/entry.js'
+
 export default {
     components: {
         entryFields,
     },
-    props: ['template', 'nodeID', 'description'],
+    props: {
+        template: {
+            required: true,
+        },
+        nID: {
+            required: true,
+        },
+        jID: {
+            required: true,
+        },
+        description: {
+            required: false,
+            default: null,
+        },
+    },
     data () {
         return {
             completeContent: [],
             dismissSecs: 3,
             dismissCountDown: 0,
             showDismissibleAlert: false,
+            saveRequestInFlight: false,
         }
     },
     watch: {
@@ -96,7 +114,21 @@ export default {
         },
         save () {
             if (this.checkFilled()) {
-                this.$emit('content-template', this.completeContent)
+                const params = {
+                    journal_id: this.jID,
+                    template_id: this.template.id,
+                    content: this.completeContent,
+                }
+                if (this.nID > 0) {
+                    params.node_id = this.nID
+                }
+                this.saveRequestInFlight = true
+                entryAPI.create(params)
+                    .then((data) => {
+                        this.saveRequestInFlight = false
+                        this.$emit('posted', data)
+                    })
+                    .catch(() => { this.saveRequestInFlight = false })
             } else {
                 this.dismissCountDown = this.dismissSecs
             }

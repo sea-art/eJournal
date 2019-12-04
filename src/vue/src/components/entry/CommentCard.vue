@@ -80,6 +80,7 @@
                         </b-button>
                         <b-button
                             v-if="canEditComment(comment)"
+                            :class="{ 'input-disabled': saveRequestInFlight }"
                             class="ml-2 add-button float-right"
                             @click="editComment(comment.id, index)"
                         >
@@ -131,12 +132,14 @@
                             class: '',
                         },
                     }"
+                    :class="{ 'input-disabled': saveRequestInFlight }"
                     class="float-right mt-2"
                     @click="addComment"
                     @change-option="changeButtonOption"
                 />
                 <b-button
                     v-else
+                    :class="{ 'input-disabled': saveRequestInFlight }"
                     class="float-right mt-2"
                     @click="addComment('p')"
                 >
@@ -180,6 +183,7 @@ export default {
             commentObject: null,
             editCommentStatus: [],
             editCommentTemp: [],
+            saveRequestInFlight: false,
         }
     },
     watch: {
@@ -227,12 +231,14 @@ export default {
                     this.$emit('publish-grade')
                 }
 
+                this.saveRequestInFlight = true
                 commentAPI.create({
                     entry_id: this.eID,
                     text: this.tempComment,
                     published: option === 'p' || option === 'g',
                 })
                     .then((comment) => {
+                        this.saveRequestInFlight = false
                         this.commentObject.push(comment)
                         for (let i = 0; i < this.commentObject.length; i++) {
                             this.editCommentStatus.push(false)
@@ -241,6 +247,7 @@ export default {
                         this.tempComment = ''
                         this.$refs['comment-text-editor-ref'].clearContent()
                     })
+                    .catch(() => { this.saveRequestInFlight = false })
             }
         },
         editCommentView (index, status, text) {
@@ -253,10 +260,15 @@ export default {
         editComment (cID, index) {
             this.$set(this.commentObject[index], 'text', this.editCommentTemp[index])
             this.$set(this.editCommentStatus, index, false)
+            this.saveRequestInFlight = true
             commentAPI.update(cID, {
                 text: this.editCommentTemp[index],
             })
-                .then((comment) => { this.$set(this.commentObject, index, comment) })
+                .then((comment) => {
+                    this.saveRequestInFlight = false
+                    this.$set(this.commentObject, index, comment)
+                })
+                .catch(() => { this.saveRequestInFlight = false })
         },
         deleteComment (cID) {
             if (window.confirm('Are you sure you want to delete this comment?')) {
