@@ -1,6 +1,8 @@
 <template>
     <iframe
+        :srcdoc="content"
         sandbox="allow-same-origin allow-popups"
+        height="0"
         frameBorder="0"
         marginwidth="0"
         marginheight="0"
@@ -36,11 +38,11 @@ export default {
             this.setCustomStyle()
             this.setLinkTarget()
             this.setContent()
+            this.fitContent()
         },
         setContent () {
             if (this.iframe && this.iframe.contentWindow) {
                 this.iframe.contentWindow.document.body.innerHTML = this.content
-                this.fitContent()
             }
         },
         fitContent () {
@@ -54,6 +56,10 @@ export default {
 body {
     font-family: 'Roboto', sans-serif;
     color: #252C39;
+}
+
+p {
+    margin: 0px
 }
 
 p a {
