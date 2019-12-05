@@ -70,7 +70,7 @@
                                     ref="entry-prev"
                                     :template="nodes[currentNode].template"
                                     :nID="nodes[currentNode].nID"
-                                    :jID="this.jID"
+                                    :jID="jID"
                                     :description="nodes[currentNode].description"
                                     @posted="entryPosted"
                                 />
@@ -92,7 +92,7 @@
                             <add-card
                                 ref="add-card-ref"
                                 :addNode="nodes[currentNode]"
-                                :jID="this.jID"
+                                :jID="jID"
                                 @posted="entryPosted"
                             />
                         </div>

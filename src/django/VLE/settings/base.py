@@ -33,11 +33,13 @@ SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 
 # Email settings
-EMAIL_USE_TLS = True
-EMAIL_HOST = os.environ['EMAIL_HOST']
-EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
-EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
-EMAIL_PORT = 587
+EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'
+ANYMAIL = {
+    'MAILGUN_API_KEY': os.environ['MAILGUN_API_KEY'],
+    'MAILGUN_API_URL': 'https://api.eu.mailgun.net/v3',
+    'MAILGUN_SENDER_DOMAIN': os.environ['MAILGUN_SENDER_DOMAIN'],
+}
+EMAIL_SENDER_DOMAIN = ANYMAIL['MAILGUN_SENDER_DOMAIN']
 
 
 # LTI settings
@@ -80,6 +82,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'anymail',
     'rest_framework',
     'corsheaders',
     'django_celery_results',
