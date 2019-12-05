@@ -35,7 +35,7 @@
             ref="entry-prev"
             :template="selectedTemplate"
             :nID="addNode.nID"
-            :jID="this.jID"
+            :jID="jID"
             @posted="entryPosted"
         />
     </b-card>

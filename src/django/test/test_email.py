@@ -2,7 +2,9 @@ import test.factory as factory
 from test.utils import api
 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.core import mail
 from django.test import TestCase
+from django.test.utils import override_settings
 
 import VLE.models
 
@@ -14,6 +16,7 @@ class EmailAPITest(TestCase):
         self.is_test_student = factory.TestUser()
         self.valid_pass = 'New_v4lid_pass!'
 
+    @override_settings(EMAIL_BACKEND='anymail.backends.test.EmailBackend', CELERY_TASK_ALWAYS_EAGER=True)
     def test_forgot_password(self):
         # Test if no/invalid params crashes
         api.post(self, 'forgot_password', status=404)
@@ -24,6 +27,10 @@ class EmailAPITest(TestCase):
         resp = api.post(self, 'forgot_password', params={'username': self.student.username})
         assert 'An email was sent' in resp['description'], \
             'You should be able to get forgot password mail with only a username'
+        assert len(mail.outbox) == 1, 'An actual mail should be sent'
+        assert mail.outbox[0].to == [self.student.email], 'Email should be sent to the mail adress of the student'
+        assert self.student.full_name in mail.outbox[0].body, 'Full name is expected to be used to increase delivery'
+
         resp = api.post(self, 'forgot_password', params={'email': self.student.email})
         assert 'An email was sent' in resp['description'], \
             'You should be able to get forgot password mail with only an email'

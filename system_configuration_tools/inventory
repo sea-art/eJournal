@@ -1,5 +1,0 @@
-[staging]
-test.ejournal.app ansible_user=mel env=stage baselink=https://test.ejournal.app api_url=https://api.test.ejournal.app
-
-[production]
-uva.ejournal.app env=production baselink=https://uva.ejournal.app api_url=https://api.uva.ejournal.app

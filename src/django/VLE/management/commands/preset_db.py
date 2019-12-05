@@ -31,7 +31,7 @@ class Command(BaseCommand):
                 "full_name": "Lars van Hijfte",
                 "verified_email": True,
                 "password": "pass",
-                "email": "lars@eJourn.al",
+                "email": "lars@eJournal.app",
                 "is_superuser": False,
                 "is_teacher": False
             },
@@ -40,7 +40,7 @@ class Command(BaseCommand):
                 "full_name": "Rick Watertor",
                 "verified_email": True,
                 "password": "pass",
-                "email": "rick@eJourn.al",
+                "email": "rick@eJournal.app",
                 "is_superuser": False,
                 "is_teacher": False
             },
@@ -48,7 +48,7 @@ class Command(BaseCommand):
                 "username": "Student3",
                 "full_name": "Dennis Wind",
                 "password": "pass",
-                "email": "dennis@eJourn.al",
+                "email": "dennis@eJournal.app",
                 "verified_email": True,
                 "is_superuser": False,
                 "is_teacher": False
@@ -57,7 +57,7 @@ class Command(BaseCommand):
                 "username": "Student4",
                 "full_name": "Maarten van Keulen",
                 "password": "pass",
-                "email": "maarten@eJourn.al",
+                "email": "maarten@eJournal.app",
                 "verified_email": False,
                 "is_superuser": False,
                 "is_teacher": False
@@ -66,7 +66,7 @@ class Command(BaseCommand):
                 "username": "Student5",
                 "full_name": "Zi Long Zhu",
                 "password": "pass",
-                "email": "zi@eJourn.al",
+                "email": "zi@eJournal.app",
                 "verified_email": False,
                 "is_superuser": False,
                 "is_teacher": False
@@ -85,7 +85,7 @@ class Command(BaseCommand):
                 "username": "Teacher",
                 "full_name": "Engel Hamer",
                 "password": "pass",
-                "email": "test@eJourn.al",
+                "email": "test@eJournal.app",
                 "verified_email": True,
                 "is_superuser": False,
                 "is_teacher": True
@@ -95,7 +95,7 @@ class Command(BaseCommand):
                 "full_name": "De TA van TAing",
                 "verified_email": False,
                 "password": "pass",
-                "email": "ta@eJourn.al",
+                "email": "ta@eJournal.app",
                 "is_superuser": False,
                 "is_teacher": False
             },
@@ -104,7 +104,7 @@ class Command(BaseCommand):
                 "full_name": "Backup TA van TAing",
                 "verified_email": False,
                 "password": "pass",
-                "email": "ta2@eJourn.al",
+                "email": "ta2@eJournal.app",
                 "is_superuser": False,
                 "is_teacher": False
             },
@@ -112,7 +112,7 @@ class Command(BaseCommand):
                 "username": "Superuser",
                 "full_name": "Super User",
                 "password": "pass",
-                "email": "superuser@eJourn.al",
+                "email": "superuser@eJournal.app",
                 "verified_email": False,
                 "is_superuser": True,
                 "is_teacher": True,
