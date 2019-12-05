@@ -229,69 +229,72 @@
                 @show="resetNewJournals"
             >
                 <b-card class="no-hover">
-                    <h2 class="field-heading multi-form required">
-                        Name
-                    </h2>
-                    <b-input
-                        v-model="newJournalName"
-                        placeholder="Journal name"
-                        class="theme-input multi-form"
-                        required
-                    />
-                    <h2 class="field-heading">
-                        Member limit
-                    </h2>
-                    <b-input
-                        v-model="newJournalMemberLimit"
-                        type="number"
-                        placeholder="No member limit"
-                        min="1"
-                        class="theme-input multi-form"
-                    />
-
-                    <b-button
-                        v-if="!repeatCreateJournal"
-                        class="multi-form mr-3"
-                        @click="repeatCreateJournal = true"
-                    >
-                        <icon name="book"/>
-                        Create multiple journals
-                    </b-button>
-                    <b-button
-                        v-else
-                        class="multi-form mr-3"
-                        @click="repeatCreateJournal = false"
-                    >
-                        <icon name="book"/>
-                        Create single journal
-                    </b-button>
-
-                    <div
-                        v-if="repeatCreateJournal"
-                        class="shift-deadlines-input"
-                    >
-                        <icon
-                            v-b-tooltip.hover="'All journals created will be numbered sequentially'"
-                            name="info-circle"
+                    <b-form @submit.prevent="createNewJournals">
+                        <h2 class="field-heading multi-form required">
+                            Name
+                        </h2>
+                        <b-input
+                            v-model="newJournalName"
+                            placeholder="Journal name"
+                            class="theme-input multi-form"
+                            required
                         />
-                        Repeat
-                        <b-form-input
-                            v-model="newJournalCount"
+                        <h2 class="field-heading">
+                            Member limit
+                        </h2>
+                        <b-input
+                            v-model="newJournalMemberLimit"
                             type="number"
-                            min="2"
-                            class="theme-input"
+                            placeholder="No member limit"
+                            min="1"
+                            class="theme-input multi-form"
                         />
-                        times
-                    </div>
 
-                    <b-button
-                        class="add-button d-block float-right"
-                        :class="{'input-disabled': false}"
-                        @click="createNewJournals"
-                    >
-                        <icon name="plus-square"/>
-                        Create
-                    </b-button>
+                        <b-button
+                            v-if="!repeatCreateJournal"
+                            class="multi-form mr-3"
+                            @click="repeatCreateJournal = true"
+                        >
+                            <icon name="book"/>
+                            Create multiple journals
+                        </b-button>
+                        <b-button
+                            v-else
+                            class="multi-form mr-3"
+                            @click="repeatCreateJournal = false"
+                        >
+                            <icon name="book"/>
+                            Create single journal
+                        </b-button>
+
+                        <div
+                            v-if="repeatCreateJournal"
+                            class="shift-deadlines-input"
+                        >
+                            <icon
+                                v-b-tooltip.hover="'All journals created will be numbered sequentially'"
+                                name="info-circle"
+                            />
+                            Repeat
+                            <b-form-input
+                                v-model="newJournalCount"
+                                type="number"
+                                min="2"
+                                class="theme-input"
+                                required
+                            />
+                            times
+                        </div>
+
+                        <b-button
+                            type="submit"
+                            class="add-button d-block float-right"
+                            :class="{'input-disabled': false}"
+                        >
+                            <icon name="plus-square"/>
+                            Create
+                        </b-button>
+                    </b-form>
                 </b-card>
             </b-modal>
         </load-wrapper>
