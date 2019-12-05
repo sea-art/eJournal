@@ -78,49 +78,17 @@
                 <b-col
                     md="6"
                     lg="12"
-                    class="mb-4"
+                    class="mb-2"
                 >
-                    <h3>Journal progress</h3>
-                    <journal-card
+                    <h3>
+                        Details
+                    </h3>
+                    <journal-details
                         v-if="!loadingNodes"
                         :journal="journal"
                         :assignment="assignment"
                         class="mb-2 no-hover"
-                    >
-                        <div
-                            v-if="journal && $hasPermission('can_grade')"
-                            class="grade-section bonus-section full-width shadow"
-                        >
-                            <div class="center">
-                                <b-form-input
-                                    v-model="journal.bonus_points"
-                                    type="number"
-                                    class="theme-input mr-2"
-                                    size="2"
-                                    placeholder="0"
-                                    min="0.0"
-                                />
-                                Bonus points
-                            </div>
-                            <b-button
-                                class="add-button"
-                                @click="commitBonus"
-                            >
-                                <icon
-                                    name="save"
-                                    scale="1"
-                                />
-                                Save bonus
-                            </b-button>
-                        </div>
-                    </journal-card>
-                </b-col>
-                <b-col
-                    v-if="$hasPermission('can_publish_grades') || filteredJournals.length > 1"
-                    md="6"
-                    lg="12"
-                >
-                    <h3>Controls</h3>
+                    />
                     <div
                         v-if="filteredJournals.length > 1"
                         class="d-flex"
@@ -144,6 +112,39 @@
                             <icon name="arrow-right"/>
                         </b-button>
                     </div>
+                </b-col>
+                <b-col
+                    v-if="$hasPermission('can_grade') || $hasPermission('can_publish_grades')"
+                    md="6"
+                    lg="12"
+                >
+                    <h3>Grading</h3>
+                    <div
+                        v-if="journal && $hasPermission('can_grade')"
+                        class="grade-section bonus-section full-width shadow"
+                    >
+                        <div>
+                            <b-form-input
+                                v-model="journal.bonus_points"
+                                type="number"
+                                class="theme-input mr-2"
+                                size="2"
+                                placeholder="0"
+                                min="0.0"
+                            />
+                            Bonus points
+                        </div>
+                        <b-button
+                            class="add-button"
+                            @click="commitBonus"
+                        >
+                            <icon
+                                name="save"
+                                scale="1"
+                            />
+                            Save bonus
+                        </b-button>
+                    </div>
                     <b-button
                         v-if="$hasPermission('can_publish_grades')"
                         class="multi-form add-button full-width"
@@ -153,21 +154,6 @@
                         Publish all grades
                     </b-button>
                 </b-col>
-                <b-col lg="12">
-                    <manage-journal
-                        v-if="!loadingNodes"
-                        :journal="journal"
-                        :assignment="assignment"
-                    />
-                    <template v-if="assignment.is_group_assignment">
-                        <h3>Members</h3>
-                        <student-card
-                            v-for="author in journal.authors"
-                            :key="author.id"
-                            :user="author.user"
-                        />
-                    </template>
-                </b-col>
             </b-row>
         </b-col>
     </b-row>
@@ -176,14 +162,13 @@
 <script>
 import entryNonStudentPreview from '@/components/entry/EntryNonStudentPreview.vue'
 import timeline from '@/components/timeline/Timeline.vue'
-import journalCard from '@/components/assignment/JournalCard.vue'
+import journalDetails from '@/components/journal/JournalDetails.vue'
 import studentCard from '@/components/assignment/StudentCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import journalStartCard from '@/components/journal/JournalStartCard.vue'
 import journalEndCard from '@/components/journal/JournalEndCard.vue'
 import progressNode from '@/components/entry/ProgressNode.vue'
-import manageJournal from '@/components/journal/ManageJournal.vue'
 
 import store from '@/Store.vue'
 import journalAPI from '@/api/journal.js'
@@ -196,12 +181,11 @@ export default {
         breadCrumb,
         loadWrapper,
         timeline,
-        journalCard,
+        journalDetails,
         journalStartCard,
         journalEndCard,
         studentCard,
         progressNode,
-        manageJournal,
     },
     props: ['cID', 'aID', 'jID'],
     data () {
@@ -394,8 +378,10 @@ export default {
 
 <style lang="sass">
 .bonus-section
-    text-align: center
-    margin: 10px 0px 0px 0px !important
+    float: left !important
+    display: block
+    div
+        text-align: center
     .btn
         display: block
         width: 100%

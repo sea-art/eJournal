@@ -124,7 +124,7 @@
             class="right-content-timeline-page right-content"
         >
             <h3>Journal progress</h3>
-            <journal-card
+            <journal-details
                 v-if="!loadingNodes"
                 :journal="journal"
                 :assignment="assignment"
@@ -184,7 +184,7 @@ import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import journalStartCard from '@/components/journal/JournalStartCard.vue'
 import journalEndCard from '@/components/journal/JournalEndCard.vue'
 import studentCard from '@/components/assignment/StudentCard.vue'
-import journalCard from '@/components/assignment/JournalCard.vue'
+import journalDetails from '@/components/journal/JournalDetails.vue'
 import progressNode from '@/components/entry/ProgressNode.vue'
 import manageJournal from '@/components/journal/ManageJournal.vue'
 
@@ -204,7 +204,7 @@ export default {
         journalStartCard,
         journalEndCard,
         studentCard,
-        journalCard,
+        journalDetails,
         manageJournal,
     },
     props: ['cID', 'aID', 'jID'],

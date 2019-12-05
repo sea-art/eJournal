@@ -24,11 +24,17 @@
                     </b-badge>
                 </div>
                 <div class="student-details">
-                    <b class="username-wrapper">
-                        {{ journal.name ? journal.name : 'Empty journal' }}
+                    <b
+                        class="max-one-line"
+                        :title="journalName"
+                    >
+                        {{ journalName }}
                     </b>
-                    <span class="username-wrapper">
-                        {{ journal.authors.map(s => s.user.username).join(', ') }}
+                    <span
+                        class="max-one-line"
+                        :title="journalAuthors"
+                    >
+                        {{ journalAuthors }}
                     </span>
                 </div>
             </b-col>
@@ -52,7 +58,7 @@
                     />
                 </div>
                 <div class="student-details">
-                    <h4>{{ journal.name ? journal.name : 'Empty journal' }}</h4>
+                    <h4>{{ journalName }}</h4>
                     <draggable
                         class="list-group"
                         :list="journal.authors"
@@ -60,9 +66,9 @@
                         @change="log"
                     >
                         <student-card
-                            v-for="student in journal.authors"
-                            :key="student.user.id"
-                            :user="student.user"
+                            v-for="author in journal.authors"
+                            :key="author.user.id"
+                            :user="author.user"
                         >
                             <div class="handle d-inline d-sm-block float-right">
                                 <icon
@@ -76,26 +82,6 @@
                     <div class="invisible"/>
                 </div>
             </div>
-        </div>
-        <div v-else>
-            <div class="d-flex multi-form">
-                <div class="portrait-wrapper">
-                    <img
-                        class="no-hover"
-                        :src="journal.image"
-                    />
-                </div>
-                <div class="student-details">
-                    <b>{{ journal.name ? journal.name : 'Empty journal' }}</b>
-                    <p>{{ journal.authors.map(s => s.user.username).join(', ') }}</p>
-                </div>
-            </div>
-            <progress-bar
-                :currentPoints="journal.stats.acquired_points"
-                :totalPoints="assignment.points_possible"
-                :comparePoints="assignment && assignment.stats ? assignment.stats.average_points : -1"
-                :bonusPoints="journal.bonus_points"
-            />
         </div>
         <slot/>
     </b-card>
@@ -132,6 +118,12 @@ export default {
     computed: {
         numMarkingNeeded () {
             return this.journal.stats ? this.journal.stats.submitted - this.journal.stats.graded : 0
+        },
+        journalName () {
+            return this.journal.name ? this.journal.name : 'Empty journal'
+        },
+        journalAuthors () {
+            return this.journal.authors.map(a => a.user.full_name).join(', ')
         },
         groups () {
             const groups = []
@@ -207,7 +199,7 @@ export default {
     min-height: 70px
     flex-direction: column
     padding: 10px
-    .username-wrapper
+    .max-one-line
         display: block
         width: 100%
         text-overflow: ellipsis

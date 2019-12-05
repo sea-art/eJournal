@@ -3,19 +3,20 @@
         :class="$root.getBorderClass()"
         class="no-hover"
     >
-        <div>
-            <div class="d-flex multi-form">
-                <div class="portrait-wrapper">
-                    <img
-                        class="no-hover"
-                        :src="user.profile_picture"
-                    />
-                </div>
-                <div class="student-details">
-                    <slot/>
-                    <b>{{ user.full_name }}</b>
-                    <p>({{ user.username }})</p>
-                </div>
+        <div class="d-flex">
+            <div class="portrait-wrapper">
+                <img
+                    class="no-hover"
+                    :src="user.profile_picture"
+                />
+            </div>
+            <div class="student-details">
+                <b class="max-one-line">
+                    {{ user.full_name }}
+                </b>
+                <span class="max-one-line">
+                    {{ user.username }}
+                </span>
             </div>
         </div>
     </b-card>
@@ -55,12 +56,6 @@ export default {
     min-height: 70px
     flex-direction: column
     padding: 10px
-    .username-wrapper
-        display: block
-        width: 100%
-        text-overflow: ellipsis
-        white-space: nowrap
-        overflow: hidden
     &.list-view
         padding-left: 40px
     @include sm-max
