@@ -202,7 +202,7 @@
                 v-if="assignmentJournals.length === 0"
                 line1="No journals for this assignment"
                 :line2="assignment.is_group_assignment ? 'Create journals by using the button below.' :
-                'No participants with a journal'"
+                    'No participants with a journal'"
                 class="no-hover border-dark-grey"
             />
             <main-card

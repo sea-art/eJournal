@@ -163,7 +163,6 @@
 import entryNonStudentPreview from '@/components/entry/EntryNonStudentPreview.vue'
 import timeline from '@/components/timeline/Timeline.vue'
 import journalDetails from '@/components/journal/JournalDetails.vue'
-import studentCard from '@/components/assignment/StudentCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import journalStartCard from '@/components/journal/JournalStartCard.vue'
@@ -184,7 +183,6 @@ export default {
         journalDetails,
         journalStartCard,
         journalEndCard,
-        studentCard,
         progressNode,
     },
     props: ['cID', 'aID', 'jID'],

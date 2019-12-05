@@ -2,7 +2,8 @@
     <!-- TODO GROUPS ENGEL: Use APIs -->
     <b-card
         class="journal-details"
-        :class="$root.getBorderClass($route.params.cID)">
+        :class="$root.getBorderClass($route.params.cID)"
+    >
         <img
             :src="journal.image"
             class="journal-image no-hover"
@@ -37,9 +38,9 @@
                     Members ({{ journal.authors.length }}/{{ journal.author_limit }})
                 </b>
                 <div
-                    class="member"
                     v-for="author in journal.authors.map(a => a.user)"
                     :key="`journal-member-${author.username}`"
+                    class="member"
                 >
                     <icon
                         name="sign-out"
@@ -67,16 +68,10 @@
 
 <script>
 import progressBar from '@/components/assets/ProgressBar.vue'
-import numberBadge from '@/components/assets/NumberBadge.vue'
-import studentCard from '@/components/assignment/StudentCard.vue'
-import draggable from 'vuedraggable'
 
 export default {
     components: {
         progressBar,
-        numberBadge,
-        studentCard,
-        draggable,
     },
     props: {
         assignment: {
@@ -107,7 +102,7 @@ export default {
     methods: {
         showEditJournalModal () {
             this.$refs.editJournalModal.show()
-        }
+        },
     },
 }
 </script>
