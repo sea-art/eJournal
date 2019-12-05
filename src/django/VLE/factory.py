@@ -232,7 +232,7 @@ def make_node(journal, entry=None, type=Node.ENTRY, preset=None):
     return node
 
 
-def make_journal(assignment, author=None, max_users=None):
+def make_journal(assignment, author=None, author_limit=None):
     """Make a new journal.
 
     First creates all nodes defined by the format.
@@ -243,11 +243,11 @@ def make_journal(assignment, author=None, max_users=None):
     if assignment.is_group_assignment:
         if author is not None:
             raise VLEBadRequest('Group journals should not be initialized with an author')
-        journal = Journal.objects.create(assignment=assignment, max_users=max_users)
+        journal = Journal.objects.create(assignment=assignment, author_limit=author_limit)
 
     else:
-        if max_users is not None:
-            raise VLEBadRequest('Non group-journals should not be initialized max_users')
+        if author_limit is not None:
+            raise VLEBadRequest('Non group-journals should not be initialized author_limit')
         if Journal.objects.filter(assignment=assignment, authors__user=author).exists():
             return Journal.objects.get(assignment=assignment, authors__user=author)
 

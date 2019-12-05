@@ -25,4 +25,4 @@ class JournalFactory(factory.django.DjangoModelFactory):
 
 class GroupJournalFactory(JournalFactory):
     assignment = factory.SubFactory('test.factory.assignment.GroupAssignmentFactory')
-    max_users = 3
+    author_limit = 3

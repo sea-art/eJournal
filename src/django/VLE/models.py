@@ -846,7 +846,7 @@ class Journal(models.Model):
         default=0,
     )
 
-    max_users = models.IntegerField(
+    author_limit = models.IntegerField(
         default=1
     )
 

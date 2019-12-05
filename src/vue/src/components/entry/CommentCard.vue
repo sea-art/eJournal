@@ -202,7 +202,7 @@ export default {
         canEditComment (comment) {
             return this.$store.getters['user/uID'] === comment.author.id
                 || (this.$hasPermission('can_edit_staff_comment')
-                    && !this.journal.students.filter(student => student.id === comment.author.id))
+                    && !this.journal.authors.filter(author => author.id === comment.author.id))
         },
         setComments () {
             commentAPI.getFromEntry(this.eID)

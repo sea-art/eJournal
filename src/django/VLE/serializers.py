@@ -405,7 +405,7 @@ class RoleSerializer(serializers.ModelSerializer):
 
 class JournalSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
-    students = serializers.SerializerMethodField()
+    authors = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
     grade = serializers.SerializerMethodField()
@@ -413,9 +413,9 @@ class JournalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Journal
-        fields = ('id', 'bonus_points', 'grade', 'students', 'needs_lti_link', 'stats', 'name', 'image', 'max_users',
+        fields = ('id', 'bonus_points', 'grade', 'authors', 'needs_lti_link', 'stats', 'name', 'image', 'author_limit',
                   'locked')
-        read_only_fields = ('id', 'assignment', 'students', 'grade')
+        read_only_fields = ('id', 'assignment', 'authors', 'grade')
 
     def get_grade(self, journal):
         return journal.get_grade()
@@ -423,7 +423,7 @@ class JournalSerializer(serializers.ModelSerializer):
     def get_needs_lti_link(self, journal):
         return journal.needs_lti_link()
 
-    def get_students(self, journal):
+    def get_authors(self, journal):
         return AssignmentParticipationSerializer(journal.authors.all(), many=True, context=self.context).data
 
     def get_name(self, journal):

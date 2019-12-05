@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='journal',
-            name='max_users',
+            name='author_limit',
             field=models.IntegerField(default=1),
         ),
         migrations.AddField(

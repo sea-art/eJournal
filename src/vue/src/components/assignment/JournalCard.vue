@@ -28,7 +28,7 @@
                         {{ journal.name ? journal.name : 'Empty journal' }}
                     </b>
                     <span class="username-wrapper">
-                        {{ journal.students.map(s => s.user.username).join(', ') }}
+                        {{ journal.authors.map(s => s.user.username).join(', ') }}
                     </span>
                 </div>
             </b-col>
@@ -55,12 +55,12 @@
                     <h4>{{ journal.name ? journal.name : 'Empty journal' }}</h4>
                     <draggable
                         class="list-group"
-                        :list="journal.students"
+                        :list="journal.authors"
                         group="journals"
                         @change="log"
                     >
                         <student-card
-                            v-for="student in journal.students"
+                            v-for="student in journal.authors"
                             :key="student.user.id"
                             :user="student.user"
                         >
@@ -87,7 +87,7 @@
                 </div>
                 <div class="student-details">
                     <b>{{ journal.name ? journal.name : 'Empty journal' }}</b>
-                    <p>{{ journal.students.map(s => s.user.username).join(', ') }}</p>
+                    <p>{{ journal.authors.map(s => s.user.username).join(', ') }}</p>
                 </div>
             </div>
             <progress-bar
@@ -135,7 +135,7 @@ export default {
         },
         groups () {
             const groups = []
-            this.journal.students.forEach((student) => {
+            this.journal.authors.forEach((student) => {
                 if (student.user.groups) {
                     student.user.groups.forEach((group) => {
                         if (!groups.includes(group)) {

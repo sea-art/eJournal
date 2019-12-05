@@ -32,7 +32,7 @@ export default {
 
         function groupFilter (journal) {
             const groupsList = []
-            journal.students.forEach((student) => {
+            journal.authors.forEach((student) => {
                 if (student.user.groups) {
                     student.user.groups.forEach((group) => {
                         if (!groupsList.includes(group)) {
@@ -49,8 +49,8 @@ export default {
 
         function searchFilter (journal) {
             return journal.name.toLowerCase().includes(searchValue.toLowerCase())
-                || journal.students.some(user => user.user.username.toLowerCase().includes(searchValue.toLowerCase()))
-                || journal.students.some(user => user.user.full_name.toLowerCase().includes(searchValue.toLowerCase()))
+                || journal.authors.some(user => user.user.username.toLowerCase().includes(searchValue.toLowerCase()))
+                || journal.authors.some(user => user.user.full_name.toLowerCase().includes(searchValue.toLowerCase()))
         }
         let filteredJournals = journals
         if (groups !== null && groups.length !== 0) {

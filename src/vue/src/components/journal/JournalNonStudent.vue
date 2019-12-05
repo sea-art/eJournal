@@ -162,9 +162,9 @@
                     <template v-if="assignment.is_group_assignment">
                         <h3>Members</h3>
                         <student-card
-                            v-for="student in journal.students"
-                            :key="student.id"
-                            :user="student.user"
+                            v-for="author in journal.authors"
+                            :key="author.id"
+                            :user="author.user"
                         />
                     </template>
                 </b-col>

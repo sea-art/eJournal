@@ -34,7 +34,7 @@ class JournalAPITest(TestCase):
         api.get(self, 'journals', params={'pk': self.journal.pk}, user=factory.Teacher(), status=403)
 
     def test_create_journal(self):
-        payload = {'pk': self.group_journal.pk, 'assignment_id': self.group_assignment.pk, 'max_users': 3, 'amount': 2}
+        payload = {'pk': self.group_journal.pk, 'assignment_id': self.group_assignment.pk, 'author_limit': 3, 'amount': 2}
         before_count = Journal.objects.filter(assignment=self.group_assignment).count()
 
         # Check invalid users
@@ -51,7 +51,7 @@ class JournalAPITest(TestCase):
         after_count = Journal.objects.filter(assignment=self.group_assignment).count()
 
         assert before_count + 2 == after_count, '2 new journals should be added'
-        assert Journal.objects.filter(assignment=self.group_assignment).last().max_users == 3, \
+        assert Journal.objects.filter(assignment=self.group_assignment).last().author_limit == 3, \
             'Journal should have the proper max amount of users'
 
     def test_update_journal(self):
@@ -68,22 +68,22 @@ class JournalAPITest(TestCase):
         api.update(self, 'journals', params={'pk': self.journal.pk, 'name': 'student name'}, user=self.student)
         assert Journal.objects.get(pk=self.journal.pk).name == 'student name'
 
-        # Check teacher can update max_users only for group assignment
-        api.update(self, 'journals', params={'pk': self.journal.pk, 'max_users': 4}, user=self.teacher, status=400)
-        api.update(self, 'journals', params={'pk': self.group_journal.pk, 'max_users': 4}, user=self.g_teacher)
-        assert Journal.objects.get(pk=self.group_journal.pk).max_users == 4
-        # Check teacher cannot update max_users when there are more student in journal
+        # Check teacher can update author_limit only for group assignment
+        api.update(self, 'journals', params={'pk': self.journal.pk, 'author_limit': 4}, user=self.teacher, status=400)
+        api.update(self, 'journals', params={'pk': self.group_journal.pk, 'author_limit': 4}, user=self.g_teacher)
+        assert Journal.objects.get(pk=self.group_journal.pk).author_limit == 4
+        # Check teacher cannot update author_limit when there are more student in journal
         self.group_journal.authors.add(factory.AssignmentParticipation(assignment=self.group_assignment))
         self.group_journal.authors.add(factory.AssignmentParticipation(assignment=self.group_assignment))
         self.group_journal.authors.add(factory.AssignmentParticipation(assignment=self.group_assignment))
         api.update(
-            self, 'journals', params={'pk': self.group_journal.pk, 'max_users': 1}, user=self.g_teacher, status=400)
-        # Check teacher can update name and max_users
+            self, 'journals', params={'pk': self.group_journal.pk, 'author_limit': 1}, user=self.g_teacher, status=400)
+        # Check teacher can update name and author_limit
 
         api.update(
-            self, 'journals', params={'pk': self.group_journal.pk, 'max_users': 9, 'name': 'NEW'}, user=self.g_teacher)
+            self, 'journals', params={'pk': self.group_journal.pk, 'author_limit': 9, 'name': 'NEW'}, user=self.g_teacher)
         journal = Journal.objects.get(pk=self.group_journal.pk)
-        assert journal.max_users == 9 and journal.name == 'NEW'
+        assert journal.author_limit == 9 and journal.name == 'NEW'
 
         # Check if teacher can only update the published state
         api.update(self, 'journals', params={'pk': self.journal.pk}, user=self.teacher, status=400)
@@ -107,7 +107,7 @@ class JournalAPITest(TestCase):
         # Check only 1 journal at the time
         api.update(self, 'journals/join', params={'pk': self.group_journal2.pk}, user=self.g_student, status=400)
         # Check max student
-        for _ in range(self.group_journal2.max_users - self.group_journal2.authors.count()):
+        for _ in range(self.group_journal2.author_limit - self.group_journal2.authors.count()):
             api.update(
                 self, 'journals/join', params={'pk': self.group_journal2.pk},
                 user=factory.AssignmentParticipation(assignment=self.group_assignment).user)
@@ -145,7 +145,7 @@ class JournalAPITest(TestCase):
             self, 'journals/add_student', params={'pk': self.group_journal2.pk, 'user_id': self.g_student.pk},
             user=self.g_teacher, status=400)
         # Check max student
-        for _ in range(self.group_journal2.max_users - self.group_journal2.authors.count()):
+        for _ in range(self.group_journal2.author_limit - self.group_journal2.authors.count()):
             student = factory.AssignmentParticipation(assignment=self.group_assignment).user
             api.update(
                 self, 'journals/add_student', params={'pk': self.group_journal2.pk, 'user_id': student.pk},

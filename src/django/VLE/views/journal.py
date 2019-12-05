@@ -96,11 +96,11 @@ class JournalView(viewsets.ViewSet):
         Arguments:
         request -- request data
             amount -- amount of journals to create
-            max_users -- maximum amount of users in journal
+            author_limit -- maximum amount of users in journal
             assignment_id -- assignment to create the journals in
         """
-        amount, max_users, assignment_id = utils.required_typed_params(
-            request.data, (int, 'amount'), (int, 'max_users'), (int, 'assignment_id'))
+        amount, author_limit, assignment_id = utils.required_typed_params(
+            request.data, (int, 'amount'), (int, 'author_limit'), (int, 'assignment_id'))
         assignment = Assignment.objects.get(pk=assignment_id)
         if amount < 1:
             return response.bad_request('Amount needs to be higher then 1.')
@@ -109,7 +109,7 @@ class JournalView(viewsets.ViewSet):
 
         journals = []
         for _ in range(amount):
-            journals.append(Journal.objects.create(assignment=assignment, max_users=max_users))
+            journals.append(Journal.objects.create(assignment=assignment, author_limit=author_limit))
 
         serializer = JournalSerializer(journals, many=True, context={'user': request.user})
         return response.created({'journals': serializer.data})
@@ -154,8 +154,8 @@ class JournalView(viewsets.ViewSet):
             lti_grade.replace_result(journal)
             return response.success({'journal': JournalSerializer(journal, context={'user': request.user}).data})
 
-        name, max_users = utils.optional_typed_params(request.data, (str, 'name'), (int, 'max_users'))
-        if name is not None or max_users is not None:
+        name, author_limit = utils.optional_typed_params(request.data, (str, 'name'), (int, 'author_limit'))
+        if name is not None or author_limit is not None:
             # Update name if allowed
             if name is not None:
                 if not request.user.has_permission('can_edit_assignment', journal.assignment):
@@ -163,15 +163,15 @@ class JournalView(viewsets.ViewSet):
                         return response.forbidden('You are not allowed to change the journal name.')
                 journal.name = name
                 journal.save()
-            # Update max_users if allowed
-            if max_users is not None:
+            # Update author_limit if allowed
+            if author_limit is not None:
                 if not request.user.has_permission('can_edit_assignment', journal.assignment):
                     return response.forbidden('You are not allowed to change the max users.')
                 if not journal.assignment.is_group_assignment:
-                    return response.bad_request('You can only set max_users for group assignments.')
-                if journal.authors.count() > max_users:
+                    return response.bad_request('You can only set author_limit for group assignments.')
+                if journal.authors.count() > author_limit:
                     return response.bad_request('There are too many student in this journal.')
-                journal.max_users = max_users
+                journal.author_limit = author_limit
                 journal.save()
                 return response.success({'journal': JournalSerializer(journal, context={'user': request.user}).data})
             return response.success({'journal': JournalSerializer(journal, context={'user': request.user}).data})
@@ -205,7 +205,7 @@ class JournalView(viewsets.ViewSet):
             return response.bad_request('You are already in this journal.')
         if Journal.objects.filter(assignment=journal.assignment, authors__user=request.user).exists():
             return response.bad_request('You may only be in one journal at the time.')
-        if journal.authors.count() >= journal.max_users:
+        if journal.authors.count() >= journal.author_limit:
             return response.bad_request('This journal is already full.')
 
         student = AssignmentParticipation.objects.get(assignment=journal.assignment, user=request.user)
@@ -242,7 +242,7 @@ class JournalView(viewsets.ViewSet):
             return response.bad_request('Student is already in this journal.')
         if Journal.objects.filter(assignment=journal.assignment, authors__user=user).exists():
             return response.bad_request('Students can only be in one journal at the time.')
-        if journal.authors.count() >= journal.max_users:
+        if journal.authors.count() >= journal.author_limit:
             return response.bad_request('This journal is already full.')
 
         student = AssignmentParticipation.objects.get(assignment=journal.assignment, user=user)

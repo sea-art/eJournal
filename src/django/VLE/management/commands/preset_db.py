@@ -302,11 +302,11 @@ class Command(BaseCommand):
                                                  is_published=True, is_group_assignment=a["is_group_assignment"])
             self.assignments.append(assignment)
 
-        journal = factory.make_journal(self.assignments[2], max_users=3)
+        journal = factory.make_journal(self.assignments[2], author_limit=3)
         journal.authors.add(AssignmentParticipation.objects.get(assignment=assignment, user=self.users["Student2"]))
         journal.authors.add(AssignmentParticipation.objects.get(assignment=assignment, user=self.users["Student"]))
         journal.save()
-        journal = factory.make_journal(self.assignments[2], max_users=3)
+        journal = factory.make_journal(self.assignments[2], author_limit=3)
         journal.authors.add(AssignmentParticipation.objects.get(assignment=assignment, user=self.users["Student3"]))
 
     def gen_journals(self):
