@@ -278,6 +278,7 @@
                         <b-form-input
                             v-model="newJournalCount"
                             type="number"
+                            min="2"
                             class="theme-input"
                         />
                         times
