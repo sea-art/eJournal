@@ -8,15 +8,6 @@
 <template>
     <div class="breadcrumb-container">
         <version-alert/>
-
-        <b-button
-            v-if="canEdit()"
-            class="float-right change-button multi-form"
-            @click="editClick()"
-        >
-            <icon name="edit"/>
-            Edit
-        </b-button>
         <div>
             <div v-if="crumbs.length > 1">
                 <h4>
@@ -48,10 +39,18 @@
                 <br/>
             </div>
             <h1>
-                <span>
+                <span class="title">
                     {{ crumbs.slice(-1)[0].displayName }}
                     <slot/>
                 </span>
+                <b-button
+                    v-if="canEdit()"
+                    class="change-button edit-button"
+                    @click="editClick()"
+                >
+                    <icon name="edit"/>
+                    Edit
+                </b-button>
             </h1>
         </div>
     </div>
@@ -176,4 +175,10 @@ export default {
     padding-right: 10px
     .alert
         margin-right: -10px
+    .title
+        margin-right: 10px
+    .edit-button
+        font-size: 0.667em
+        vertical-align: middle
+        border-radius: 2em !important
 </style>
