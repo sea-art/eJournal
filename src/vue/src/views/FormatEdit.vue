@@ -30,7 +30,7 @@
                 >
                     <icon
                         v-intro="'That\'s it! If you have any more questions, do not hesitate to contact us via the \
-                        feedback button below. This tutorial can be consulted again by clicking the info sign.'"
+                        support button below. This tutorial can be consulted again by clicking the info sign.'"
                         v-intro-step="4"
                         v-b-tooltip.hover
                         name="info"
@@ -144,17 +144,6 @@
             class="right-content-timeline-page right-content"
         >
             <h3>Actions</h3>
-            <b-button
-                v-if="$hasPermission('can_edit_assignment') && assignmentDetails.is_group_assignment"
-                class="multi-form change-button full-width"
-                @click.prevent.stop="$router.push({
-                    name: 'JournalsEdit',
-                    params: { cID: cID, aID: aID, assignment: assignmentDetails }
-                })"
-            >
-                <icon name="edit"/>
-                Edit journals
-            </b-button>
             <b-button
                 v-if="$hasPermission('can_delete_assignment')"
                 :class="{'input-disabled': assignmentDetails.lti_count > 1 && assignmentDetails.active_lti_course

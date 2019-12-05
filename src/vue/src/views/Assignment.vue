@@ -200,8 +200,9 @@
             </div>
             <main-card
                 v-if="assignmentJournals.length === 0"
-                line1="No participants with a journal"
-                line2="There are no journals for this assignment."
+                line1="No journals for this assignment"
+                :line2="assignment.is_group_assignment ? 'Create journals by using the button below.' :
+                'No participants with a journal'"
                 class="no-hover border-dark-grey"
             />
             <main-card
@@ -210,6 +211,88 @@
                 line2="There are no journals that match your search query."
                 class="no-hover border-dark-grey"
             />
+            <b-button
+                v-if="$hasPermission('can_edit_assignment') && assignment.is_group_assignment"
+                class="multi-form add-button"
+                @click="showModal('createJournalModal')"
+            >
+                <icon name="plus"/>
+                Create new journals
+            </b-button>
+
+            <b-modal
+                v-if="$hasPermission('can_edit_assignment') && assignment.is_group_assignment"
+                ref="createJournalModal"
+                title="Create new journals"
+                size="lg"
+                hideFooter
+                @show="resetNewJournals"
+            >
+                <b-card class="no-hover">
+                    <h2 class="field-heading multi-form required">
+                        Name
+                    </h2>
+                    <b-input
+                        v-model="newJournalName"
+                        placeholder="Journal name"
+                        class="theme-input multi-form"
+                        required
+                    />
+                    <h2 class="field-heading">
+                        Member limit
+                    </h2>
+                    <b-input
+                        v-model="newJournalMemberLimit"
+                        type="number"
+                        placeholder="No member limit"
+                        min="1"
+                        class="theme-input multi-form"
+                    />
+
+                    <b-button
+                        v-if="!repeatCreateJournal"
+                        class="multi-form mr-3"
+                        @click="repeatCreateJournal = true"
+                    >
+                        <icon name="book"/>
+                        Create multiple journals
+                    </b-button>
+                    <b-button
+                        v-else
+                        class="multi-form mr-3"
+                        @click="repeatCreateJournal = false"
+                    >
+                        <icon name="book"/>
+                        Create single journal
+                    </b-button>
+
+                    <div
+                        v-if="repeatCreateJournal"
+                        class="shift-deadlines-input"
+                    >
+                        <icon
+                            v-b-tooltip.hover="'All journals created will be numbered sequentially'"
+                            name="info-circle"
+                        />
+                        Repeat
+                        <b-form-input
+                            v-model="newJournalCount"
+                            type="number"
+                            class="theme-input"
+                        />
+                        times
+                    </div>
+
+                    <b-button
+                        class="add-button d-block float-right"
+                        :class="{'input-disabled': false}"
+                        @click="createNewJournals"
+                    >
+                        <icon name="plus-square"/>
+                        Create
+                    </b-button>
+                </b-card>
+            </b-modal>
         </load-wrapper>
 
         <div
@@ -267,6 +350,10 @@ export default {
             loadingJournals: true,
             newActiveLTICourse: null,
             filteredGroups: null,
+            newJournalName: null,
+            newJournalMemberLimit: null,
+            repeatCreateJournal: false,
+            newJournalCount: null,
         }
     },
     computed: {
@@ -437,6 +524,30 @@ export default {
             this.stats.unpublished = unpublished - needsMarking
             this.stats.averagePoints = points / filteredJournals.length
         },
+        resetNewJournals () {
+            this.newJournalName = null
+            this.newJournalMemberLimit = null
+            this.repeatCreateJournal = false
+            this.newJournalCount = null
+        },
+        createNewJournals () {
+            // TODO GROUPS ENGEL: HANDLE CREATION OF JOURNALS
+            console.log('Create')
+        },
     },
 }
 </script>
+
+<style lang="sass">
+.create-journals-repeat
+    font-weight: bold
+    color: grey
+    margin-bottom: 10px
+    display: inline-block
+    .theme-input
+        display: inline-block
+        width: 4em
+    svg
+        margin-top: -5px
+        fill: grey
+</style>

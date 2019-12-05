@@ -79,6 +79,7 @@ import 'vue-awesome/icons/globe'
 import 'vue-awesome/icons/history'
 import 'vue-awesome/icons/graduation-cap'
 import 'vue-awesome/icons/bug'
+import 'vue-awesome/icons/book'
 
 import Icon from 'vue-awesome/components/Icon.vue'
 
