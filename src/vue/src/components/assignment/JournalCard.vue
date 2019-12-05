@@ -24,8 +24,12 @@
                     </b-badge>
                 </div>
                 <div class="student-details">
-                    <b>{{ journal.name ? journal.name : 'Empty journal' }}</b>
-                    <p>{{ journal.students.map(s => s.user.username).join(', ') }}</p>
+                    <b class="username-wrapper">
+                        {{ journal.name ? journal.name : 'Empty journal' }}
+                    </b>
+                    <span class="username-wrapper">
+                        {{ journal.students.map(s => s.user.username).join(', ') }}
+                    </span>
                 </div>
             </b-col>
             <b-col
