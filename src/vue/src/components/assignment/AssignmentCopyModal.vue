@@ -121,7 +121,7 @@ export default {
             required: true,
         },
         lti: {
-            default: () => {},
+            default: () => { return {} },
             required: false,
         },
     },

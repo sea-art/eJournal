@@ -118,7 +118,11 @@ export default {
             return this.journal.stats ? this.journal.stats.submitted - this.journal.stats.graded : 0
         },
         journalAuthors () {
-            return this.journal.authors.map(a => a.user.full_name).join(', ')
+            if (this.assignment.is_group_assignment) {
+                return this.journal.authors.map(a => a.user.full_name).join(', ')
+            }
+
+            return this.journal.authors.map(a => a.user.username).join(', ')
         },
         groups () {
             const groups = []
