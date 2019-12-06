@@ -3,9 +3,8 @@
 -->
 
 <template>
-    <b-card
-        :class="$root.getBorderClass(template.id)"
-        class="template-card"
+    <div
+        class="template-link unselectable"
         @click="$emit('edit-template')"
     >
         <icon
@@ -35,17 +34,17 @@
         />
         <b
             v-if="template.name"
-            class="d-block field-heading"
+            class="max-one-line"
         >
             {{ template.name }}
         </b>
         <b
             v-else
-            class="d-block text-red field-heading"
+            class="text-red"
         >
             Untitled template
         </b>
-    </b-card>
+    </div>
 </template>
 
 <script>
@@ -68,13 +67,25 @@ export default {
 <style lang="sass">
 @import '~sass/modules/colors.sass'
 
-.template-card
+.template-link
+    padding: 5px
+    border-style: solid
+    border-color: $theme-dark-grey
+    border-width: 1px 0px
+    cursor: pointer
+    vertical-align: middle
+    svg
+        margin-top: 3px
+    .max-one-line
+        width: calc(100% - 2em)
     .edit-icon
-        margin-top: 1px
+        margin-top: 4px
     .edit-icon, .trash-icon
         width: 0px
         visibility: hidden
     &:hover
+        .max-one-line
+            width: calc(100% - 5em)
         .edit-icon, .trash-icon
             visibility: visible
             width: auto

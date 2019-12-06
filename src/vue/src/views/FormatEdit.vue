@@ -167,13 +167,18 @@
                 :class="{ 'input-disabled' : saveRequestInFlight }"
                 class="d-block"
             >
-                <template-link
-                    v-for="(template, index) in templates"
-                    :key="template.id"
-                    :template="template"
-                    @edit-template="showTemplateModal(index)"
-                    @delete-template="deleteTemplate(index)"
-                />
+                <b-card
+                    :class="$root.getBorderClass($route.params.cID)"
+                    class="no-hover"
+                >
+                    <template-link
+                        v-for="(template, index) in templates"
+                        :key="template.id"
+                        :template="template"
+                        @edit-template="showTemplateModal(index)"
+                        @delete-template="deleteTemplate(index)"
+                    />
+                </b-card>
                 <b-button
                     class="add-button multi-form"
                     @click="newTemplate()"
