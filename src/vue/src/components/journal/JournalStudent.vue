@@ -123,7 +123,7 @@
             xl="3"
             class="right-content-timeline-page right-content"
         >
-            <h3>Journal progress</h3>
+            <h3>Details</h3>
             <journal-details
                 v-if="!loadingNodes"
                 :journal="journal"
@@ -143,36 +143,9 @@
                     />
                 </b-button>
             </transition>
-            <manage-journal
-                v-if="!loadingNodes"
-                :journal="journal"
-                :assignment="assignment"
-            />
-            <template v-if="assignment.is_group_assignment">
-                <h3>Members</h3>
-                <student-card
-                    v-for="author in journal.authors"
-                    :key="author.id"
-                    :user="author.user"
-                />
-            </template>
         </b-col>
     </b-row>
 </template>
-<style lang="sass">
-.member-list
-    padding: 0
-    margin-bottom: 0
-    li
-        list-style-type: none
-        line-height: 2.5em
-        padding-bottom: 0px
-        margin-bottom: 0px
-        border-bottom: 1px solid #eee
-    li:last-child
-        border-bottom: none
-
-</style>
 
 <script>
 import entryNode from '@/components/entry/EntryNode.vue'

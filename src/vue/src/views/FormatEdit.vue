@@ -88,11 +88,26 @@
                     :class="$root.getBorderClass($route.params.cID)"
                     class="no-hover"
                 >
-                    <assignment-details-card
+                    <assignment-details
                         :class="{ 'input-disabled' : saveRequestInFlight }"
                         :assignmentDetails="assignmentDetails"
                         :presetNodes="presets"
                     />
+                    <h2 class="field-heading">
+                        Danger zone
+                    </h2>
+                    <div class="round-border background-medium-grey p-2">
+                        <b-button
+                            v-if="$hasPermission('can_delete_assignment')"
+                            :class="{'input-disabled': assignmentDetails.lti_count > 1 && assignmentDetails.active_lti_course
+                                && parseInt(assignmentDetails.active_lti_course.cID) === parseInt($route.params.cID)}"
+                            class="delete-button"
+                            @click="deleteAssignment"
+                        >
+                            <icon name="trash"/>
+                            {{ assignmentDetails.course_count > 1 ? 'Remove' : 'Delete' }} assignment
+                        </b-button>
+                    </div>
                 </b-card>
 
                 <preset-node-card
@@ -143,17 +158,6 @@
             xl="3"
             class="right-content-timeline-page right-content"
         >
-            <h3>Actions</h3>
-            <b-button
-                v-if="$hasPermission('can_delete_assignment')"
-                :class="{'input-disabled': assignmentDetails.lti_count > 1 && assignmentDetails.active_lti_course
-                    && parseInt(assignmentDetails.active_lti_course.cID) === parseInt($route.params.cID)}"
-                class="multi-form delete-button full-width"
-                @click="deleteAssignment"
-            >
-                <icon name="trash"/>
-                {{ assignmentDetails.course_count > 1 ? 'Remove' : 'Delete' }} assignment
-            </b-button>
             <h3>Entry Templates</h3>
             <div
                 v-intro="'Every assignment contains customizable <i>templates</i> which specify what the contents of \
@@ -213,7 +217,7 @@ export default {
     name: 'FormatEdit',
     components: {
         breadCrumb,
-        'assignment-details-card': assignmentDetails,
+        'assignment-details': assignmentDetails,
         'template-link': formatTemplateLink,
         'preset-node-card': formatPresetNodeCard,
         'add-preset-node': formatAddPresetNode,
