@@ -2,7 +2,6 @@
     <b-card class="no-hover">
         <assignment-details
             :assignmentDetails="form"
-            :isNew="true"
         />
         <b-button
             class="float-left change-button mt-2"

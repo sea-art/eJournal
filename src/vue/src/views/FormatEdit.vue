@@ -83,32 +83,30 @@
                     />
                 </bread-crumb>
 
-                <b-card
-                    v-if="currentNode === -1"
-                    :class="$root.getBorderClass($route.params.cID)"
-                    class="no-hover"
-                >
-                    <assignment-details
-                        :class="{ 'input-disabled' : saveRequestInFlight }"
-                        :assignmentDetails="assignmentDetails"
-                        :presetNodes="presets"
-                    />
-                    <h2 class="field-heading">
-                        Danger zone
-                    </h2>
-                    <div class="round-border background-medium-grey p-2">
+                <div v-if="currentNode === -1">
+                    <b-card
+                        :class="$root.getBorderClass($route.params.cID)"
+                        class="no-hover"
+                    >
+                        <assignment-details
+                            :class="{ 'input-disabled' : saveRequestInFlight }"
+                            :assignmentDetails="assignmentDetails"
+                            :presetNodes="presets"
+                        />
+                    </b-card>
+                    <b-card class="no-hover border-red">
                         <b-button
                             v-if="$hasPermission('can_delete_assignment')"
                             :class="{'input-disabled': assignmentDetails.lti_count > 1 && assignmentDetails.active_lti_course
                                 && parseInt(assignmentDetails.active_lti_course.cID) === parseInt($route.params.cID)}"
-                            class="delete-button"
+                            class="delete-button full-width"
                             @click="deleteAssignment"
                         >
                             <icon name="trash"/>
                             {{ assignmentDetails.course_count > 1 ? 'Remove' : 'Delete' }} assignment
                         </b-button>
-                    </div>
-                </b-card>
+                    </b-card>
+                </div>
 
                 <preset-node-card
                     v-else-if="presets.length > 0 && currentNode !== -1 && currentNode < presets.length"

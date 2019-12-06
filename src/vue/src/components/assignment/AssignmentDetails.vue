@@ -1,17 +1,38 @@
 <template>
-    <b-form
-        @submit.prevent="onSubmit"
-        @reset.prevent="onReset"
-    >
+    <div>
         <h2 class="field-heading required">
-            Assignment name
+            Name
         </h2>
-        <b-input
-            v-model="assignmentDetails.name"
-            class="multi-form theme-input"
-            placeholder="Assignment name"
-            required
-        />
+        <div class="d-flex">
+            <b-input
+                v-model="assignmentDetails.name"
+                class="multi-form theme-input"
+                placeholder="Assignment name"
+                required
+            />
+            <b-button
+                v-if="assignmentDetails.is_published"
+                v-b-tooltip.hover
+                class="add-button multi-form ml-2"
+                title="This assignment is visible to students.
+                Once an assignment is published, it cannot be unpublished"
+                @click="assignmentDetails.is_published = false"
+            >
+                <icon name="check"/>
+                Published
+            </b-button>
+            <b-button
+                v-if="!assignmentDetails.is_published"
+                v-b-tooltip.hover
+                class="delete-button multi-form ml-2"
+                title="This assignment is not visible to students.
+                Once an assignment is published, it cannot be unpublished"
+                @click="assignmentDetails.is_published = true"
+            >
+                <icon name="times"/>
+                Unpublished
+            </b-button>
+        </div>
         <h2 class="field-heading">
             Description
         </h2>
@@ -45,6 +66,7 @@
                 </h2>
                 <flat-pickr
                     v-model="assignmentDetails.unlock_date"
+                    class="multi-form"
                     :config="Object.assign({}, {
                         maxDate: assignmentDetails.dueDate ? assignmentDetails.dueDate : assignmentDetails.lockDate
                     }, $root.flatPickrTimeConfig)"
@@ -60,6 +82,7 @@
                 </h2>
                 <flat-pickr
                     v-model="assignmentDetails.due_date"
+                    class="multi-form"
                     :config="Object.assign({}, {
                         minDate: assignmentDetails.unlockDate,
                         maxDate: assignmentDetails.lockDate,
@@ -73,147 +96,76 @@
                 </h2>
                 <flat-pickr
                     v-model="assignmentDetails.lock_date"
+                    class="multi-form"
                     :config="Object.assign({}, {
                         minDate: assignmentDetails.dueDate ? assignmentDetails.dueDate : assignmentDetails.unlockDate
                     }, $root.flatPickrTimeConfig)"
                 />
             </b-col>
         </b-row>
-        <h2 class="field-heading">
-            Options
-        </h2>
-        <div>
-            <b-button
-                v-if="assignmentDetails.is_published"
-                v-b-tooltip.hover
-                class="add-button mr-2 multi-form"
-                title="This assignment is visible to students.
-                Once an assignment is published, it cannot be unpublished"
-                @click="assignmentDetails.is_published = false"
-            >
-                <icon name="check"/>
-                Published
-            </b-button>
-            <b-button
-                v-if="!assignmentDetails.is_published"
-                v-b-tooltip.hover
-                class="delete-button mr-2 multi-form"
-                title="This assignment is not visible to students.
-                Once an assignment is published, it cannot be unpublished"
-                @click="assignmentDetails.is_published = true"
-            >
-                <icon name="times"/>
-                Unpublished
-            </b-button>
-
-            <br/>
-
-            <b-button
-                v-if="assignmentDetails.is_group_assignment"
-                v-b-tooltip.hover
-                class="change-button mr-2 multi-form"
-                title="This assignment is made in groups"
-                @click="assignmentDetails.is_group_assignment = false"
-            >
-                <icon name="users"/>
+        <b-card class="no-hover">
+            <toggle-switch
+                :isActive="assignmentDetails.is_group_assignment"
+                class="float-right"
+                @parentActive="(isActive) => { assignmentDetails.is_group_assignment = isActive }"
+            />
+            <h2 class="field-heading multi-form">
                 Group assignment
-            </b-button>
-            <b-button
-                v-if="!assignmentDetails.is_group_assignment"
-                v-b-tooltip.hover
-                class="change-button mr-2 multi-form"
-                title="This assignment is made in individually"
-                @click="assignmentDetails.is_group_assignment = true"
-            >
-                <icon name="user"/>
-                Individual assignment
-            </b-button>
-
-            <b-button
-                v-if="assignmentDetails.is_group_assignment && assignmentDetails.can_lock_journal"
-                v-b-tooltip.hover
-                class="add-button mr-2 multi-form"
-                title="Students are allowd to lock the journal they are in. Once locked, no other students can join."
-                @click="assignmentDetails.can_lock_journal = false"
-            >
-                <icon name="check"/>
-                Journal can be locked
-            </b-button>
-            <b-button
-                v-if="assignmentDetails.is_group_assignment && !assignmentDetails.can_lock_journal"
-                v-b-tooltip.hover
-                class="delete-button mr-2 multi-form"
-                title="Students are not allowd to lock the journal they are in.
-                       Once locked, no other students can join."
-                @click="assignmentDetails.can_lock_journal = true"
-            >
-                <icon name="times"/>
-                Journal cannot be locked
-            </b-button>
-
-            <br/>
-
-            <b-button
-                v-if="assignmentDetails.can_set_journal_name"
-                v-b-tooltip.hover
-                class="add-button mr-2 multi-form"
-                title="Students are allowed to change the journal name"
-                @click="assignmentDetails.can_set_journal_name = false"
-            >
-                <icon name="check"/>
-                Custom journal names
-            </b-button>
-            <b-button
-                v-if="!assignmentDetails.can_set_journal_name"
-                v-b-tooltip.hover
-                class="delete-button mr-2 multi-form"
-                title="Students are not allowed to change the journal name"
-                @click="assignmentDetails.can_set_journal_name = true"
-            >
-                <icon name="times"/>
-                Custom journal names
-            </b-button>
-
-            <b-button
-                v-if="assignmentDetails.can_set_journal_image"
-                v-b-tooltip.hover
-                class="add-button mr-2 multi-form"
-                title="Students are allowed to change the journal image"
-                @click="assignmentDetails.can_set_journal_image = false"
-            >
-                <icon name="check"/>
-                Custom journal images
-            </b-button>
-            <b-button
-                v-if="!assignmentDetails.can_set_journal_image"
-                v-b-tooltip.hover
-                class="delete-button mr-2 multi-form"
-                title="Students are not allowed to change the journal image"
-                @click="assignmentDetails.can_set_journal_image = true"
-            >
-                <icon name="times"/>
-                Custom journal images
-            </b-button>
-        </div>
-    </b-form>
+            </h2>
+            Have multiple students contribute to a shared journal.
+            Selecting this option requires you to create journals on the assignment page for students to join.
+            <div v-if="assignmentDetails.is_group_assignment">
+                <hr/>
+                <toggle-switch
+                    :isActive="assignmentDetails.can_lock_journal"
+                    class="float-right"
+                    @parentActive="(isActive) => { assignmentDetails.can_lock_journal = isActive }"
+                />
+                <h2 class="field-heading multi-form">
+                    Allow locking journal members
+                </h2>
+                Once the members of a journal are locked, it cannot be joined by other students.
+                Teachers can still manually add students to a journal.
+                <hr/>
+                <toggle-switch
+                    :isActive="assignmentDetails.can_set_journal_name"
+                    class="float-right"
+                    @parentActive="(isActive) => { assignmentDetails.can_set_journal_name = isActive }"
+                />
+                <h2 class="field-heading">
+                    Allow custom journal name
+                </h2>
+                When selected, members of a journal can override its given name.
+                <hr/>
+                <toggle-switch
+                    :isActive="assignmentDetails.can_set_journal_image"
+                    class="float-right"
+                    @parentActive="(isActive) => { assignmentDetails.can_set_journal_image = isActive }"
+                />
+                <h2 class="field-heading">
+                    Allow custom display picture
+                </h2>
+                When selected, members of a journal can override its display picture.
+            </div>
+        </b-card>
+    </div>
 </template>
 
 <script>
 import textEditor from '@/components/assets/TextEditor.vue'
 import tooltip from '@/components/assets/Tooltip.vue'
+import toggleSwitch from '@/components/assets/ToggleSwitch.vue'
 
 export default {
     name: 'AssignmentDetails',
     components: {
         textEditor,
         tooltip,
+        toggleSwitch,
     },
     props: {
         assignmentDetails: {
             required: true,
-        },
-        isNew: {
-            default: false,
         },
         presetNodes: {
             // Props with type Object/Array must use a factory function to return the default value.
