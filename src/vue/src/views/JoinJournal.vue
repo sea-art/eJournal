@@ -4,18 +4,16 @@
             slot="main-content-column"
             @edit-click="handleEdit()"
         />
-        <div
+        <journal-card
             v-for="journal in journals"
             slot="main-content-column"
-            :key="journal.id"
-            @click="joinJournal(journal.id)"
-        >
-            <journal-card
-                :listView="true"
-                :journal="journal"
-                :assignment="assignment"
-            />
-        </div>
+            :key="`join-journal-${journal.id}`"
+            :listView="true"
+            :journal="journal"
+            :assignment="assignment"
+            :class="{ 'input-disabled': journal.authors.length >= journal.author_limit }"
+            @click.native="joinJournal(journal.id)"
+        />
     </content-columns>
 </template>
 

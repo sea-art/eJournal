@@ -45,7 +45,7 @@ new Vue({
     store,
     components: { App },
     data: {
-        colors: ['pink-border', 'purple-border', 'yellow-border', 'blue-border'],
+        colors: ['border-pink', 'border-purple', 'border-yellow', 'border-blue'],
         previousPage: null,
         windowWidth: 0,
         maxFileSizeBytes: 10485760,
@@ -91,8 +91,8 @@ new Vue({
         this.windowWidth = window.innerWidth
     },
     methods: {
-        getBorderClass (cID) {
-            return this.colors[cID % this.colors.length]
+        getBorderClass (id) {
+            return this.colors[id % this.colors.length]
         },
         beautifyDate (date, displayDate = true, displayTime = true) {
             if (!date) {

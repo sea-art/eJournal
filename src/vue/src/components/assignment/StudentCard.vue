@@ -1,6 +1,6 @@
 <template>
     <b-card
-        :class="$root.getBorderClass()"
+        :class="$root.getBorderClass(user.id)"
         class="no-hover"
     >
         <div class="d-flex">

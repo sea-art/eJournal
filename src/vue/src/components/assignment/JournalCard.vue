@@ -1,7 +1,7 @@
 <template>
-    <b-card :class="$root.getBorderClass($route.params.cID)">
+    <b-card :class="$root.getBorderClass(journal.id)">
         <b-row
-            v-if="listView"
+            v-if="!editJournal"
             noGutters
         >
             <b-col
@@ -26,9 +26,9 @@
                 <div class="student-details">
                     <b
                         class="max-one-line"
-                        :title="journalName"
+                        :title="journal.name"
                     >
-                        {{ journalName }}
+                        {{ journal.name }}
                     </b>
                     <span
                         class="max-one-line"
@@ -49,7 +49,7 @@
                 />
             </b-col>
         </b-row>
-        <div v-else-if="editView">
+        <div v-else>
             <div class="d-flex multi-form">
                 <div class="portrait-wrapper">
                     <img
@@ -58,7 +58,7 @@
                     />
                 </div>
                 <div class="student-details">
-                    <h4>{{ journalName }}</h4>
+                    <h4>{{ journal.name }}</h4>
                     <draggable
                         class="list-group"
                         :list="journal.authors"
@@ -102,25 +102,20 @@ export default {
     },
     props: {
         assignment: {
-            default: null,
             required: true,
         },
         journal: {
             required: true,
         },
-        listView: {
-            default: false,
-        },
-        editView: {
-            default: false,
-        },
+    },
+    data () {
+        return {
+            editJournal: false,
+        }
     },
     computed: {
         numMarkingNeeded () {
             return this.journal.stats ? this.journal.stats.submitted - this.journal.stats.graded : 0
-        },
-        journalName () {
-            return this.journal.name ? this.journal.name : 'Empty journal'
         },
         journalAuthors () {
             return this.journal.authors.map(a => a.user.full_name).join(', ')
