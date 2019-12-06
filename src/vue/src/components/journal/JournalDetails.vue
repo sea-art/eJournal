@@ -8,9 +8,11 @@
             :src="journal.image"
             class="journal-image no-hover"
         />
-        <span class="edit-journal">
+        <span
+            v-if="assignment.is_group_assignment"
+            class="edit-journal"
+        >
             <icon
-                v-if="assignment.is_group_assignment"
                 name="edit"
                 @click="showEditJournalModal"
             />
@@ -23,43 +25,34 @@
             :bonusPoints="journal.bonus_points"
         />
         <div
+            v-if="assignment.is_group_assignment"
             class="members"
         >
-            <div v-if="assignment.is_group_assignment">
+            <icon
+                name="lock"
+                class="lock-members-icon"
+                :class="{
+                    'fill-red': journal.locked,
+                    'fill-grey': !journal.locked
+                }"
+            />
+            <b class="member-count">
+                Members ({{ journal.authors.length }}/{{ journal.author_limit }})
+            </b>
+            <div
+                v-for="author in journal.authors.map(a => a.user)"
+                :key="`journal-member-${author.username}`"
+                class="member"
+            >
                 <icon
-                    name="lock"
-                    class="lock-members-icon"
-                    :class="{
-                        'fill-red': journal.locked,
-                        'fill-grey': !journal.locked
-                    }"
+                    name="sign-out"
+                    class="float-right trash-icon"
                 />
-                <b class="member-count">
-                    Members ({{ journal.authors.length }}/{{ journal.author_limit }})
-                </b>
-                <div
-                    v-for="author in journal.authors.map(a => a.user)"
-                    :key="`journal-member-${author.username}`"
-                    class="member"
-                >
-                    <icon
-                        name="sign-out"
-                        class="float-right trash-icon"
-                    />
-                    <b class="max-one-line">
-                        {{ author.full_name }}
-                    </b>
-                    <span class="max-one-line">
-                        {{ author.username }}
-                    </span>
-                </div>
-            </div>
-            <div v-else>
                 <b class="max-one-line">
-                    {{ journalName }}
+                    {{ author.full_name }}
                 </b>
                 <span class="max-one-line">
-                    {{ journalAuthorUsername }}
+                    {{ author.username }}
                 </span>
             </div>
         </div>
@@ -91,7 +84,7 @@ export default {
     computed: {
         journalAuthorUsername () {
             if (this.journal.authors && this.journal.authors.length > 0) {
-                return this.journal.authors[0].username
+                return this.journal.authors[0].user.username
             }
             return ''
         },
