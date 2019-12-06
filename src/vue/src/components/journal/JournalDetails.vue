@@ -8,14 +8,14 @@
             :src="journal.image"
             class="journal-image no-hover"
         />
+        <!-- TODO GROUPS ENGEL: Change permission to journal manage -->
         <span
-            v-if="assignment.is_group_assignment"
+            v-if="assignment.is_group_assignment && (assignment.can_set_journal_name || can_set_journal_image
+                || $root.hasPermission('can_edit_assignment'))"
             class="edit-journal"
+            @click="showEditJournalModal"
         >
-            <icon
-                name="edit"
-                @click="showEditJournalModal"
-            />
+            <icon name="edit"/>
             Edit
         </span>
         <progress-bar
@@ -28,6 +28,9 @@
             v-if="assignment.is_group_assignment"
             class="members"
         >
+            <b>
+                {{ journal.name }}
+            </b><br/>
             <icon
                 name="lock"
                 class="lock-members-icon"
@@ -56,14 +59,27 @@
                 </span>
             </div>
         </div>
+        <b-modal
+            ref="editJournalModal"
+            size="lg"
+            title="Edit journal"
+            hideFooter
+        >
+            <edit-journal
+                :journal="journal"
+                :assignment="assignment"
+            />
+        </b-modal>
     </b-card>
 </template>
 
 <script>
+import editJournal from '@/components/journal/EditJournal.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
 
 export default {
     components: {
+        editJournal,
         progressBar,
     },
     props: {
@@ -95,6 +111,25 @@ export default {
     methods: {
         showEditJournalModal () {
             this.$refs.editJournalModal.show()
+        },
+        leaveJournal () {
+            if (window.confirm('Are you sure you want to leave this journal?')) {
+                journalAPI.leave(this.journal.id)
+                    .then(() => {
+                        this.$router.push({
+                            name: 'JoinJournal',
+                            params: {
+                                cID: this.assignment.course.id, aID: this.assignment.id,
+                            },
+                        })
+                    })
+            }
+        },
+        lockJournal () {
+            journalAPI.lock(this.journal.id, !this.journal.locked, { responseSuccessToast: true })
+                .then(() => {
+                    this.journal.locked = !this.journal.locked
+                })
         },
     },
 }
@@ -148,16 +183,4 @@ export default {
             margin-right: 9px
             svg
                 fill: red
-    .temp
-        display: block
-        width: 100%
-        min-height: 70px
-        margin-bottom: 10px
-        .max-one-line
-            width: calc(100% - 70px)
-        &.list-view
-            padding-left: 40px
-        @include sm-max
-            align-items: flex-end
-
 </style>

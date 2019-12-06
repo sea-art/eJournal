@@ -159,7 +159,6 @@ import journalEndCard from '@/components/journal/JournalEndCard.vue'
 import studentCard from '@/components/assignment/StudentCard.vue'
 import journalDetails from '@/components/journal/JournalDetails.vue'
 import progressNode from '@/components/entry/ProgressNode.vue'
-import manageJournal from '@/components/journal/ManageJournal.vue'
 
 import journalAPI from '@/api/journal.js'
 import assignmentAPI from '@/api/assignment.js'
@@ -178,7 +177,6 @@ export default {
         journalEndCard,
         studentCard,
         journalDetails,
-        manageJournal,
     },
     props: ['cID', 'aID', 'jID'],
     data () {
