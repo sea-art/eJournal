@@ -439,6 +439,7 @@ export default {
                 this.loadingJournals = false
                 this.assignment = results[0]
                 this.assignmentJournals = results[0].journals
+                console.log(this.assignmentJournals)
                 this.groups = results[1].sort((a, b) => b.name < a.name)
                 const participant = results[2]
 
@@ -535,8 +536,11 @@ export default {
             this.newJournalCount = null
         },
         createNewJournals () {
-            // TODO GROUPS ENGEL: HANDLE CREATION OF JOURNALS
-            console.log('Create')
+            journalAPI.create({
+                amount: this.newJournalCount,
+                author_limit: this.newJournalMemberLimit,
+                assignment_id: this.assignment.id,
+            }).then((journals) => { this.assignment.journals = journals })
         },
     },
 }

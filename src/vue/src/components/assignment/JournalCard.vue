@@ -28,13 +28,16 @@
                         class="max-one-line"
                         :title="journal.name"
                     >
-                        {{ journal.name }}
+                        {{ journal.name || 'Empty Journal' }}
                     </b>
                     <span
                         class="max-one-line"
                         :title="journalAuthors"
                     >
                         {{ journalAuthors }}
+                        <span v-if="journal.author_limit > 1">
+                            ({{ journal.authors.length }} / {{ journal.author_limit }})
+                        </span>
                     </span>
                 </div>
             </b-col>

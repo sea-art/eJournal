@@ -103,7 +103,10 @@
                 />
             </b-col>
         </b-row>
-        <b-card class="no-hover" v-if="assignmentDetails.is_group_assignment || !assignmentDetails.id">
+        <b-card
+            v-if="assignmentDetails.is_group_assignment || !assignmentDetails.id"
+            class="no-hover"
+        >
             <template v-if="!assignmentDetails.id">
                 <toggle-switch
                     :isActive="assignmentDetails.is_group_assignment"

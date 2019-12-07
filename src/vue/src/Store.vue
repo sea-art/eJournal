@@ -24,8 +24,8 @@ export default {
         }
 
         const sortOptions = {
-            name: (a, b) => compare(a.student.full_name, b.student.full_name),
-            username: (a, b) => compare(a.student.username, b.student.username),
+            name: (a, b) => compare(a.name, b.name),
+            username: (a, b) => compare(a.authors[0].user.username, b.authors[0].user.username),
             markingNeeded: (a, b) => compare(a.stats.submitted - a.stats.graded, b.stats.submitted - b.stats.graded),
             points: (a, b) => compare(a.stats.acquired_points, b.stats.acquired_points),
         }

@@ -112,7 +112,8 @@ class JournalView(viewsets.ViewSet):
         for _ in range(amount):
             journals.append(Journal.objects.create(assignment=assignment, author_limit=author_limit))
 
-        serializer = JournalSerializer(journals, many=True, context={'user': request.user})
+        serializer = JournalSerializer(
+            Journal.objects.filter(assignment=assignment).all(), many=True, context={'user': request.user})
         return response.created({'journals': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
