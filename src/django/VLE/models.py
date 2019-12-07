@@ -657,11 +657,11 @@ class Assignment(models.Model):
                 pre_save = Assignment.objects.get(pk=self.pk)
                 active_lti_id_modified = pre_save.active_lti_id != self.active_lti_id
 
-                if pre_save.is_published:
-                    if not self.is_published:
-                        raise ValidationError('Cannot unpublish an assignment after its published.')
-                    if pre_save.is_group_assignment != self.is_group_assignment:
-                        raise ValidationError('Cannot change assignment type after its published.')
+                if pre_save.is_published and not self.is_published:
+                    if Journal.objects.filter(assignment=self).exists():
+                        raise ValidationError('Cannot unpublish an assignment that has journals.')
+                if pre_save.is_group_assignment != self.is_group_assignment:
+                    raise ValidationError('Cannot change assignment type after creation.')
             # A copy is being made of the original instance
             else:
                 self.active_lti_id = None

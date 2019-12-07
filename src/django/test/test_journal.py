@@ -34,7 +34,12 @@ class JournalAPITest(TestCase):
         api.get(self, 'journals', params={'pk': self.journal.pk}, user=factory.Teacher(), status=403)
 
     def test_create_journal(self):
-        payload = {'pk': self.group_journal.pk, 'assignment_id': self.group_assignment.pk, 'author_limit': 3, 'amount': 2}
+        payload = {
+            'pk': self.group_journal.pk,
+            'assignment_id': self.group_assignment.pk,
+            'author_limit': 3,
+            'amount': 2
+        }
         before_count = Journal.objects.filter(assignment=self.group_assignment).count()
 
         # Check invalid users
@@ -81,7 +86,8 @@ class JournalAPITest(TestCase):
         # Check teacher can update name and author_limit
 
         api.update(
-            self, 'journals', params={'pk': self.group_journal.pk, 'author_limit': 9, 'name': 'NEW'}, user=self.g_teacher)
+            self, 'journals', params={'pk': self.group_journal.pk, 'author_limit': 9, 'name': 'NEW'},
+            user=self.g_teacher)
         journal = Journal.objects.get(pk=self.group_journal.pk)
         assert journal.author_limit == 9 and journal.name == 'NEW'
 

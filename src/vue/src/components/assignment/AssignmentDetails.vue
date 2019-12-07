@@ -103,19 +103,21 @@
                 />
             </b-col>
         </b-row>
-        <b-card class="no-hover">
-            <toggle-switch
-                :isActive="assignmentDetails.is_group_assignment"
-                class="float-right"
-                @parentActive="(isActive) => { assignmentDetails.is_group_assignment = isActive }"
-            />
-            <h2 class="field-heading multi-form">
-                Group assignment
-            </h2>
-            Have multiple students contribute to a shared journal.
-            Selecting this option requires you to create journals on the assignment page for students to join.
-            <div v-if="assignmentDetails.is_group_assignment">
+        <b-card class="no-hover" v-if="assignmentDetails.is_group_assignment || !assignmentDetails.id">
+            <template v-if="!assignmentDetails.id">
+                <toggle-switch
+                    :isActive="assignmentDetails.is_group_assignment"
+                    class="float-right"
+                    @parentActive="(isActive) => { assignmentDetails.is_group_assignment = isActive }"
+                />
+                <h2 class="field-heading multi-form">
+                    Group assignment
+                </h2>
+                Have multiple students contribute to a shared journal.
+                Selecting this option requires you to create journals on the assignment page for students to join.
                 <hr/>
+            </template>
+            <template v-if="assignmentDetails.is_group_assignment">
                 <toggle-switch
                     :isActive="assignmentDetails.can_lock_journal"
                     class="float-right"
@@ -146,7 +148,7 @@
                     Allow custom display picture
                 </h2>
                 When selected, members of a journal can override its display picture.
-            </div>
+            </template>
         </b-card>
     </div>
 </template>

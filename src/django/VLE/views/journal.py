@@ -277,7 +277,6 @@ class JournalView(viewsets.ViewSet):
         if self.assignment.remove_grade_upon_leave:
             update_author_grade_to_LMS.delay(author.pk)
 
-
         return response.success(description='Successfully removed from the journal.')
 
     @action(['patch'], detail=True)

@@ -4,6 +4,7 @@ from test.utils import api
 from django.test import TestCase
 
 import VLE.serializers as serialize
+from VLE.models import Journal
 
 
 class FormatAPITest(TestCase):
@@ -55,11 +56,16 @@ class FormatAPITest(TestCase):
         api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
                    user=factory.Admin())
 
-        # Check cannot unpublish
+        # Check cannot unpublish if there are journals
         self.update_dict['assignment_details']['is_published'] = False
         api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
                    user=self.teacher, status=400)
+        Journal.objects.filter(assignment=self.assignment).delete()
+        api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
+                   user=self.teacher, status=200)
         self.update_dict['assignment_details']['is_published'] = True
+        api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
+                   user=self.teacher, status=200)
 
         # Test script sanitation
         self.update_dict['assignment_details']['description'] = '<script>alert("asdf")</script>Rest'

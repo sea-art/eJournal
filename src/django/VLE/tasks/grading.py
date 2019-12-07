@@ -58,6 +58,7 @@ def update_author_grade_to_LMS(author_pk, journal=None):
 
     return "{}'s grade could not be sent to the LMS. Response was: {}".format(author.user.username, response)
 
+
 @shared_task
 def send_journal_grade_to_LMS(journal_pk):
     """Sends the grade of a journal to the LMS
