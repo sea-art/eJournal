@@ -292,12 +292,15 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if 'journals' in self.context and 'course' in self.context \
            and self.context['journals'] and self.context['course']:
             if assignment.is_group_assignment:
-                journals = Journal.objects.filter(assignment=assignment)
+                journals = Journal.objects.filter(
+                    Q(assignment=assignment, authors__isnull=False) |
+                    Q(assignment=assignment, authors__isnull=True)
+                )
             else:
                 course = self.context['course']
                 users = course.participation_set.filter(role__can_have_journal=True).values('user')
-                journals = Journal.objects.filter(assignment=assignment, authors__user__in=users).distinct()
-            return JournalSerializer(journals.order_by('authors'), many=True, context=self.context).data
+                journals = Journal.objects.filter(assignment=assignment, authors__user__in=users)
+            return JournalSerializer(journals.distinct(), many=True, context=self.context).data
         else:
             return None
 

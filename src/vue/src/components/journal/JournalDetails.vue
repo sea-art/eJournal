@@ -106,7 +106,7 @@ export default {
             return ''
         },
         journalName () {
-            return this.journal.name ? this.journal.name : 'Empty journal'
+            return this.journal.name
         },
     },
     methods: {

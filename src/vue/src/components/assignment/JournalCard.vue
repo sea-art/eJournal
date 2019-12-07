@@ -28,7 +28,7 @@
                         class="max-one-line"
                         :title="journal.name"
                     >
-                        {{ journal.name || 'Empty Journal' }}
+                        {{ journal.name }}
                     </b>
                     <span
                         class="max-one-line"

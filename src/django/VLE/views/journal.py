@@ -53,12 +53,12 @@ class JournalView(viewsets.ViewSet):
             request.user.check_permission('can_view_all_journals', assignment)
 
         if assignment.is_group_assignment:
-            queryset = assignment.journal_set.order_by('pk')
+            queryset = assignment.journal_set
         else:
             users = course.participation_set.filter(role__can_have_journal=True).values('user')
-            queryset = assignment.journal_set.filter(authors__user__in=users).distinct().order_by('pk')
+            queryset = assignment.journal_set.filter(authors__user__in=users)
         journals = JournalSerializer(
-            queryset,
+            queryset.distinct().order_by('pk'),
             many=True,
             context={
                 'user': request.user,
@@ -99,9 +99,13 @@ class JournalView(viewsets.ViewSet):
             amount -- amount of journals to create
             author_limit -- maximum amount of users in journal
             assignment_id -- assignment to create the journals in
+            name -- (optional) name of the journal (default 'Journal')
         """
         amount, author_limit, assignment_id = utils.required_typed_params(
             request.data, (int, 'amount'), (int, 'author_limit'), (int, 'assignment_id'))
+        name, = utils.optional_params(request.data, 'name')
+        if name is None:
+            name = 'Journal'
         assignment = Assignment.objects.get(pk=assignment_id)
         if amount < 1:
             return response.bad_request('Amount needs to be higher then 1.')
@@ -109,11 +113,16 @@ class JournalView(viewsets.ViewSet):
         request.user.check_permission('can_edit_assignment', assignment)
 
         journals = []
-        for _ in range(amount):
-            journals.append(Journal.objects.create(assignment=assignment, author_limit=author_limit))
+        journal_count = Journal.objects.filter(assignment=assignment).count()
+        for i in range(amount):
+            journals.append(Journal.objects.create(
+                assignment=assignment,
+                author_limit=author_limit,
+                name=name if amount == 1 else '{} {}'.format(name, i + journal_count + 1)
+            ))
 
         serializer = JournalSerializer(
-            Journal.objects.filter(assignment=assignment).all(), many=True, context={'user': request.user})
+            Journal.objects.filter(assignment=assignment), many=True, context={'user': request.user})
         return response.created({'journals': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):

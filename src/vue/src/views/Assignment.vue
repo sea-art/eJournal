@@ -230,16 +230,15 @@
             >
                 <b-card class="no-hover">
                     <b-form @submit.prevent="createNewJournals">
-                        <h2 class="field-heading multi-form required">
+                        <h2 class="field-heading multi-form">
                             Name
                         </h2>
                         <b-input
                             v-model="newJournalName"
                             placeholder="Journal name"
                             class="theme-input multi-form"
-                            required
                         />
-                        <h2 class="field-heading">
+                        <h2 class="field-heading required">
                             Member limit
                         </h2>
                         <b-input
@@ -248,6 +247,7 @@
                             placeholder="No member limit"
                             min="1"
                             class="theme-input multi-form"
+                            required
                         />
 
                         <b-button
@@ -537,6 +537,7 @@ export default {
         },
         createNewJournals () {
             journalAPI.create({
+                name: this.newJournalName,
                 amount: this.newJournalCount,
                 author_limit: this.newJournalMemberLimit,
                 assignment_id: this.assignment.id,

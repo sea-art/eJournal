@@ -900,6 +900,8 @@ class Journal(models.Model):
 
     def save(self, *args, **kwargs):
         is_new = self._state.adding
+        if self.name is None:
+            self.name = 'Journal {}'.format(Journal.objects.filter(assignment=self.assignment).count() + 1)
         super(Journal, self).save(*args, **kwargs)
         # On create add preset nodes
         if is_new:
