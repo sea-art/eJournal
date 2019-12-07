@@ -891,6 +891,13 @@ class Journal(models.Model):
         return ', '.join(full_names[:-1]) + \
             (' and ' + full_names[-1]) if len(full_names) > 1 else full_names[0]
 
+    def reset(self):
+        Node.objects.filter(journal=self).delete()
+
+        preset_nodes = self.assignment.format.presetnode_set.all()
+        for preset_node in preset_nodes:
+            Node.objects.create(type=preset_node.type, journal=self, preset=preset_node)
+
     def save(self, *args, **kwargs):
         is_new = self._state.adding
         super(Journal, self).save(*args, **kwargs)
