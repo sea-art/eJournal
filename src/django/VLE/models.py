@@ -1089,8 +1089,22 @@ class Entry(models.Model):
         related_name='+',
         null=True,
     )
+
     creation_date = models.DateTimeField(editable=False)
+    author = models.ForeignKey(
+        'User',
+        on_delete=models.SET_NULL,
+        related_name='entries',
+        null=True,
+    )
+
     last_edited = models.DateTimeField()
+    last_edited_by = models.ForeignKey(
+        'User',
+        on_delete=models.SET_NULL,
+        related_name='last_edited_entries',
+        null=True,
+    )
 
     vle_coupling = models.TextField(
         default=NEED_SUBMISSION,

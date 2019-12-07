@@ -62,10 +62,10 @@ class EntryView(viewsets.ViewSet):
         # Node specific entry
         if node_id:
             node = Node.objects.get(pk=node_id, journal=journal)
-            entry = entry_utils.add_entry_to_node(node, template)
+            entry = entry_utils.add_entry_to_node(node, template, request.user)
         # Template specific entry
         else:
-            entry = factory.make_entry(template)
+            entry = factory.make_entry(template, request.user)
             node = factory.make_node(journal, entry)
 
         for content in content_list:
@@ -163,6 +163,8 @@ class EntryView(viewsets.ViewSet):
                 factory.make_content(entry, data, field)
 
         file_handling.remove_temp_user_files(request.user)
+        entry.last_edited_by = request.user
+        entry.save()
 
         return response.success({'entry': serialize.EntrySerializer(entry, context={'user': request.user}).data})
 

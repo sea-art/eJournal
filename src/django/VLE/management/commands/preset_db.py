@@ -318,7 +318,7 @@ class Command(BaseCommand):
         for journal in self.journals:
             for node in journal.node_set.all():
                 if node.type == Node.ENTRYDEADLINE:
-                    entry = factory.make_entry(node.preset.forced_template)
+                    entry = factory.make_entry(node.preset.forced_template, journal.authors.first().user)
                     entry.late = faker.boolean()
                     entry.save()
 
@@ -331,7 +331,7 @@ class Command(BaseCommand):
                 for _ in range(random_entries):
                     template = random.choice(journal.assignment.format.template_set.filter(archived=False,
                                                                                            preset_only=False))
-                    entry = factory.make_entry(template)
+                    entry = factory.make_entry(template, journal.authors.first().user)
                     entry.late = faker.boolean()
                     entry.save()
 

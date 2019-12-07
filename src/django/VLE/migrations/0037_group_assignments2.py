@@ -47,4 +47,14 @@ class Migration(migrations.Migration):
             name='assignmentparticipation',
             unique_together={('assignment', 'user')},
         ),
+        migrations.AddField(
+            model_name='entry',
+            name='author',
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='entries', to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AddField(
+            model_name='entry',
+            name='last_edited_by',
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='last_edited_entries', to=settings.AUTH_USER_MODEL),
+        ),
     ]

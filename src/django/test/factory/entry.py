@@ -21,7 +21,9 @@ class EntryFactory(factory.django.DjangoModelFactory):
         self.node.save()
         self.node.journal.node_set.add(self.node)
         self.template = self.node.journal.assignment.format.template_set.filter(preset_only=False).first()
+        self.author = self.node.journal.authors.first().user
         self.save()
+
 
         if self.template:
             for field in self.template.field_set.all():

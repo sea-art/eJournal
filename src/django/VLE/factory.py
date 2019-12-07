@@ -267,17 +267,8 @@ def make_assignment_participation(assignment, author):
     return AssignmentParticipation.objects.create(assignment=assignment, user=author)
 
 
-def make_entry(template):
-    """Create a new entry in a journal.
-
-    Posts it at the specified moment, or when unset, now.
-    Arguments:
-    journal -- is the journal to post the entry in.
-    posttime -- is the time of posting (defaults: now).
-    """
-    # TODO: Too late logic.
-
-    entry = Entry(template=template)
+def make_entry(template, author):
+    entry = Entry(template=template, author=author)
     entry.save()
     return entry
 

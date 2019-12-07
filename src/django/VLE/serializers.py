@@ -511,7 +511,7 @@ class EntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Entry
         fields = ('id', 'creation_date', 'template', 'content', 'editable',
-                  'grade', 'last_edited', 'comments')
+                  'grade', 'last_edited', 'comments', 'author', 'last_edited_by')
         read_only_fields = ('id', 'template', 'creation_date', 'content', 'grade')
 
     def get_template(self, entry):
