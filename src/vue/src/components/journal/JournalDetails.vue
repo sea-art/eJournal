@@ -10,8 +10,8 @@
         />
         <!-- TODO GROUPS ENGEL: Change permission to journal manage -->
         <span
-            v-if="assignment.is_group_assignment && (assignment.can_set_journal_name || can_set_journal_image
-                || $root.hasPermission('can_edit_assignment'))"
+            v-if="assignment.is_group_assignment && (assignment.can_set_journal_name || assignment.can_set_journal_image
+                || $hasPermission('can_edit_assignment'))"
             class="edit-journal"
             @click="showEditJournalModal"
         >
@@ -76,6 +76,7 @@
 <script>
 import editJournal from '@/components/journal/EditJournal.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
+import journalAPI from '@/api/journal.js'
 
 export default {
     components: {
