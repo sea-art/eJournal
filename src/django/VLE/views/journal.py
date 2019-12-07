@@ -12,6 +12,7 @@ import VLE.utils.grading as grading
 import VLE.utils.responses as response
 from VLE.models import Assignment, AssignmentParticipation, Course, Journal, User
 from VLE.serializers import JournalSerializer
+from VLE.tasks.grading import update_author_grade_to_LMS
 
 
 class JournalView(viewsets.ViewSet):
@@ -208,9 +209,9 @@ class JournalView(viewsets.ViewSet):
         if journal.authors.count() >= journal.author_limit:
             return response.bad_request('This journal is already full.')
 
-        student = AssignmentParticipation.objects.get(assignment=journal.assignment, user=request.user)
-        journal.authors.add(student)
-        journal.save()
+        author = AssignmentParticipation.objects.get(assignment=journal.assignment, user=request.user)
+        journal.authors.add(author)
+        update_author_grade_to_LMS.delay(author.pk)
 
         serializer = JournalSerializer(journal, context={'user': request.user})
         return response.success({'journal': serializer.data})
@@ -245,9 +246,9 @@ class JournalView(viewsets.ViewSet):
         if journal.authors.count() >= journal.author_limit:
             return response.bad_request('This journal is already full.')
 
-        student = AssignmentParticipation.objects.get(assignment=journal.assignment, user=user)
-        journal.authors.add(student)
-        journal.save()
+        author = AssignmentParticipation.objects.get(assignment=journal.assignment, user=user)
+        journal.authors.add(author)
+        update_author_grade_to_LMS.delay(author.pk)
 
         serializer = JournalSerializer(journal, context={'user': request.user})
         return response.success({'journal': serializer.data})
@@ -270,7 +271,12 @@ class JournalView(viewsets.ViewSet):
 
         author = AssignmentParticipation.objects.get(user=request.user, journal=journal)
         journal.authors.remove(author)
-        journal.save()
+        if journal.authors.count() == 0:
+            journal.reset()
+
+        if self.assignment.remove_grade_upon_leave:
+            update_author_grade_to_LMS.delay(author.pk)
+
 
         return response.success(description='Successfully removed from the journal.')
 
@@ -297,7 +303,11 @@ class JournalView(viewsets.ViewSet):
 
         author = AssignmentParticipation.objects.get(user=user, journal=journal)
         journal.authors.remove(author)
-        journal.save()
+        if journal.authors.count() == 0:
+            journal.reset()
+
+        if self.assignment.remove_grade_upon_leave:
+            update_author_grade_to_LMS.delay(author.pk)
 
         return response.success(description='Successfully removed from the journal.')
 

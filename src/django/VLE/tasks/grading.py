@@ -29,6 +29,36 @@ def publish_all_assignment_grades(user, assignment_pk):
 
 
 @shared_task
+def update_author_grade_to_LMS(author_pk, journal=None):
+    """Sends the grade of an author to the LMS
+
+    It sets the grade to 0 if no journal is found."""
+    author = AssignmentParticipation.objects.get(pk=author_pk)
+    if journal is None:
+        journal = Journal.objects.filter(authors__in=[author]).first()
+
+    if author.sourcedid is None:
+        return "{} has no sourcedid".format(author.to_string(user=author.user.username))
+    if author.grade_url is None:
+        return "{} has no grade_url".format(author.to_string(user=author.user.username))
+
+    if journal is not None:
+        # Reflag -> all entries grade needs to be submitted to LMS
+        Entry.objects.filter(grade__published=True, node__journal=journal).update(vle_coupling=Entry.GRADING)
+        grade_request = GradePassBackRequest(author, journal.get_grade(), send_score=True)
+    else:
+        grade_request = GradePassBackRequest(author, 0, send_score=True)
+
+    response = grade_request.send_post_request()
+
+    if response['code_mayor'] == 'success':
+        # Reflag -> all entries grade (weighted avg) has been successfully submitted to LMS
+        Entry.objects.filter(grade__published=True, node__journal=journal).update(vle_coupling=Entry.LINK_COMPLETE)
+        return "{}'s grade was succesfully sent to the LMS".format(author.user.username)
+
+    return "{}'s grade could not be sent to the LMS. Response was: {}".format(author.user.username, response)
+
+@shared_task
 def send_journal_grade_to_LMS(journal_pk):
     """Sends the grade of a journal to the LMS
 
@@ -37,20 +67,7 @@ def send_journal_grade_to_LMS(journal_pk):
 
     Task results (or errors) are logged as a result string"""
     journal = Journal.objects.get(pk=journal_pk)
+    responses = []
     for author in journal.authors.all():
-        if author.sourcedid is None or author.grade_url is None:
-            return "This author has no sourcedid: {} or grade_url: {}, skipping".format(
-                author.sourcedid, author.grade_url)
-
-        # Reflag -> all entries grade needs to be submitted to LMS
-        Entry.objects.filter(grade__published=True, node__journal=journal).update(vle_coupling=Entry.GRADING)
-
-        grade_request = GradePassBackRequest(author, journal.get_grade(), send_score=True)
-        response = grade_request.send_post_request()
-
-        if response['code_mayor'] == 'success':
-            # Reflag -> all entries grade (weighted avg) has been successfully submitted to LMS
-            Entry.objects.filter(grade__published=True, node__journal=journal).update(vle_coupling=Entry.LINK_COMPLETE)
-            return "Journal {} grade was succesfully sent to the LMS".format(journal_pk)
-
-        return "Journal {} grade could not be sent to the LMS. Response was: {}".format(journal_pk, response)
+        responses.append(update_author_grade_to_LMS(author.pk, journal))
+    return '\n'.join(responses)
