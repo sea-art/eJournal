@@ -47,6 +47,7 @@
                             <entry-node
                                 ref="entry-template-card"
                                 :journal="journal"
+                                :assignment="assignment"
                                 :cID="cID"
                                 :entryNode="nodes[currentNode]"
                                 @edit-node="adaptData"
@@ -58,6 +59,7 @@
                                 <entry-node
                                     ref="entry-template-card"
                                     :journal="journal"
+                                    :assignment="assignment"
                                     :cID="cID"
                                     :entryNode="nodes[currentNode]"
                                     @edit-node="adaptData"

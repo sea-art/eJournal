@@ -75,14 +75,17 @@
             </div>
             <hr class="full-width"/>
             <div class="timestamp">
-                <span
-                    v-if="$root.beautifyDate(entryNode.entry.last_edited)
-                        === $root.beautifyDate(entryNode.entry.creation_date)"
-                >
+                <span v-if="entryNode.entry.last_edited_by == null">
                     Submitted on: {{ $root.beautifyDate(entryNode.entry.creation_date) }}
+                    <template v-if="assignment && assignment.is_group_assignment">
+                        by {{ entryNode.entry.author }}
+                    </template>
                 </span>
                 <span v-else>
                     Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}
+                    <template v-if="assignment && assignment.is_group_assignment">
+                        by {{ entryNode.entry.last_edited_by }}
+                    </template>
                 </span>
                 <b-badge
                     v-if="entryNode.due_date && new Date(entryNode.due_date) < new Date(entryNode.entry.last_edited)"
@@ -173,7 +176,7 @@ export default {
         dropdownButton,
         entryFields,
     },
-    props: ['entryNode', 'journal'],
+    props: ['entryNode', 'journal', 'assignment'],
     data () {
         return {
             completeContent: [],

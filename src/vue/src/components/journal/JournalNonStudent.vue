@@ -45,6 +45,7 @@
                                 ref="entry-template-card"
                                 :journal="journal"
                                 :entryNode="nodes[currentNode]"
+                                :assignment="assignment"
                                 @check-grade="loadJournal(true)"
                             />
                         </div>
