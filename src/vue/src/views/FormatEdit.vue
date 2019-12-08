@@ -97,8 +97,10 @@
                     <b-card class="no-hover border-red">
                         <b-button
                             v-if="$hasPermission('can_delete_assignment')"
-                            :class="{'input-disabled': assignmentDetails.lti_count > 1 && assignmentDetails.active_lti_course
-                                && parseInt(assignmentDetails.active_lti_course.cID) === parseInt($route.params.cID)}"
+                            :class="{
+                                'input-disabled': assignmentDetails.lti_count > 1 && assignmentDetails.active_lti_course
+                                    && parseInt(assignmentDetails.active_lti_course.cID) ===
+                                        parseInt($route.params.cID)}"
                             class="delete-button full-width"
                             @click="deleteAssignment"
                         >

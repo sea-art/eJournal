@@ -156,7 +156,6 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import journalStartCard from '@/components/journal/JournalStartCard.vue'
 import journalEndCard from '@/components/journal/JournalEndCard.vue'
-import studentCard from '@/components/assignment/StudentCard.vue'
 import journalDetails from '@/components/journal/JournalDetails.vue'
 import progressNode from '@/components/entry/ProgressNode.vue'
 
@@ -175,7 +174,6 @@ export default {
         progressNode,
         journalStartCard,
         journalEndCard,
-        studentCard,
         journalDetails,
     },
     props: ['cID', 'aID', 'jID'],
