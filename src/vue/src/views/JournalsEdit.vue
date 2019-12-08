@@ -13,7 +13,7 @@
         <div slot="right-content-column">
             <h3>Actions</h3>
             <b-button
-                v-if="$hasPermission('can_edit_assignment')"
+                v-if="$hasPermission('can_edit_journals')"
                 class="multi-form change-button full-width"
                 @click.prevent.stop="$router.push({ name: 'FormatEdit', params: { cID: cID, aID: aID } })"
             >

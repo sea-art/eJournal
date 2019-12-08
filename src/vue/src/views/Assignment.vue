@@ -212,7 +212,7 @@
                 class="no-hover border-dark-grey"
             />
             <b-button
-                v-if="$hasPermission('can_edit_assignment') && assignment.is_group_assignment"
+                v-if="$hasPermission('can_edit_journals') && assignment.is_group_assignment"
                 class="multi-form add-button"
                 @click="showModal('createJournalModal')"
             >
@@ -221,7 +221,7 @@
             </b-button>
 
             <b-modal
-                v-if="$hasPermission('can_edit_assignment') && assignment.is_group_assignment"
+                v-if="$hasPermission('can_edit_journals') && assignment.is_group_assignment"
                 ref="createJournalModal"
                 title="Create new journals"
                 size="lg"

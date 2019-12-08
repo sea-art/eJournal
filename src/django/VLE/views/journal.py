@@ -110,7 +110,7 @@ class JournalView(viewsets.ViewSet):
         if amount < 1:
             return response.bad_request('Amount needs to be higher then 1.')
 
-        request.user.check_permission('can_edit_assignment', assignment)
+        request.user.check_permission('can_edit_journals', assignment)
 
         journals = []
         journal_count = Journal.objects.filter(assignment=assignment).count()
@@ -169,14 +169,14 @@ class JournalView(viewsets.ViewSet):
         if name is not None or author_limit is not None:
             # Update name if allowed
             if name is not None:
-                if not request.user.has_permission('can_edit_assignment', journal.assignment):
+                if not request.user.has_permission('can_edit_journals', journal.assignment):
                     if not journal.assignment.can_set_journal_name:
                         return response.forbidden('You are not allowed to change the journal name.')
                 journal.name = name
                 journal.save()
             # Update author_limit if allowed
             if author_limit is not None:
-                if not request.user.has_permission('can_edit_assignment', journal.assignment):
+                if not request.user.has_permission('can_edit_journals', journal.assignment):
                     return response.forbidden('You are not allowed to change the max users.')
                 if not journal.assignment.is_group_assignment:
                     return response.bad_request('You can only set author_limit for group assignments.')
@@ -326,7 +326,7 @@ class JournalView(viewsets.ViewSet):
 
         request.user.check_can_view(journal.assignment)
 
-        if not request.user.has_permission('can_edit_assignment', journal.assignment):
+        if not request.user.has_permission('can_edit_journals', journal.assignment):
             if not journal.authors.filter(user=request.user).exists():
                 return response.bad_request('You can only lock journals that you are in.')
             elif not journal.assignment.can_lock_journal:
