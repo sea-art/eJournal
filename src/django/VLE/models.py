@@ -444,6 +444,43 @@ class Role(models.Model):
     - name: name of the role
     - list of permissions (can_...)
     """
+    GENERAL_PERMISSIONS = [
+        'can_edit_institute_details',
+        'can_add_course'
+    ]
+    COURSE_PERMISSIONS = [
+        'can_edit_course_details',
+        'can_delete_course',
+
+        'can_edit_course_roles',
+        'can_view_course_users',
+        'can_add_course_users',
+        'can_delete_course_users',
+
+        'can_add_course_user_group',
+        'can_delete_course_user_group',
+        'can_edit_course_user_group',
+
+        'can_add_assignment',
+        'can_delete_assignment',
+    ]
+    ASSIGNMENT_PERMISSIONS = [
+        'can_edit_assignment',
+        'can_grade',
+        'can_publish_grades',
+
+        'can_view_all_journals',
+        'can_view_unpublished_assignment',
+        'can_view_grade_history',
+
+        'can_edit_journals',
+        'can_have_journal',
+
+        'can_comment',
+        'can_edit_staff_comment',
+    ]
+    PERMISSIONS = COURSE_PERMISSIONS + ASSIGNMENT_PERMISSIONS
+
     name = models.TextField()
 
     course = models.ForeignKey(
@@ -464,6 +501,7 @@ class Role(models.Model):
     can_delete_assignment = models.BooleanField(default=False)
 
     can_edit_assignment = models.BooleanField(default=False)
+    can_edit_journals = models.BooleanField(default=False)
     can_view_all_journals = models.BooleanField(default=False)
     can_grade = models.BooleanField(default=False)
     can_publish_grades = models.BooleanField(default=False)
@@ -627,6 +665,7 @@ class Assignment(models.Model):
     )
 
     is_group_assignment = models.BooleanField(default=False)
+    remove_grade_upon_leave = models.BooleanField(default=False)
     can_set_journal_name = models.BooleanField(default=False)
     can_set_journal_image = models.BooleanField(default=False)
     can_lock_journal = models.BooleanField(default=False)

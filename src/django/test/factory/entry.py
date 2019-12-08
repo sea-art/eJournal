@@ -24,7 +24,6 @@ class EntryFactory(factory.django.DjangoModelFactory):
         self.author = self.node.journal.authors.first().user
         self.save()
 
-
         if self.template:
             for field in self.template.field_set.all():
                 VLE.models.Content.objects.create(

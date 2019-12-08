@@ -60,21 +60,21 @@ class RoleAPITest(TestCase):
             self, 'roles',
             params={
                 'course_id': self.course.pk,
-                'name': 'name',
+                'name': 'name2',
                 'permissions': ['invalid', 'list']
             }, user=self.teacher, status=400)
         api.create(
             self, 'roles',
             params={
                 'course_id': self.course.pk,
-                'name': 'name',
+                'name': 'name3',
                 'permissions': {'invalid': 'object'}
             }, user=self.teacher, status=400)
         resp = api.create(
             self, 'roles',
             params={
                 'course_id': self.course.pk,
-                'name': 'name2',
+                'name': 'name4',
                 'permissions': {'can_edit_course_roles': True}
             }, user=self.teacher)
 

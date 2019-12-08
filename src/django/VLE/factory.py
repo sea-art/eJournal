@@ -300,66 +300,31 @@ def make_content(entry, data, field=None):
     return content
 
 
-def make_role_default_no_perms(name, course, can_edit_course_details=False, can_delete_course=False,
-                               can_edit_course_roles=False, can_view_course_users=False, can_add_course_users=False,
-                               can_delete_course_users=False, can_add_course_user_group=False,
-                               can_delete_course_user_group=False, can_edit_course_user_group=False,
-                               can_add_assignment=False, can_delete_assignment=False, can_edit_assignment=False,
-                               can_view_all_journals=False, can_grade=False, can_publish_grades=False,
-                               can_view_grade_history=False, can_have_journal=False, can_comment=False,
-                               can_edit_staff_comment=False, can_view_unpublished_assignment=False):
+def make_role_default_no_perms(name, course, *args, **kwargs):
     """Make a role with all permissions set to false.
 
     Arguments:
     name -- name of the role (needs to be unique)
     can_... -- permission
     """
-    role = Role(
+    permissions = {permission: kwargs.get(permission, False) for permission in Role.PERMISSIONS}
+    role = Role.objects.create(
         name=name,
         course=course,
-
-        can_edit_course_details=can_edit_course_details,
-        can_delete_course=can_delete_course,
-        can_edit_course_roles=can_edit_course_roles,
-        can_view_course_users=can_view_course_users,
-        can_add_course_users=can_add_course_users,
-        can_delete_course_users=can_delete_course_users,
-        can_add_course_user_group=can_add_course_user_group,
-        can_delete_course_user_group=can_delete_course_user_group,
-        can_edit_course_user_group=can_edit_course_user_group,
-        can_add_assignment=can_add_assignment,
-        can_delete_assignment=can_delete_assignment,
-
-        can_edit_assignment=can_edit_assignment,
-        can_view_unpublished_assignment=can_view_unpublished_assignment,
-        can_view_all_journals=can_view_all_journals,
-        can_grade=can_grade,
-        can_publish_grades=can_publish_grades,
-        can_view_grade_history=can_view_grade_history,
-        can_have_journal=can_have_journal,
-        can_comment=can_comment,
-        can_edit_staff_comment=can_edit_staff_comment
+        **permissions
     )
-    role.save()
     return role
 
 
-def make_role_default_all_perms(name, course, can_edit_course_details=True, can_delete_course=True,
-                                can_edit_course_roles=True, can_view_course_users=True, can_add_course_users=True,
-                                can_delete_course_users=True, can_add_course_user_group=True,
-                                can_delete_course_user_group=True, can_edit_course_user_group=True,
-                                can_add_assignment=True, can_delete_assignment=True, can_edit_assignment=True,
-                                can_view_all_journals=True, can_grade=True, can_publish_grades=True,
-                                can_view_grade_history=True, can_have_journal=True, can_comment=True,
-                                can_edit_staff_comment=True, can_view_unpublished_assignment=True):
+def make_role_default_all_perms(name, course, *args, **kwargs):
     """Makes a role with all permissions set to true."""
-    return make_role_default_no_perms(name, course, can_edit_course_details, can_delete_course, can_edit_course_roles,
-                                      can_view_course_users, can_add_course_users, can_delete_course_users,
-                                      can_add_course_user_group, can_delete_course_user_group,
-                                      can_edit_course_user_group, can_add_assignment, can_delete_assignment,
-                                      can_edit_assignment, can_view_all_journals, can_grade, can_publish_grades,
-                                      can_view_grade_history, can_have_journal, can_comment, can_edit_staff_comment,
-                                      can_view_unpublished_assignment)
+    permissions = {permission: kwargs.get(permission, True) for permission in Role.PERMISSIONS}
+    role = Role.objects.create(
+        name=name,
+        course=course,
+        **permissions
+    )
+    return role
 
 
 def make_role_student(name, course):

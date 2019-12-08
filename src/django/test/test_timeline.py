@@ -57,7 +57,7 @@ class TimelineTests(TestCase):
 
     def test_sorted(self):
         """Test is the sort function works."""
-        entry = VLE.factory.make_entry(self.template)
+        entry = VLE.factory.make_entry(self.template, self.journal.authors.first().user)
         node = VLE.factory.make_node(self.journal, entry)
         nodes = utils.get_sorted_nodes(self.journal)
 
@@ -67,7 +67,7 @@ class TimelineTests(TestCase):
 
     def test_json(self):
         """Test is the to dict function works correctly."""
-        entry = VLE.factory.make_entry(self.template)
+        entry = VLE.factory.make_entry(self.template, self.journal.authors.first().user)
         VLE.factory.make_node(self.journal, entry)
 
         nodes = timeline.get_nodes(self.journal, self.student)

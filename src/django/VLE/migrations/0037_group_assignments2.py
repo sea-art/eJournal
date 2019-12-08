@@ -57,4 +57,48 @@ class Migration(migrations.Migration):
             name='last_edited_by',
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='last_edited_entries', to=settings.AUTH_USER_MODEL),
         ),
+        migrations.RemoveField(
+            model_name='assignment',
+            name='group_size',
+        ),
+        migrations.AddField(
+            model_name='assignment',
+            name='can_lock_journal',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='assignment',
+            name='can_set_journal_image',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='assignment',
+            name='can_set_journal_name',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='assignment',
+            name='is_group_assignment',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='journal',
+            name='author_limit',
+            field=models.IntegerField(default=1),
+        ),
+        migrations.AddField(
+            model_name='journal',
+            name='name',
+            field=models.TextField(null=True),
+        ),
+        migrations.AddField(
+            model_name='journal',
+            name='locked',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='assignment',
+            name='remove_grade_upon_leave',
+            field=models.BooleanField(default=False),
+        ),
     ]

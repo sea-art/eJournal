@@ -5,7 +5,7 @@ from celery import shared_task
 import VLE.lti_grade_passback as lti_grade
 from VLE import factory
 from VLE.lti_grade_passback import GradePassBackRequest
-from VLE.models import Assignment, Comment, Entry, Journal
+from VLE.models import Assignment, AssignmentParticipation, Comment, Entry, Journal
 
 
 @shared_task
