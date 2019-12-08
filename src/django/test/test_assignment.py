@@ -6,12 +6,14 @@ from test.utils.generic_utils import equal_models
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
+from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
 
 import VLE.factory
 import VLE.utils.generic_utils as utils
-from VLE.models import Assignment, Course, Entry, Format, Journal, Node, Participation, PresetNode, Role, Template
+from VLE.models import (Assignment, AssignmentParticipation, Course, Entry, Format, Journal, Node, Participation,
+                        PresetNode, Role, Template)
 from VLE.views.assignment import day_neutral_datetime_increment, set_assignment_dates
 
 
@@ -648,3 +650,10 @@ class AssignmentAPITest(TestCase):
         assert journals.filter(assignment=normal_after, authors__user=student_after).exists(), \
             'Normal assignment should get journals also for students where course is added later'
         assert journals.count() == 1, 'Only normal_after should generate journal for that student'
+
+    def test_assignment_participation_unique(self):
+        journal = factory.Journal()
+        student = journal.authors.first().user
+        assignment = journal.assignment
+
+        self.assertRaises(IntegrityError, AssignmentParticipation.objects.create, user=student, assignment=assignment)

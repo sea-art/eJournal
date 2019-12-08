@@ -3,7 +3,9 @@ from test.utils import api
 
 from django.test import TestCase
 
+import VLE.factory
 from VLE.models import Journal
+from VLE.utils.error_handling import VLEBadRequest
 
 
 class JournalAPITest(TestCase):
@@ -58,6 +60,17 @@ class JournalAPITest(TestCase):
         assert before_count + 2 == after_count, '2 new journals should be added'
         assert Journal.objects.filter(assignment=self.group_assignment).last().author_limit == 3, \
             'Journal should have the proper max amount of users'
+
+    def test_make_journal(self):
+        self.assertRaises(VLEBadRequest, VLE.factory.make_journal, self.group_assignment, author=self.student)
+        self.assertRaises(VLEBadRequest, VLE.factory.make_journal, self.assignment, author_limit=4)
+        other_student = factory.Student()
+        VLE.factory.make_journal(self.assignment, author=other_student)
+        assert Journal.objects.filter(assignment=self.assignment, authors__user=other_student).exists(), \
+            'make_journal should create a journal and AP if they do not exist yet'
+        VLE.factory.make_journal(self.assignment, author=other_student)
+        assert Journal.objects.filter(assignment=self.assignment, authors__user=other_student).count() == 1, \
+            'make_journal should not create a journal and AP if they already exist'
 
     def test_update_journal(self):
         # Check if students need to specify a name to update journals

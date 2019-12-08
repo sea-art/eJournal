@@ -114,7 +114,7 @@ def make_course_group(name, course, lti_id=None):
 
 def make_assignment(name, description, author=None, format=None, active_lti_id=None,
                     points_possible=10, is_published=None, unlock_date=None, due_date=None,
-                    lock_date=None, course_ids=None, courses=None, is_group_assignment=False,
+                    lock_date=None, courses=[], is_group_assignment=False,
                     can_set_journal_name=False, can_set_journal_image=False, can_lock_journal=False):
     """Make a new assignment.
 
@@ -157,12 +157,9 @@ def make_assignment(name, description, author=None, format=None, active_lti_id=N
             lock_date = lock_date[:-1-len(lock_date.split(' ')[2])]
         assign.lock_date = lock_date
     assign.save()
-    if course_ids:
-        for course_id in course_ids:
-            assign.add_course(Course.objects.get(pk=course_id))
-    if courses:
-        for course in courses:
-            assign.add_course(course)
+
+    for course in courses:
+        assign.add_course(course)
 
     return assign
 

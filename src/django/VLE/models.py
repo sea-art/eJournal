@@ -734,7 +734,7 @@ class Assignment(models.Model):
                 if is_new:
                     existing = []
                     for user in users:
-                        ap = AssignmentParticipation.objects.create(assignment=self, user=user['users'])
+                        AssignmentParticipation.objects.create(assignment=self, user=user['users'])
                 else:
                     existing = Journal.objects.filter(assignment=self.pk).values('authors__user')
                 for user in users.exclude(pk__in=existing):
@@ -837,10 +837,6 @@ class AssignmentParticipation(models.Model):
     sourcedid = models.TextField(null=True)
     grade_url = models.TextField(null=True)
 
-    @property
-    def name(self):
-        self.user.username
-
     def save(self, *args, **kwargs):
         is_new = self._state.adding
         super(AssignmentParticipation, self).save(*args, **kwargs)
@@ -852,9 +848,7 @@ class AssignmentParticipation(models.Model):
                 journal.authors.add(self)
 
     def to_string(self, user=None):
-        if user is None:
-            return "Participant"
-        if not user.can_view(self.assignment):
+        if user is None or not user.can_view(self.assignment):
             return "Participant"
 
         return "{0} in {1}".format(self.user.username, self.assignment.name)
