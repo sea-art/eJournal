@@ -507,12 +507,20 @@ class EntrySerializer(serializers.ModelSerializer):
     editable = serializers.SerializerMethodField()
     grade = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
+    author = serializers.SerializerMethodField()
+    last_edited_by = serializers.SerializerMethodField()
 
     class Meta:
         model = Entry
         fields = ('id', 'creation_date', 'template', 'content', 'editable',
                   'grade', 'last_edited', 'comments', 'author', 'last_edited_by')
         read_only_fields = ('id', 'template', 'creation_date', 'content', 'grade')
+
+    def get_author(self, entry):
+        return entry.author.full_name
+
+    def get_last_edited_by(self, entry):
+        return None if entry.last_edited_by is None else entry.last_edited_by.full_name
 
     def get_template(self, entry):
         return TemplateSerializer(entry.template).data

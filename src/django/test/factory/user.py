@@ -11,6 +11,7 @@ class UserFactory(factory.django.DjangoModelFactory):
         model = 'VLE.User'
 
     username = factory.Sequence(lambda x: "user{}".format(x))
+    full_name = factory.Sequence(lambda x: "Full name {}".format(x))
     email = factory.Sequence(lambda x: 'email{}@example.com'.format(x))
     password = factory.PostGenerationMethodCall('set_password', DEFAULT_PASSWORD)
     verified_email = True

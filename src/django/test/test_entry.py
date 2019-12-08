@@ -12,7 +12,8 @@ from VLE.utils.error_handling import VLEPermissionError
 class EntryAPITest(TestCase):
     def setUp(self):
         self.admin = factory.Admin()
-        self.journal = factory.Journal()
+        self.g_assignment = factory.GroupAssignment()
+        self.journal = factory.Journal(assignment=self.g_assignment)
         self.student = self.journal.authors.first().user
         self.journal2 = factory.Journal(assignment=self.journal.assignment)
         self.student2 = self.journal2.authors.first().user
@@ -35,13 +36,14 @@ class EntryAPITest(TestCase):
         fields = Field.objects.filter(template=self.template)
         self.valid_create_params['content'] = [{'data': 'test data', 'id': field.id} for field in fields]
 
-    def test_create(self):
+    def test_create_entry(self):
         # Check valid entry creation
         resp = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
         entry = Entry.objects.get(pk=resp['id'])
         self.student.check_can_edit(entry)
         resp2 = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
         assert resp['id'] != resp2['id'], 'Multiple creations should lead to different ids'
+        assert resp['author'] == self.student.full_name
 
         # Check if students cannot update journals without required parts filled in
         create_params = self.valid_create_params.copy()
@@ -174,7 +176,7 @@ class EntryAPITest(TestCase):
         assert len(resp['content']) == 3 and resp['content'][2]['data'] == 'filled', \
             'Response should have filled the optional fields'
 
-    def test_update(self):
+    def test_update_entry(self):
         entry = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
 
         params = {
@@ -186,6 +188,13 @@ class EntryAPITest(TestCase):
         }
 
         api.update(self, 'entries', params=params.copy(), user=self.student)
+
+        # Check if last_edited_by gets set to the correct other user
+        last_edited = factory.AssignmentParticipation(assignment=self.journal.assignment)
+        self.journal.authors.add(last_edited)
+        resp = api.update(self, 'entries', params=params.copy(), user=last_edited.user)['entry']
+        assert resp['last_edited_by'] == last_edited.user.full_name
+
         # Other users shouldn't be able to update an entry
         api.update(self, 'entries', params=params.copy(), user=self.teacher, status=403)
 

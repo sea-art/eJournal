@@ -35,7 +35,7 @@ class RoleAPITest(TestCase):
                 status=403)
         api.get(self, 'roles', params={'pk': self.student.pk, 'course_id': self.course.pk}, user=self.teacher)
 
-    def test_create(self):
+    def test_create_role(self):
         api.create(self, 'roles', user=self.teacher, status=400)
 
         # Test not author of course
@@ -44,9 +44,8 @@ class RoleAPITest(TestCase):
         api.create(self, 'roles', params={'course_id': self.course.pk, 'name': 'name'}, user=self.student, status=403)
 
         api.create(self, 'roles', params={'course_id': self.course.pk, 'name': 'name'}, user=self.teacher)
-        # TODO: Test same name
-        # api.create(self, 'roles', params={'course_id': self.course.pk, 'name': 'name'}, user=self.teacher,
-        #            status=400)
+        # Test cannot create the same role twice
+        api.create(self, 'roles', params={'course_id': self.course.pk, 'name': 'name'}, user=self.teacher, status=400)
 
         # Test invalid permissions
         api.create(
