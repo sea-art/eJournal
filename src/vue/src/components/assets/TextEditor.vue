@@ -6,7 +6,11 @@
         :ref="`ref-${id}`"
         class="editor-container"
     >
-        <textarea
+        <!-- <textarea
+            :id="id"
+            :placeholder="placeholder"
+        /> -->
+        <div
             :id="id"
             :placeholder="placeholder"
         />
@@ -105,7 +109,7 @@ export default {
                 menubar: true,
                 branding: false,
                 statusbar: true,
-                inline: false,
+                inline: false, // TODO not compatible with tabindex -1 (bootstrap modal)
                 image_title: true,
                 resize: true, // TODO not working as clean as on v4
 
@@ -123,11 +127,11 @@ export default {
                 placeholder_attrs: {
                     style: {
                         position: 'absolute',
-                        top: '19px',
-                        left: 13,
+                        top: '0px',
+                        left: 0,
                         color: '#888',
                         fontsize: '1.2em',
-                        padding: '0.375rem 0.75rem',
+                        padding: '13px 0 0 6px',
                         overflow: 'hidden',
                         'font-family': 'Roboto Condensed',
                         'white-space': 'pre-wrap',
@@ -229,9 +233,13 @@ export default {
             vm.initValue(vm.value)
         },
         setupInlineDisplay (editor) {
+            // TODO might be source of: blockAfter.js:2 Uncaught ReferenceError: do_not_mitigate_inline_scripts
+            // is not defined
+            // But could also be due to inline property set
+            // Does not occur on firefox
             const container = this.$refs[`ref-${this.id}`]
 
-            if (!this.basic) { container.querySelector('div.tox-editor-header').style.display = 'none' }
+            container.querySelector('div.tox-editor-header').style.display = 'none'
             if (this.footer) { container.querySelector('div.tox-statusbar').style.display = 'none' }
 
             editor.on('focus', () => {
@@ -299,7 +307,7 @@ export default {
             this.config.menu = this.extensiveConfigMenu.menu
         },
         minifyTextArea () {
-            this.config.min_height = 0
+            this.config.min_height = 10
             this.config.max_height = 260
             this.config.autoresize_bottom_margin = 0.1
             this.config.placeholder_attrs.style.left = 6
