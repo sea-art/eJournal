@@ -2,7 +2,10 @@
 <!-- If more events are desired, here is an overview: https://www.tiny.cloud/docs/advanced/events/ -->
 
 <template>
-    <div class="editor-container">
+    <div
+        :ref="`ref-${id}`"
+        class="editor-container"
+    >
         <textarea
             :id="id"
             :placeholder="placeholder"
@@ -12,7 +15,7 @@
 
 <script>
 import tinymce from 'tinymce/tinymce'
-import 'tinymce/themes/modern/theme'
+import 'tinymce/themes/silver'
 
 /* Only works with basic lists enabled. */
 import 'tinymce/plugins/advlist'
@@ -20,7 +23,6 @@ import 'tinymce/plugins/autolink'
 import 'tinymce/plugins/autoresize'
 /* Allows direct manipulation of the html aswell as easy export. */
 import 'tinymce/plugins/code'
-import 'tinymce/plugins/colorpicker'
 import 'tinymce/plugins/fullscreen'
 import 'tinymce/plugins/image'
 import 'tinymce/plugins/imagetools'
@@ -35,13 +37,16 @@ import 'tinymce/plugins/hr'
 import 'tinymce/plugins/searchreplace'
 import 'tinymce/plugins/spellchecker'
 import 'tinymce/plugins/table'
-import 'tinymce/plugins/textcolor'
 import 'tinymce/plugins/textpattern'
 /* Table of contents. */
 import 'tinymce/plugins/toc'
 import 'tinymce/plugins/wordcount'
 
-import 'public/external/tinymce/plugins/placeholder.js'
+import 'public/tinymce/plugins/placeholder.js'
+
+// import contentStyle from '!!raw-loader!tinymce/skins/ui/oxide/content.css'
+// import contentStyle2 from '!!raw-loader!tinymce/skins/content/default/content.css'
+// content_style: contentStyle.toString() + '\n' + contentStyle2.toString(),
 
 export default {
     name: 'TextEditor',
@@ -88,7 +93,7 @@ export default {
                 init_instance_callback: this.editorInit,
                 // QUESTION: How the bloody hell do we make this available with webpack so we can use node modules,
                 // whilst also predetermining the correct url before bundling?.
-                skin_url: '/external/tinymce/skins/lightgray',
+                skin_url: '/tinymce/skins/ui/oxide',
 
                 paste_data_images: true,
                 /* https://www.tiny.cloud/docs/configure/file-image-upload/#images_dataimg_filter
@@ -102,19 +107,15 @@ export default {
                 statusbar: true,
                 inline: false,
                 image_title: true,
+                resize: true, // TODO not working as clean as on v4
 
-                autoresize_min_height: 150,
-                autoresize_max_height: 400,
+                min_height: 260,
+                max_height: 500,
                 autoresize_bottom_margin: 10,
+                // autoresize_overflow_padding: 10, // TODO check if theme can benefit from this setting
 
-                /* Custom styling applied to the editor */
-                content_style: `
-                    @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700');
-                    body {
-                        font-family: 'Roboto Condensed', sans-serif;
-                        font-size: 16px !important;
-                    }
-                `,
+                /* Custom style applied to the content of the editor */
+                content_css: '/tinymce/content.css',
 
                 file_picker_types: 'image',
                 file_picker_callback: this.insertDataURL,
@@ -138,7 +139,7 @@ export default {
                     + '| forecolor backcolor | formatselect | bullist numlist | image media table '
                     + '| removeformat fullscreentoggle fullscreen',
                 plugins: [
-                    'placeholder autoresize paste textcolor image lists wordcount autolink',
+                    'placeholder autoresize paste image lists wordcount autolink',
                     'table media fullscreen',
                 ],
             },
@@ -148,7 +149,7 @@ export default {
                 plugins: [
                     'placeholder link media preview paste print hr lists advlist wordcount autolink',
                     'autoresize code fullscreen image imagetools',
-                    'textcolor searchreplace table toc',
+                    'searchreplace table toc',
                 ],
             },
             extensiveConfigMenu: {
@@ -187,8 +188,6 @@ export default {
 
         if (this.limitedColors) {
             this.setCustomColors()
-        } else {
-            this.config.plugins.push('colorpicker')
         }
 
         if (this.minifiedTextArea) { this.minifyTextArea() }
@@ -230,23 +229,22 @@ export default {
             vm.initValue(vm.value)
         },
         setupInlineDisplay (editor) {
-            editor.theme.panel.find('toolbar')[0].$el.hide()
-            if (!this.basic) { editor.theme.panel.find('menubar')[0].$el.hide() }
-            if (this.footer) { editor.theme.panel.find('#statusbar')[0].$el.hide() }
+            const container = this.$refs[`ref-${this.id}`]
+
+            if (!this.basic) { container.querySelector('div.tox-editor-header').style.display = 'none' }
+            if (this.footer) { container.querySelector('div.tox-statusbar').style.display = 'none' }
 
             editor.on('focus', () => {
                 this.justFocused = true
                 setTimeout(() => { this.justFocused = false }, 20)
-                if (!this.basic) { editor.theme.panel.find('menubar')[0].$el.show() }
-                editor.theme.panel.find('toolbar')[0].$el.show()
-                if (this.footer) { editor.theme.panel.find('#statusbar')[0].$el.show() }
+                container.querySelector('div.tox-editor-header').style.display = 'block'
+                if (this.footer) { container.querySelector('div.tox-statusbar').style.display = 'flex' }
             })
 
             editor.on('blur', () => {
                 if (this.justFocused) { return }
-                if (!this.basic) { editor.theme.panel.find('menubar')[0].$el.hide() }
-                editor.theme.panel.find('toolbar')[0].$el.hide()
-                if (this.footer) { editor.theme.panel.find('#statusbar')[0].$el.hide() }
+                container.querySelector('div.tox-editor-header').style.display = 'none'
+                if (this.footer) { container.querySelector('div.tox-statusbar').style.display = 'none' }
             })
         },
         handleShortCuts (e) {
@@ -280,15 +278,14 @@ export default {
             input.click()
         },
         setCustomColors () {
-            /* Enables some basic colors too chose from, inline with the websites theme colors. */
-            this.config.textcolor_cols = 4
-            this.config.textcolor_rows = 1
-            this.config.textcolor_map = [
+            /* Enables some basic colors to chose from, inline with the websites theme colors. */
+            this.config.color_map = [
                 '252C39', 'Theme dark blue',
                 '007E33', 'Theme positive selected',
                 'FF8800', 'Theme change selected',
                 'CC0000', 'Theme negative selected',
             ]
+            this.config.custom_colors = false
         },
         setBasicConfig () {
             this.config.menubar = false
@@ -302,8 +299,8 @@ export default {
             this.config.menu = this.extensiveConfigMenu.menu
         },
         minifyTextArea () {
-            this.config.autoresize_min_height = 0
-            this.config.autoresize_max_height = 150
+            this.config.min_height = 0
+            this.config.max_height = 260
             this.config.autoresize_bottom_margin = 0.1
             this.config.placeholder_attrs.style.left = 6
         },
