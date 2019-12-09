@@ -305,10 +305,10 @@ class JournalView(viewsets.ViewSet):
         user = User.objects.get(pk=user_id)
 
         if not journal.assignment.is_group_assignment:
-            return response.bad_request('Student can only be kicked from group assignments.')
+            return response.bad_request('Students can only be kicked from journals in group assignments.')
 
         if not journal.authors.filter(user=user).exists():
-            return response.bad_request('Student is currently not in this journal.')
+            return response.bad_request('Student is currently not a member of this journal.')
 
         author = AssignmentParticipation.objects.get(user=user, journal=journal)
         journal.authors.remove(author)
@@ -318,7 +318,7 @@ class JournalView(viewsets.ViewSet):
         if journal.assignment.remove_grade_upon_leave:
             update_author_grade_to_LMS.delay(author.pk)
 
-        return response.success(description='Successfully kicked {} from the journal.'.format(author.user.full_name))
+        return response.success(description='Successfully removed {} from the journal.'.format(author.user.full_name))
 
     @action(['patch'], detail=True)
     def lock(self, request, pk):
@@ -328,17 +328,17 @@ class JournalView(viewsets.ViewSet):
 
         if not request.user.has_permission('can_manage_journals', journal.assignment):
             if not journal.authors.filter(user=request.user).exists():
-                return response.bad_request('You can only lock journals that you are in.')
+                return response.bad_request('You can only lock members of journals that you are a member of yourself.')
             elif not journal.assignment.can_lock_journal:
-                return response.bad_request('The teacher disabled (un)locking journals for students.')
+                return response.bad_request('The teacher disabled (un)locking journal members for students.')
 
         if not journal.assignment.is_group_assignment:
-            return response.bad_request('You can only lock group assignments.')
+            return response.bad_request('You can only lock journal members for group assignments.')
 
         journal.locked, = utils.required_typed_params(request.data, (bool, 'locked'))
         journal.save()
 
-        return response.success(description='Successfully {}locked the journal.'.format('' if journal.locked else 'un'))
+        return response.success(description='Successfully {}locked journal members.'.format('' if journal.locked else 'un'))
 
     def admin_update(self, request, journal):
         req_data = request.data
