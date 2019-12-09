@@ -52,6 +52,8 @@ import 'public/tinymce/plugins/placeholder.js'
 // import contentStyle2 from '!!raw-loader!tinymce/skins/content/default/content.css'
 // content_style: contentStyle.toString() + '\n' + contentStyle2.toString(),
 
+import auth from '@/api/auth.js'
+
 export default {
     name: 'TextEditor',
     props: {
@@ -95,34 +97,37 @@ export default {
             config: {
                 selector: `#${this.id}`,
                 init_instance_callback: this.editorInit,
+
+                /* Style */
                 // QUESTION: How the bloody hell do we make this available with webpack so we can use node modules,
                 // whilst also predetermining the correct url before bundling?.
                 skin_url: '/tinymce/skins/ui/oxide',
-
-                paste_data_images: true,
-                /* https://www.tiny.cloud/docs/configure/file-image-upload/#images_dataimg_filter
-                 * Disables conversion of base64 images into blobs, only used when pasting an image. */
-                images_dataimg_filter (img) {
-                    return img.hasAttribute('internal-blob')
-                },
+                /* Custom style applied to the content of the editor */
+                content_css: '/tinymce/content.css',
 
                 menubar: true,
                 branding: false,
                 statusbar: true,
                 inline: false, // TODO not compatible with tabindex -1 (bootstrap modal)
-                image_title: true,
                 resize: true, // TODO not working as clean as on v4
 
+                /* File handling */
+                image_title: true,
+                // paste_data_images: true, // TODO Check if we can convert these to actual files else remove
+                /* https://www.tiny.cloud/docs/configure/file-image-upload/#images_dataimg_filter
+                 * Disables conversion of base64 images into blobs, only used when pasting an image. */
+                // images_dataimg_filter (img) {
+                //     return img.hasAttribute('internal-blob')
+                // },
+                images_upload_handler: this.imageUploadHandler,
+                // file_picker_types: 'image',
+                // file_picker_callback: this.insertDataURL,
+
+                /* Editor size */
                 min_height: 260,
                 max_height: 500,
                 autoresize_bottom_margin: 10,
                 // autoresize_overflow_padding: 10, // TODO check if theme can benefit from this setting
-
-                /* Custom style applied to the content of the editor */
-                content_css: '/tinymce/content.css',
-
-                file_picker_types: 'image',
-                file_picker_callback: this.insertDataURL,
 
                 placeholder_attrs: {
                     style: {
@@ -259,6 +264,27 @@ export default {
             if (this.editor.plugins.fullscreen.isFullscreen() && e.key === 'Escape') {
                 this.editor.execCommand('mceFullScreen', { skip_focus: true })
             }
+        },
+        imageUploadHandler (blobInfo, success, failure) {
+            const file = blobInfo.blob()
+            const formData = new FormData()
+
+            console.log(blobInfo.id()) // blobidXXX
+            console.log(blobInfo.name()) // filename
+            console.log(blobInfo.blob()) // file
+            console.log(blobInfo.filename()) // filename + extension
+
+            if (file.size > this.$root.maxFileSizeBytes) {
+                return failure(`The selected file exceeds the maximum file size of: ${this.maxSizeBytes} bytes.`)
+            }
+
+            formData.append('file', file)
+
+            auth.uploadFile('users/upload', formData)
+                .then(() => { success('TODO pass retrieved location from response') })
+                .catch(() => { failure('File upload failed') })
+
+            return failure('TOO BAD')
         },
         insertDataURL () {
             const input = document.createElement('input')
