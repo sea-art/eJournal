@@ -31,14 +31,19 @@
             <b>
                 {{ journal.name }}
             </b><br/>
-            <icon
-                name="lock"
-                class="lock-members-icon"
-                :class="{
-                    'fill-red': journal.locked,
-                    'fill-grey': !journal.locked
-                }"
-            />
+            <div
+                @click="lockJournal"
+            >
+                <icon
+                    :name="journal.locked ? 'lock' : 'unlock'"
+                    class="lock-members-icon"
+                    :class="{
+                        'fill-red': journal.locked,
+                        'fill-grey': !journal.locked,
+                        'trash-icon': assignment.can_lock_journal || $hasPermission('can_edit_journals')
+                    }"
+                />
+            </div>
             <b class="member-count">
                 Members ({{ journal.authors.length }}/{{ journal.author_limit }})
             </b>
@@ -47,10 +52,16 @@
                 :key="`journal-member-${author.username}`"
                 class="member"
             >
-                <icon
-                    name="sign-out"
-                    class="float-right trash-icon"
-                />
+                <div
+                    v-if="(author.username == $store.getters['user/username'] && !journal.locked) ||
+                        $hasPermission('can_edit_journals')"
+                    @click="$hasPermission('can_edit_journals') ? kickFromJournal(author) : leaveJournal()"
+                >
+                    <icon
+                        name="sign-out"
+                        class="float-right trash-icon"
+                    />
+                </div>
                 <b class="max-one-line">
                     {{ author.full_name }}
                 </b>
@@ -123,6 +134,14 @@ export default {
                                 cID: this.assignment.course.id, aID: this.assignment.id,
                             },
                         })
+                    })
+            }
+        },
+        kickFromJournal (user) {
+            if (window.confirm(`Are you sure you want to kick ${user.full_name}?`)) {
+                journalAPI.kick(this.journal.id, user.id, { responseSuccessToast: true })
+                    .then(() => {
+                        this.journal.authors = this.journal.authors.filter(author => author.user.id !== user.id)
                     })
             }
         },

@@ -318,7 +318,7 @@ class JournalView(viewsets.ViewSet):
         if journal.assignment.remove_grade_upon_leave:
             update_author_grade_to_LMS.delay(author.pk)
 
-        return response.success(description='Successfully removed from the journal.')
+        return response.success(description='Successfully kicked {} from the journal.'.format(author.user.full_name))
 
     @action(['patch'], detail=True)
     def lock(self, request, pk):
@@ -330,7 +330,7 @@ class JournalView(viewsets.ViewSet):
             if not journal.authors.filter(user=request.user).exists():
                 return response.bad_request('You can only lock journals that you are in.')
             elif not journal.assignment.can_lock_journal:
-                return response.bad_request('The teacher has disabled (un)locking journals.')
+                return response.bad_request('The teacher disabled (un)locking journals for students.')
 
         if not journal.assignment.is_group_assignment:
             return response.bad_request('You can only lock group assignments.')

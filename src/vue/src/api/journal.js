@@ -36,6 +36,11 @@ export default {
             .then(response => response.data)
     },
 
+    kick (id, userId, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.update(`journals/${id}/kick`, { user_id: userId }, connArgs)
+            .then(response => response.data)
+    },
+
     lock (id, locked, connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.update(`journals/${id}/lock`, { locked }, connArgs)
             .then(response => response.data)
