@@ -11,7 +11,7 @@
         <!-- TODO GROUPS ENGEL: Change permission to journal manage -->
         <span
             v-if="assignment.is_group_assignment && (assignment.can_set_journal_name || assignment.can_set_journal_image
-                || $hasPermission('can_edit_journals'))"
+                || $hasPermission('can_manage_journals'))"
             class="edit-journal"
             @click="showEditJournalModal"
         >
@@ -40,7 +40,7 @@
                     :class="{
                         'fill-red': journal.locked,
                         'fill-grey': !journal.locked,
-                        'trash-icon': assignment.can_lock_journal || $hasPermission('can_edit_journals')
+                        'trash-icon': assignment.can_lock_journal || $hasPermission('can_manage_journals')
                     }"
                 />
             </div>
@@ -54,8 +54,8 @@
             >
                 <div
                     v-if="(author.username == $store.getters['user/username'] && !journal.locked) ||
-                        $hasPermission('can_edit_journals')"
-                    @click="$hasPermission('can_edit_journals') ? kickFromJournal(author) : leaveJournal()"
+                        $hasPermission('can_manage_journals')"
+                    @click="$hasPermission('can_manage_journals') ? kickFromJournal(author) : leaveJournal()"
                 >
                     <icon
                         name="sign-out"

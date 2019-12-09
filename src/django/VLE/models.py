@@ -473,7 +473,7 @@ class Role(models.Model):
         'can_view_unpublished_assignment',
         'can_view_grade_history',
 
-        'can_edit_journals',
+        'can_manage_journals',
         'can_have_journal',
 
         'can_comment',
@@ -501,7 +501,7 @@ class Role(models.Model):
     can_delete_assignment = models.BooleanField(default=False)
 
     can_edit_assignment = models.BooleanField(default=False)
-    can_edit_journals = models.BooleanField(default=False)
+    can_manage_journals = models.BooleanField(default=False)
     can_view_all_journals = models.BooleanField(default=False)
     can_grade = models.BooleanField(default=False)
     can_publish_grades = models.BooleanField(default=False)

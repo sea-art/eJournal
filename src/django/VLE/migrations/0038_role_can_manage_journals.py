@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='role',
-            name='can_edit_journals',
+            name='can_manage_journals',
             field=models.BooleanField(default=False),
         ),
     ]
