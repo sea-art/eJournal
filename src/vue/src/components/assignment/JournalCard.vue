@@ -19,9 +19,6 @@
                         :rightNum="unpublished"
                         :title="squareInfo"
                     />
-                    <b-badge v-else-if="!$hasPermission('can_view_all_journals') && journal.locked">
-                        <icon name="lock"/>
-                    </b-badge>
                 </div>
                 <div class="student-details">
                     <b
@@ -34,10 +31,13 @@
                         class="max-one-line"
                         :title="journalAuthors"
                     >
+                        <b
+                            v-if="journal.author_limit > 1"
+                            class="text-grey"
+                        >
+                            ({{ journal.authors.length }}/{{ journal.author_limit }})
+                        </b>
                         {{ journalAuthors }}
-                        <span v-if="journal.author_limit > 1">
-                            ({{ journal.authors.length }} / {{ journal.author_limit }})
-                        </span>
                     </span>
                 </div>
             </b-col>
