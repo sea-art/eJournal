@@ -338,7 +338,8 @@ class JournalView(viewsets.ViewSet):
         journal.locked, = utils.required_typed_params(request.data, (bool, 'locked'))
         journal.save()
 
-        return response.success(description='Successfully {}locked journal members.'.format('' if journal.locked else 'un'))
+        return response.success(description='Successfully {}locked journal members.'.format(
+            '' if journal.locked else 'un'))
 
     def admin_update(self, request, journal):
         req_data = request.data
