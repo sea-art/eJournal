@@ -60,6 +60,17 @@ class JournalAPITest(TestCase):
         assert before_count + 2 == after_count, '2 new journals should be added'
         assert Journal.objects.filter(assignment=self.group_assignment).last().author_limit == 3, \
             'Journal should have the proper max amount of users'
+        assert Journal.objects.filter(assignment=self.group_assignment).first().name == 'Journal 1', \
+            'Group journals should get a default name if it is not specified'
+
+    def test_journal_name(self):
+        non_group_journal = factory.Journal()
+        assert non_group_journal.name == non_group_journal.author.user.full_name, \
+            'Non group journals should get name of author'
+        non_group_journal.authors.first().user.full_name = non_group_journal.authors.first().user.full_name + 'NEW'
+        non_group_journal.authors.first().user.save()
+        assert non_group_journal.name == non_group_journal.author.user.full_name, \
+            'Non group journals name should get updated when author name changes'
 
     def test_make_journal(self):
         self.assertRaises(VLEBadRequest, VLE.factory.make_journal, self.group_assignment, author=self.student)

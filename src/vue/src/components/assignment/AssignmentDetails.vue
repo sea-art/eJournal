@@ -107,7 +107,8 @@
             v-if="assignmentDetails.is_group_assignment || !assignmentDetails.id"
             class="no-hover"
         >
-            <template v-if="!assignmentDetails.id">
+            {{ assignment }}
+            <template v-if="assignment.journals === null || assignment.journal.length === 0">
                 <toggle-switch
                     :isActive="assignmentDetails.is_group_assignment"
                     class="float-right"

@@ -27,7 +27,7 @@ class FormatAPITest(TestCase):
             'presets': []
         }
 
-    def test_update(self):
+    def test_update_format(self):
         # TODO: Improve template testing
         api.update(
             self, 'formats', params={
@@ -56,12 +56,18 @@ class FormatAPITest(TestCase):
         api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
                    user=factory.Admin())
 
-        # Check cannot unpublish if there are journals
+        # Check cannot unpublish/change assignment type if there are journals
+        group_dict = self.update_dict.copy()
+        group_dict['assignment_details']['is_group_assignment'] = True
         self.update_dict['assignment_details']['is_published'] = False
         api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
                    user=self.teacher, status=400)
+        api.update(self, 'formats', params={'pk': self.assignment.pk, **group_dict},
+                   user=self.teacher, status=400)
         Journal.objects.filter(assignment=self.assignment).delete()
         api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
+                   user=self.teacher, status=200)
+        api.update(self, 'formats', params={'pk': self.assignment.pk, **group_dict},
                    user=self.teacher, status=200)
         self.update_dict['assignment_details']['is_published'] = True
         api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},

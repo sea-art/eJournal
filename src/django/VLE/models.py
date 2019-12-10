@@ -700,7 +700,8 @@ class Assignment(models.Model):
                     if Journal.objects.filter(assignment=self).exists():
                         raise ValidationError('Cannot unpublish an assignment that has journals.')
                 if pre_save.is_group_assignment != self.is_group_assignment:
-                    raise ValidationError('Cannot change assignment type after creation.')
+                    if Journal.objects.filter(assignment=self).exists():
+                        raise ValidationError('Cannot change the type of an assignment that has journals.')
             # A copy is being made of the original instance
             else:
                 self.active_lti_id = None
@@ -934,7 +935,8 @@ class Journal(models.Model):
     def save(self, *args, **kwargs):
         is_new = self._state.adding
         if self.name is None:
-            self.name = 'Journal {}'.format(Journal.objects.filter(assignment=self.assignment).count() + 1)
+            if self.assignment.is_group_assignment:
+                self.name = 'Journal {}'.format(Journal.objects.filter(assignment=self.assignment).count() + 1)
         super(Journal, self).save(*args, **kwargs)
         # On create add preset nodes
         if is_new:
