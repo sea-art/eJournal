@@ -184,9 +184,7 @@ def select_create_journal(request, user, assignment):
     if assignment is None or user is None:
         return None
 
-    author = AssignmentParticipation.objects.filter(user=user, assignment=assignment).first()
-    if author is None:
-        author = AssignmentParticipation.objects.create(user=user, assignment=assignment)
+    author = AssignmentParticipation.objects.get_or_create(user=user, assignment=assignment)[0]
     journal = Journal.objects.filter(authors__in=[author], assignment=assignment).first()
     # Update the grade_url and sourcedid if the active LMS link is followed.
     if assignment.active_lti_id == request['custom_assignment_id']:

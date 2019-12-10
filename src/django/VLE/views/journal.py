@@ -284,7 +284,7 @@ class JournalView(viewsets.ViewSet):
         if journal.authors.count() == 0:
             journal.reset()
 
-        if journal.assignment.remove_grade_upon_leave:
+        if journal.assignment.remove_grade_upon_leaving_group:
             update_author_grade_to_LMS.delay(author.pk)
 
         return response.success(description='Successfully removed from the journal.')
@@ -315,7 +315,7 @@ class JournalView(viewsets.ViewSet):
         if journal.authors.count() == 0:
             journal.reset()
 
-        if journal.assignment.remove_grade_upon_leave:
+        if journal.assignment.remove_grade_upon_leaving_group:
             update_author_grade_to_LMS.delay(author.pk)
 
         return response.success(description='Successfully removed {} from the journal.'.format(author.user.full_name))

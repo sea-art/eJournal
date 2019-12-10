@@ -167,7 +167,7 @@ def replace_result(journal):
     returns the lti reponse.
     """
     change_entry_vle_coupling(journal, Entry.GRADING)
-
+    response = None
     for author in journal.authors.all():
         if author.sourcedid is None or author.grade_url is None:
             continue
@@ -175,7 +175,8 @@ def replace_result(journal):
         grade_request = GradePassBackRequest(author, journal.get_grade(), send_score=True)
         response = grade_request.send_post_request()
 
-        if response['code_mayor'] == 'success':
-            change_entry_vle_coupling(journal, Entry.LINK_COMPLETE)
-        else:
+        if response['code_mayor'] != 'success':
             return response
+
+    change_entry_vle_coupling(journal, Entry.LINK_COMPLETE)
+    return response

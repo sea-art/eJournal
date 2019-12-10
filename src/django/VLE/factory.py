@@ -11,7 +11,6 @@ from django.utils import timezone
 import VLE.validators as validators
 from VLE.models import (Assignment, AssignmentParticipation, Comment, Content, Course, Entry, Field, Format, Grade,
                         Group, Instance, Journal, Node, Participation, PresetNode, Role, Template, User, UserFile)
-from VLE.settings.base import DEFAULT_PROFILE_PICTURE
 from VLE.utils.error_handling import VLEBadRequest
 
 
@@ -24,7 +23,7 @@ def make_instance(allow_standalone_registration=None):
     return instance
 
 
-def make_user(username, password=None, email=None, lti_id=None, profile_picture=DEFAULT_PROFILE_PICTURE,
+def make_user(username, password=None, email=None, lti_id=None, profile_picture=settings.DEFAULT_PROFILE_PICTURE,
               is_superuser=False, is_teacher=False, full_name=None, verified_email=False, is_staff=False,
               is_test_student=False):
     """Create a user.
@@ -223,10 +222,7 @@ def make_node(journal, entry=None, type=Node.ENTRY, preset=None):
     journal -- journal the node belongs to.
     entry -- entry the node belongs to.
     """
-    node = Node.objects.filter(type=type, entry=entry, preset=preset, journal=journal).first()
-    if node is None:
-        node = Node.objects.create(type=type, entry=entry, preset=preset, journal=journal)
-    return node
+    return Node.objects.get_or_create(type=type, entry=entry, preset=preset, journal=journal)[0]
 
 
 def make_journal(assignment, author=None, author_limit=None):
@@ -244,7 +240,7 @@ def make_journal(assignment, author=None, author_limit=None):
 
     else:
         if author_limit is not None:
-            raise VLEBadRequest('Non group-journals should not be initialized author_limit')
+            raise VLEBadRequest('Non group-journals should not be initialized with an author_limit')
         if Journal.objects.filter(assignment=assignment, authors__user=author).exists():
             return Journal.objects.get(assignment=assignment, authors__user=author)
 

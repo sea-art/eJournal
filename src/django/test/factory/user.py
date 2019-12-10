@@ -1,8 +1,6 @@
 import factory
 from django.conf import settings
 
-from VLE.settings.base import DEFAULT_PROFILE_PICTURE
-
 DEFAULT_PASSWORD = 'Pass1234!'
 
 
@@ -16,7 +14,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     password = factory.PostGenerationMethodCall('set_password', DEFAULT_PASSWORD)
     verified_email = True
 
-    profile_picture = DEFAULT_PROFILE_PICTURE
+    profile_picture = settings.DEFAULT_PROFILE_PICTURE
 
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')

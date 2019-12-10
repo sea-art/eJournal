@@ -16,7 +16,6 @@ from django.utils import timezone
 from django.utils.timezone import now
 
 import VLE.permissions as permissions
-from VLE.settings.base import DEFAULT_PROFILE_PICTURE
 from VLE.utils import sanitization
 from VLE.utils.error_handling import (VLEBadRequest, VLEParticipationError, VLEPermissionError, VLEProgrammingError,
                                       VLEUnverifiedEmailError)
@@ -665,7 +664,7 @@ class Assignment(models.Model):
     )
 
     is_group_assignment = models.BooleanField(default=False)
-    remove_grade_upon_leave = models.BooleanField(default=False)
+    remove_grade_upon_leaving_group = models.BooleanField(default=False)
     can_set_journal_name = models.BooleanField(default=False)
     can_set_journal_image = models.BooleanField(default=False)
     can_lock_journal = models.BooleanField(default=False)
@@ -913,10 +912,10 @@ class Journal(models.Model):
 
     def get_image(self):
         for author in self.authors.all():
-            if author.user.profile_picture != DEFAULT_PROFILE_PICTURE:
+            if author.user.profile_picture != settings.DEFAULT_PROFILE_PICTURE:
                 return author.user.profile_picture
 
-        return DEFAULT_PROFILE_PICTURE
+        return settings.DEFAULT_PROFILE_PICTURE
 
     def get_full_names(self):
         if self.authors.count() == 0:

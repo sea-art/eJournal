@@ -13,7 +13,6 @@ from faker import Faker
 
 import VLE.factory as factory
 from VLE.models import AssignmentParticipation, Course, Field, Journal, Node, User
-from VLE.settings.base import DEFAULT_PROFILE_PICTURE
 
 faker = Faker()
 
@@ -125,7 +124,7 @@ class Command(BaseCommand):
         for key, value in users_examples.items():
             self.users[key] = User.objects.create(**value)
             self.users[key].set_password(value['password'])
-            self.users[key].profile_picture = DEFAULT_PROFILE_PICTURE
+            self.users[key].profile_picture = settings.DEFAULT_PROFILE_PICTURE
             self.users[key].save()
 
     def gen_courses(self):

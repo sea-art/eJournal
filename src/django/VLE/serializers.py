@@ -125,8 +125,8 @@ class AssignmentParticipationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AssignmentParticipation
-        fields = '__all__'
-        read_only_fields = ('id', 'joural', 'assignment')
+        fields = ('id', 'journal', 'assignment', 'user')
+        read_only_fields = ('id', 'journal', 'assignment')
 
     def get_user(self, participation):
         return UserSerializer(participation.user, context=self.context).data
@@ -287,7 +287,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
         try:
             return Journal.objects.get(assignment=assignment, authors__user=self.context['user']).pk
         except Journal.DoesNotExist:
-            return -1
+            return None
 
     def get_journals(self, assignment):
         """Retrieves the journals of an assignment of the users who have the permission
