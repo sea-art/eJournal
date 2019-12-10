@@ -160,12 +160,13 @@ class AssignmentDetailsSerializer(serializers.ModelSerializer):
     course_count = serializers.SerializerMethodField()
     lti_count = serializers.SerializerMethodField()
     active_lti_course = serializers.SerializerMethodField()
+    can_change_type = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
         fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date',
                   'is_published', 'course_count', 'lti_count', 'active_lti_course', 'is_group_assignment',
-                  'can_set_journal_name', 'can_set_journal_image', 'can_lock_journal')
+                  'can_set_journal_name', 'can_set_journal_image', 'can_lock_journal', 'can_change_type')
         read_only_fields = ('id', )
 
     def get_course_count(self, assignment):
@@ -185,6 +186,9 @@ class AssignmentDetailsSerializer(serializers.ModelSerializer):
                 return {'cID': c.pk, 'name': c.name}
             return None
         return None
+
+    def get_can_change_type(self, assignment):
+        return not Journal.objects.filter(assignment=assignment).exists()
 
 
 class AssignmentSerializer(serializers.ModelSerializer):

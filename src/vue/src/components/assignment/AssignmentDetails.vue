@@ -14,8 +14,7 @@
                 v-if="assignmentDetails.is_published"
                 v-b-tooltip.hover
                 class="add-button multi-form ml-2"
-                title="This assignment is visible to students.
-                Once an assignment is published, it cannot be unpublished"
+                title="This assignment is visible to students"
                 @click="assignmentDetails.is_published = false"
             >
                 <icon name="check"/>
@@ -25,8 +24,7 @@
                 v-if="!assignmentDetails.is_published"
                 v-b-tooltip.hover
                 class="delete-button multi-form ml-2"
-                title="This assignment is not visible to students.
-                Once an assignment is published, it cannot be unpublished"
+                title="This assignment is not visible to students"
                 @click="assignmentDetails.is_published = true"
             >
                 <icon name="times"/>
@@ -104,24 +102,22 @@
             </b-col>
         </b-row>
         <b-card
-            v-if="assignmentDetails.is_group_assignment || !assignmentDetails.id"
+            v-if="assignmentDetails.is_group_assignment || !assignmentDetails.id || assignmentDetails.can_change_type"
             class="no-hover"
         >
-            {{ assignment }}
-            <template v-if="assignment.journals === null || assignment.journal.length === 0">
-                <toggle-switch
-                    :isActive="assignmentDetails.is_group_assignment"
-                    class="float-right"
-                    @parentActive="(isActive) => { assignmentDetails.is_group_assignment = isActive }"
-                />
-                <h2 class="field-heading multi-form">
-                    Group assignment
-                </h2>
-                Have multiple students contribute to a shared journal.
-                Selecting this option requires you to create journals on the assignment page for students to join.
-                <hr/>
-            </template>
+            <toggle-switch
+                :isActive="assignmentDetails.is_group_assignment"
+                :class="{ 'input-disabled': assignmentDetails.id && !assignmentDetails.can_change_type }"
+                class="float-right"
+                @parentActive="(isActive) => { assignmentDetails.is_group_assignment = isActive }"
+            />
+            <h2 class="field-heading multi-form">
+                Group assignment
+            </h2>
+            Have multiple students contribute to a shared journal.
+            Selecting this option requires you to create journals on the assignment page for students to join.
             <template v-if="assignmentDetails.is_group_assignment">
+                <hr/>
                 <toggle-switch
                     :isActive="assignmentDetails.can_lock_journal"
                     class="float-right"

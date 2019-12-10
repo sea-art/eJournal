@@ -439,7 +439,6 @@ export default {
                 this.loadingJournals = false
                 this.assignment = results[0]
                 this.assignmentJournals = results[0].journals
-                console.log(this.assignmentJournals)
                 this.groups = results[1].sort((a, b) => b.name < a.name)
                 const participant = results[2]
 
