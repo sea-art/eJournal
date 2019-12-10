@@ -1,17 +1,18 @@
 import base64
 import re
 from mimetypes import guess_extension
+from django.core.files.base import ContentFile
 
 from django.db import migrations, models
 
 
-def base64ToFile(string):
+def base64ToContentFile(string):
     matches = re.findall(r'data:(.*);base64,(.*)', string)[0]
     mimetype = matches[0]
     extension = guess_extension(mimetype)
-    filename = '/path/name' + extension  # TODO
-    with open(filename, 'wb') as f:
-        f.write(base64.b64decode(matches[1]))
+    filename = '/path/name'  # TODO
+    return ContentFile(base64.b64decode(matches[1]), name='{}{}'.format(filename, extension))
+
 
 def convertBase64ToFiles(apps, schema_editor):
     Assignment = apps.get_model('VLE', 'Assignment')
