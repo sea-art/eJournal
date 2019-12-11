@@ -34,6 +34,7 @@
                     v-if="journal && journal.needs_lti_link && assignment && assignment.active_lti_course"
                     show
                 >
+                    <!-- TODO GROUPS: add the names of the users that need to setup a connection through LTI -->
                     <b>Warning:</b> You cannot update this journal until you visit the assignment in your LMS
                     (Canvas) course '{{ assignment.active_lti_course.name }}' at least once.
                 </b-alert>
