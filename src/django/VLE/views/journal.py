@@ -201,7 +201,8 @@ class JournalView(viewsets.ViewSet):
             user_id -- (optional) user of student who joins the journal
         """
         journal = Journal.objects.get(pk=pk)
-
+        # TODO GROUPS: result data needs to be set to LTI passback when student joins.
+        # Only when entries need to be graded
         # Check if user is student in assignment
         request.user.check_can_view(journal.assignment)
         request.user.check_permission('can_have_journal', journal.assignment)
@@ -267,7 +268,8 @@ class JournalView(viewsets.ViewSet):
     def leave(self, request, pk):
         """Leave a journal"""
         journal = Journal.objects.get(pk=pk)
-
+        # TODO GROUPS: result data needs to be reset on LTI passback when student leaves
+        # Links needs to be set to where the teacher gets explained that the author recently left
         request.user.check_can_view(journal.assignment)
 
         if not journal.assignment.is_group_assignment:
