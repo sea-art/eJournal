@@ -125,8 +125,8 @@ class AssignmentParticipationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AssignmentParticipation
-        fields = '__all__'
-        read_only_fields = ('id', 'joural', 'assignment')
+        fields = ('id', 'journal', 'assignment', 'user')
+        read_only_fields = ('id', 'journal', 'assignment')
 
     def get_user(self, participation):
         return UserSerializer(participation.user, context=self.context).data
@@ -160,12 +160,13 @@ class AssignmentDetailsSerializer(serializers.ModelSerializer):
     course_count = serializers.SerializerMethodField()
     lti_count = serializers.SerializerMethodField()
     active_lti_course = serializers.SerializerMethodField()
+    can_change_type = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
         fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date',
                   'is_published', 'course_count', 'lti_count', 'active_lti_course', 'is_group_assignment',
-                  'can_set_journal_name', 'can_set_journal_image', 'can_lock_journal')
+                  'can_set_journal_name', 'can_set_journal_image', 'can_lock_journal', 'can_change_type')
         read_only_fields = ('id', )
 
     def get_course_count(self, assignment):
@@ -185,6 +186,9 @@ class AssignmentDetailsSerializer(serializers.ModelSerializer):
                 return {'cID': c.pk, 'name': c.name}
             return None
         return None
+
+    def get_can_change_type(self, assignment):
+        return not Journal.objects.filter(assignment=assignment).exists()
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
@@ -283,7 +287,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
         try:
             return Journal.objects.get(assignment=assignment, authors__user=self.context['user']).pk
         except Journal.DoesNotExist:
-            return -1
+            return None
 
     def get_journals(self, assignment):
         """Retrieves the journals of an assignment of the users who have the permission

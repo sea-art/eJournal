@@ -26,6 +26,7 @@ def send_email_verification_link(user_pk):
     We have received a request for email verification. If it was you who made this request, \
     please click the button below to verify your email address. If you have not made this \
     request please ignore this email.'''
+    email_data['full_name'] = user.full_name
     email_data['extra_content'] = 'Token: {}'.format(token)
     email_data['button_url'] = '{}/EmailVerification/{}/{}'.format(settings.BASELINK, user.username, token)
     email_data['button_text'] = 'Verify Email'
@@ -58,6 +59,7 @@ def send_password_recovery_link(user_pk):
     We have received a request for password recovery. If it was you who made this request, \
     please click the button below to set a new password. If you have not made this \
     request please ignore this email.'''
+    email_data['full_name'] = user.full_name
     email_data['extra_content'] = 'Token: {}'.format(token)
     email_data['button_url'] = '{}/PasswordRecovery/{}/{}'.format(settings.BASELINK, user.username, token)
     email_data['button_text'] = 'Set New Password'

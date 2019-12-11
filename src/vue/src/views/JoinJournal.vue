@@ -11,8 +11,15 @@
             :listView="true"
             :journal="journal"
             :assignment="assignment"
-            :class="{ 'input-disabled': journal.authors.length >= journal.author_limit }"
+            :class="{ 'input-disabled': journal.author_limit != 0 && journal.authors.length >= journal.author_limit }"
             @click.native="joinJournal(journal.id)"
+        />
+        <main-card
+            v-if="journals.length === 0"
+            slot="main-content-column"
+            line1="No journals for this assignment"
+            line2="Please ask your teacher to create a journal for you to join."
+            class="no-hover border-dark-grey"
         />
     </content-columns>
 </template>
@@ -21,6 +28,7 @@
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import mainCard from '@/components/assets/MainCard.vue'
 import journalCard from '@/components/assignment/JournalCard.vue'
 
 import journalAPI from '@/api/journal.js'
@@ -31,6 +39,7 @@ export default {
     components: {
         contentColumns,
         breadCrumb,
+        mainCard,
         journalCard,
     },
     props: {

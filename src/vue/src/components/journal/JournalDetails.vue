@@ -1,5 +1,4 @@
 <template>
-    <!-- TODO GROUPS ENGEL: Use APIs -->
     <b-card
         class="journal-details"
         :class="$root.getBorderClass($route.params.cID)"
@@ -8,10 +7,8 @@
             :src="journal.image"
             class="journal-image no-hover"
         />
-        <!-- TODO GROUPS ENGEL: Change permission to journal manage -->
         <span
-            v-if="assignment.is_group_assignment && (assignment.can_set_journal_name || assignment.can_set_journal_image
-                || $hasPermission('can_manage_journals'))"
+            v-if="canManageJournal"
             class="edit-journal"
             @click="showEditJournalModal"
         >
@@ -28,24 +25,30 @@
             v-if="assignment.is_group_assignment"
             class="members"
         >
-            <b>
-                {{ journal.name }}
-            </b><br/>
             <div
                 @click="lockJournal"
             >
                 <icon
+                    v-b-tooltip.hover
+                    class="lock-members-icon fill-grey"
+                    :title="`Click to ${ journal.locked ? 'un' : '' }lock journal members`"
                     :name="journal.locked ? 'lock' : 'unlock'"
-                    class="lock-members-icon"
                     :class="{
-                        'fill-red': journal.locked,
-                        'fill-grey': !journal.locked,
-                        'trash-icon': assignment.can_lock_journal || $hasPermission('can_manage_journals')
+                        'unlocked-icon': !journal.locked && (assignment.can_lock_journal
+                            || $hasPermission('can_manage_journals')),
+                        'trash-icon': journal.locked && (assignment.can_lock_journal
+                            || $hasPermission('can_manage_journals'))
                     }"
                 />
             </div>
             <b class="member-count">
-                Members ({{ journal.authors.length }}/{{ journal.author_limit }})
+                Members
+                <b
+                    v-if="journal.author_limit > 1"
+                    class="text-grey"
+                >
+                    ({{ journal.authors.length }}/{{ journal.author_limit }})
+                </b>
             </b>
             <div
                 v-for="author in journal.authors.map(a => a.user)"
@@ -71,12 +74,13 @@
             </div>
         </div>
         <b-modal
-            ref="editJournalModal"
+            v-if="canManageJournal"
+            ref="editJournalSettingsModal"
             size="lg"
             title="Edit journal"
             hideFooter
         >
-            <edit-journal
+            <edit-journal-settings
                 :journal="journal"
                 :assignment="assignment"
             />
@@ -85,18 +89,17 @@
 </template>
 
 <script>
-import editJournal from '@/components/journal/EditJournal.vue'
+import editJournalSettings from '@/components/journal/EditJournalSettings.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import journalAPI from '@/api/journal.js'
 
 export default {
     components: {
-        editJournal,
+        editJournalSettings,
         progressBar,
     },
     props: {
         assignment: {
-            default: null,
             required: true,
         },
         journal: {
@@ -119,10 +122,14 @@ export default {
         journalName () {
             return this.journal.name
         },
+        canManageJournal () {
+            return this.assignment.is_group_assignment && (this.assignment.can_set_journal_name
+                || this.assignment.can_set_journal_image || this.$hasPermission('can_grade'))
+        },
     },
     methods: {
         showEditJournalModal () {
-            this.$refs.editJournalModal.show()
+            this.$refs.editJournalSettingsModal.show()
         },
         leaveJournal () {
             if (window.confirm('Are you sure you want to leave this journal?')) {
@@ -138,7 +145,7 @@ export default {
             }
         },
         kickFromJournal (user) {
-            if (window.confirm(`Are you sure you want to kick ${user.full_name}?`)) {
+            if (window.confirm(`Are you sure you want to kick ${user.full_name} from this journal?`)) {
                 journalAPI.kick(this.journal.id, user.id, { responseSuccessToast: true })
                     .then(() => {
                         this.journal.authors = this.journal.authors.filter(author => author.user.id !== user.id)
@@ -161,7 +168,7 @@ export default {
 @import '~sass/modules/colors.sass'
 
 .journal-details
-    .card-body
+    &>.card-body
         padding-top: 45px
     .journal-image
         @extend .shadow

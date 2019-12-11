@@ -98,7 +98,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='assignment',
-            name='remove_grade_upon_leave',
+            name='remove_grade_upon_leaving_group',
             field=models.BooleanField(default=False),
         ),
     ]

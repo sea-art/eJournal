@@ -180,7 +180,7 @@ class JournalView(viewsets.ViewSet):
                     return response.forbidden('You are not allowed to change the max users.')
                 if not journal.assignment.is_group_assignment:
                     return response.bad_request('You can only set author_limit for group assignments.')
-                if journal.authors.count() > author_limit:
+                if author_limit != 0 and journal.authors.count() > author_limit:
                     return response.bad_request('There are too many student in this journal.')
                 journal.author_limit = author_limit
                 journal.save()
@@ -216,7 +216,7 @@ class JournalView(viewsets.ViewSet):
             return response.bad_request('You are already in this journal.')
         if Journal.objects.filter(assignment=journal.assignment, authors__user=request.user).exists():
             return response.bad_request('You may only be in one journal at the time.')
-        if journal.authors.count() >= journal.author_limit:
+        if journal.author_limit != 0 and journal.authors.count() >= journal.author_limit:
             return response.bad_request('This journal is already full.')
 
         author = AssignmentParticipation.objects.get(assignment=journal.assignment, user=request.user)
@@ -253,7 +253,7 @@ class JournalView(viewsets.ViewSet):
             return response.bad_request('Student is already in this journal.')
         if Journal.objects.filter(assignment=journal.assignment, authors__user=user).exists():
             return response.bad_request('Students can only be in one journal at the time.')
-        if journal.authors.count() >= journal.author_limit:
+        if journal.author_limit != 0 and journal.authors.count() >= journal.author_limit:
             return response.bad_request('This journal is already full.')
 
         author = AssignmentParticipation.objects.get(assignment=journal.assignment, user=user)
@@ -284,7 +284,7 @@ class JournalView(viewsets.ViewSet):
         if journal.authors.count() == 0:
             journal.reset()
 
-        if journal.assignment.remove_grade_upon_leave:
+        if journal.assignment.remove_grade_upon_leaving_group:
             update_author_grade_to_LMS.delay(author.pk)
 
         return response.success(description='Successfully removed from the journal.')
@@ -315,7 +315,7 @@ class JournalView(viewsets.ViewSet):
         if journal.authors.count() == 0:
             journal.reset()
 
-        if journal.assignment.remove_grade_upon_leave:
+        if journal.assignment.remove_grade_upon_leaving_group:
             update_author_grade_to_LMS.delay(author.pk)
 
         return response.success(description='Successfully removed {} from the journal.'.format(author.user.full_name))

@@ -16,7 +16,6 @@ from django.utils import timezone
 from django.utils.timezone import now
 
 import VLE.permissions as permissions
-from VLE.settings.base import DEFAULT_PROFILE_PICTURE
 from VLE.utils import sanitization
 from VLE.utils.error_handling import (VLEBadRequest, VLEParticipationError, VLEPermissionError, VLEProgrammingError,
                                       VLEUnverifiedEmailError)
@@ -665,7 +664,7 @@ class Assignment(models.Model):
     )
 
     is_group_assignment = models.BooleanField(default=False)
-    remove_grade_upon_leave = models.BooleanField(default=False)
+    remove_grade_upon_leaving_group = models.BooleanField(default=False)
     can_set_journal_name = models.BooleanField(default=False)
     can_set_journal_image = models.BooleanField(default=False)
     can_lock_journal = models.BooleanField(default=False)
@@ -687,6 +686,7 @@ class Assignment(models.Model):
         self.description = sanitization.strip_script_tags(self.description)
 
         active_lti_id_modified = False
+        delete_journals = False
 
         # Instance is being created (not modified)
         if self._state.adding:
@@ -697,10 +697,13 @@ class Assignment(models.Model):
                 active_lti_id_modified = pre_save.active_lti_id != self.active_lti_id
 
                 if pre_save.is_published and not self.is_published:
-                    if Journal.objects.filter(assignment=self).exists():
-                        raise ValidationError('Cannot unpublish an assignment that has journals.')
+                    if pre_save.has_entries():
+                        raise ValidationError('Cannot unpublish an assignment that has entries.')
                 if pre_save.is_group_assignment != self.is_group_assignment:
-                    raise ValidationError('Cannot change assignment type after creation.')
+                    if pre_save.has_entries():
+                        raise ValidationError('Cannot change the type of an assignment that has entries.')
+                    else:
+                        delete_journals = True
             # A copy is being made of the original instance
             else:
                 self.active_lti_id = None
@@ -736,12 +739,16 @@ class Assignment(models.Model):
                     for user in users:
                         AssignmentParticipation.objects.create(assignment=self, user=user['users'])
                 else:
-                    existing = Journal.objects.filter(assignment=self.pk).values('authors__user')
+                    existing = Journal.objects.filter(assignment=self).values('authors__user')
                 for user in users.exclude(pk__in=existing):
                     ap = AssignmentParticipation.objects.get(assignment=self, user=user['users'])
                     if not Journal.objects.filter(assignment=self, authors__in=[ap]).exists():
                         journal = Journal.objects.create(assignment=self)
                         journal.authors.add(ap)
+
+        # Delete all journals if assignment type changes
+        if delete_journals:
+            Journal.objects.filter(assignment=self).delete()
 
     def get_active_lti_course(self):
         """"Query for retrieving the course which matches the active lti id of the assignment."""
@@ -798,8 +805,8 @@ class Assignment(models.Model):
         course.add_assignment_lti_id(lti_id)
         course.save()
 
-    def can_unpublish(self):
-        return not (self.is_published and Entry.objects.filter(node__journal__assignment=self).exists())
+    def has_entries(self):
+        return Entry.objects.filter(node__journal__assignment=self).exists()
 
     def to_string(self, user=None):
         if user is None:
@@ -912,10 +919,10 @@ class Journal(models.Model):
 
     def get_image(self):
         for author in self.authors.all():
-            if author.user.profile_picture != DEFAULT_PROFILE_PICTURE:
+            if author.user.profile_picture != settings.DEFAULT_PROFILE_PICTURE:
                 return author.user.profile_picture
 
-        return DEFAULT_PROFILE_PICTURE
+        return settings.DEFAULT_PROFILE_PICTURE
 
     def get_full_names(self):
         if self.authors.count() == 0:
@@ -934,7 +941,8 @@ class Journal(models.Model):
     def save(self, *args, **kwargs):
         is_new = self._state.adding
         if self.name is None:
-            self.name = 'Journal {}'.format(Journal.objects.filter(assignment=self.assignment).count() + 1)
+            if self.assignment.is_group_assignment:
+                self.name = 'Journal {}'.format(Journal.objects.filter(assignment=self.assignment).count() + 1)
         super(Journal, self).save(*args, **kwargs)
         # On create add preset nodes
         if is_new:
