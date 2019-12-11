@@ -4,7 +4,7 @@ from test.utils import api
 from django.test import TestCase
 
 import VLE.serializers as serialize
-from VLE.models import Journal, Entry
+from VLE.models import Entry, Journal
 
 
 class FormatAPITest(TestCase):
