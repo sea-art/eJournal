@@ -4,7 +4,7 @@ from test.utils import api
 from django.test import TestCase
 
 import VLE.serializers as serialize
-from VLE.models import Journal
+from VLE.models import Journal, Entry
 
 
 class FormatAPITest(TestCase):
@@ -56,7 +56,8 @@ class FormatAPITest(TestCase):
         api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
                    user=factory.Admin())
 
-        # Check cannot unpublish/change assignment type if there are journals
+        # Check cannot unpublish/change assignment type if there are entries
+        entry = factory.Entry(node__journal__assignment=self.assignment)
         group_dict = self.update_dict.copy()
         group_dict['assignment_details']['is_group_assignment'] = True
         self.update_dict['assignment_details']['is_published'] = False
@@ -64,11 +65,13 @@ class FormatAPITest(TestCase):
                    user=self.teacher, status=400)
         api.update(self, 'formats', params={'pk': self.assignment.pk, **group_dict},
                    user=self.teacher, status=400)
-        Journal.objects.filter(assignment=self.assignment).delete()
+        Entry.objects.filter(node__journal__assignment=self.assignment).delete()
         api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
                    user=self.teacher, status=200)
         api.update(self, 'formats', params={'pk': self.assignment.pk, **group_dict},
                    user=self.teacher, status=200)
+        assert not Journal.objects.filter(node__journal__assignment=self.assignment).exists(), \
+            'All journals should be deleted after type change'
         self.update_dict['assignment_details']['is_published'] = True
         api.update(self, 'formats', params={'pk': self.assignment.pk, **self.update_dict},
                    user=self.teacher, status=200)

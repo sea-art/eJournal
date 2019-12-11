@@ -42,7 +42,13 @@
                 />
             </div>
             <b class="member-count">
-                Members ({{ journal.authors.length }}/{{ journal.author_limit }})
+                Members
+                <b
+                    v-if="journal.author_limit > 1"
+                    class="text-grey"
+                >
+                    ({{ journal.authors.length }}/{{ journal.author_limit }})
+                </b>
             </b>
             <div
                 v-for="author in journal.authors.map(a => a.user)"

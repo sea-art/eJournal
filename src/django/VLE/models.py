@@ -686,6 +686,7 @@ class Assignment(models.Model):
         self.description = sanitization.strip_script_tags(self.description)
 
         active_lti_id_modified = False
+        delete_journals = False
 
         # Instance is being created (not modified)
         if self._state.adding:
@@ -696,11 +697,13 @@ class Assignment(models.Model):
                 active_lti_id_modified = pre_save.active_lti_id != self.active_lti_id
 
                 if pre_save.is_published and not self.is_published:
-                    if Journal.objects.filter(assignment=self).exists():
-                        raise ValidationError('Cannot unpublish an assignment that has journals.')
+                    if pre_save.has_entries():
+                        raise ValidationError('Cannot unpublish an assignment that has entries.')
                 if pre_save.is_group_assignment != self.is_group_assignment:
-                    if Journal.objects.filter(assignment=self).exists():
-                        raise ValidationError('Cannot change the type of an assignment that has journals.')
+                    if pre_save.has_entries():
+                        raise ValidationError('Cannot change the type of an assignment that has entries.')
+                    else:
+                        delete_journals = True
             # A copy is being made of the original instance
             else:
                 self.active_lti_id = None
@@ -736,12 +739,16 @@ class Assignment(models.Model):
                     for user in users:
                         AssignmentParticipation.objects.create(assignment=self, user=user['users'])
                 else:
-                    existing = Journal.objects.filter(assignment=self.pk).values('authors__user')
+                    existing = Journal.objects.filter(assignment=self).values('authors__user')
                 for user in users.exclude(pk__in=existing):
                     ap = AssignmentParticipation.objects.get(assignment=self, user=user['users'])
                     if not Journal.objects.filter(assignment=self, authors__in=[ap]).exists():
                         journal = Journal.objects.create(assignment=self)
                         journal.authors.add(ap)
+
+        # Delete all journals if assignment type changes
+        if delete_journals:
+            Journal.objects.filter(assignment=self).delete()
 
     def get_active_lti_course(self):
         """"Query for retrieving the course which matches the active lti id of the assignment."""
@@ -798,8 +805,8 @@ class Assignment(models.Model):
         course.add_assignment_lti_id(lti_id)
         course.save()
 
-    def can_unpublish(self):
-        return not (self.is_published and Entry.objects.filter(node__journal__assignment=self).exists())
+    def has_entries(self):
+        return Entry.objects.filter(node__journal__assignment=self).exists()
 
     def to_string(self, user=None):
         if user is None:

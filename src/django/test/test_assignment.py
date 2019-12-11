@@ -124,7 +124,7 @@ class AssignmentAPITest(TestCase):
         resp = api.get(self, 'assignments', user=self.teacher)['assignments']
         assert len(resp) == 3, 'Without a course supplied, it should return all assignments connected to user'
 
-    def test_update(self):
+    def test_update_assignment(self):
         assignment = api.create(self, 'assignments', params=self.create_params, user=self.teacher)['assignment']
 
         # Try to publish the assignment

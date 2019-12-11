@@ -107,13 +107,31 @@ class JournalAPITest(TestCase):
         self.group_journal.authors.add(factory.AssignmentParticipation(assignment=self.group_assignment))
         api.update(
             self, 'journals', params={'pk': self.group_journal.pk, 'author_limit': 1}, user=self.g_teacher, status=400)
-        # Check teacher can update name and author_limit
 
+        # Check teacher can update name and author_limit
         api.update(
             self, 'journals', params={'pk': self.group_journal.pk, 'author_limit': 9, 'name': 'NEW'},
             user=self.g_teacher)
         journal = Journal.objects.get(pk=self.group_journal.pk)
         assert journal.author_limit == 9 and journal.name == 'NEW'
+        for _ in range(9):
+            self.group_journal.authors.add(factory.AssignmentParticipation(assignment=self.group_assignment))
+        api.update(
+            self, 'journals', params={'pk': self.group_journal.pk, 'author_limit': 0},
+            user=self.g_teacher)
+        journal = Journal.objects.get(pk=self.group_journal.pk)
+        assert journal.author_limit == 0
+        api.update(
+            self, 'journals', params={'pk': self.group_journal.pk, 'author_limit': 3},
+            user=self.g_teacher, status=400)
+        journal = Journal.objects.get(pk=self.group_journal.pk)
+        assert journal.author_limit == 0
+        api.update(
+            self, 'journals', params={'pk': self.journal.pk, 'author_limit': 3}, user=self.teacher, status=400)
+        api.update(
+            self, 'journals', params={'pk': self.journal.pk, 'name': 'CHANGED'}, user=self.teacher)
+        journal = Journal.objects.get(pk=self.journal.pk)
+        assert journal.author_limit == 1 and journal.name == 'CHANGED'
 
         # Check if teacher can only update the published state
         api.update(self, 'journals', params={'pk': self.journal.pk}, user=self.teacher, status=400)
@@ -144,6 +162,24 @@ class JournalAPITest(TestCase):
         api.update(
             self, 'journals/join', params={'pk': self.group_journal2.pk},
             user=factory.AssignmentParticipation(assignment=self.group_assignment).user, status=400)
+
+        # Check max set to 0 enables infinite amount
+        self.group_journal2.author_limit = 0
+        self.group_journal2.save()
+        for _ in range(3):
+            api.update(
+                self, 'journals/join', params={'pk': self.group_journal2.pk},
+                user=factory.AssignmentParticipation(assignment=self.group_assignment).user)
+
+        # Check can only leave if author_limit is too low
+        self.group_journal2.author_limit = 2
+        self.group_journal2.save()
+        api.update(
+            self, 'journals/join', params={'pk': self.group_journal2.pk},
+            user=factory.AssignmentParticipation(assignment=self.group_assignment).user, status=400)
+        api.update(
+            self, 'journals/leave', params={'pk': self.group_journal2.pk},
+            user=self.group_journal2.authors.first().user)
 
         # Check locked journal
         self.group_journal.locked = True
