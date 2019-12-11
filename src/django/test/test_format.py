@@ -57,7 +57,7 @@ class FormatAPITest(TestCase):
                    user=factory.Admin())
 
         # Check cannot unpublish/change assignment type if there are entries
-        entry = factory.Entry(node__journal__assignment=self.assignment)
+        factory.Entry(node__journal__assignment=self.assignment)
         group_dict = self.update_dict.copy()
         group_dict['assignment_details']['is_group_assignment'] = True
         self.update_dict['assignment_details']['is_published'] = False
