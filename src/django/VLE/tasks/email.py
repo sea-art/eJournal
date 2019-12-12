@@ -37,7 +37,7 @@ def send_email_verification_link(user_pk):
     email = EmailMultiAlternatives(
         subject='eJournal email verification',
         body=text_content,
-        from_email='noreply@ejourn.al' if settings.ENVIRONMENT == 'PRODUCTION' else 'test@ejourn.al',
+        from_email='noreply@{}'.format(settings.EMAIL_SENDER_DOMAIN),
         headers={'Content-Type': 'text/plain'},
         to=[user.email]
     )
@@ -48,7 +48,6 @@ def send_email_verification_link(user_pk):
 
 @shared_task
 def send_password_recovery_link(user_pk):
-    """Sends an email verification link to the users email address."""
     user = User.objects.get(pk=user_pk)
 
     email_data = {}
@@ -70,7 +69,7 @@ def send_password_recovery_link(user_pk):
     email = EmailMultiAlternatives(
         subject='eJournal password recovery',
         body=text_content,
-        from_email='noreply@ejourn.al' if settings.ENVIRONMENT == 'PRODUCTION' else 'test@ejourn.al',
+        from_email='noreply@{}'.format(settings.EMAIL_SENDER_DOMAIN),
         headers={'Content-Type': 'text/plain'},
         to=[user.email]
     )
@@ -100,8 +99,7 @@ def send_email_feedback(user_pk, topic, ftype, feedback, user_agent, url, file_c
     r_html_content = render_to_string('feedback.html', {'email_data': r_email_data})
     r_text_content = strip_tags(r_html_content)
 
-    from_email = 'eJournal | Support<' + ('support@ejourn.al' if settings.ENVIRONMENT == 'PRODUCTION'
-                                          else 'test@ejourn.al') + '>'
+    from_email = 'eJournal | Support<' + 'support@{}'.format(settings.EMAIL_SENDER_DOMAIN) + '>'
 
     attachments = []
     if user.feedback_file:
@@ -115,7 +113,7 @@ def send_email_feedback(user_pk, topic, ftype, feedback, user_agent, url, file_c
         from_email=from_email,
         headers={'Content-Type': 'text/plain'},
         to=[user.email],
-        bcc=['support@ejourn.al'] if settings.ENVIRONMENT == 'PRODUCTION' else ['test@ejourn.al']
+        bcc=['support@{}'.format(settings.EMAIL_SENDER_DOMAIN)],
     )
 
     forward = EmailMultiAlternatives(
@@ -123,7 +121,7 @@ def send_email_feedback(user_pk, topic, ftype, feedback, user_agent, url, file_c
         body=f_body,
         attachments=attachments,
         from_email=from_email,
-        to=['support@ejourn.al'] if settings.ENVIRONMENT == 'PRODUCTION' else ['test@ejourn.al'],
+        to=['support@{}'.format(settings.EMAIL_SENDER_DOMAIN)],
         headers={'Content-Type': 'text/plain'}
     )
 

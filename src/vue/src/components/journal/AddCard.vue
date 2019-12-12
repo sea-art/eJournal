@@ -9,10 +9,10 @@
         :class="$root.getBorderClass($route.params.cID)"
         class="no-hover"
     >
+        <h2 class="mb-2">
+            New entry
+        </h2>
         <div v-if="addNode.templates.length > 1">
-            <h2 class="mb-2">
-                Select a template
-            </h2>
             <b-form-select v-model="selectedTemplate">
                 <option
                     :value="null"
@@ -29,25 +29,15 @@
                 </option>
             </b-form-select>
             <br/><br/>
-            <entry-preview
-                v-if="selectedTemplate !== null"
-                ref="entry-prev"
-                :template="selectedTemplate"
-                :nodeID="addNode.nID"
-                @content-template="createEntry"
-            />
         </div>
-        <div v-else-if="addNode.templates.length === 1">
-            <h2 class="mb-2">
-                New entry
-            </h2>
-            <entry-preview
-                ref="entry-prev"
-                :template="selectedTemplate"
-                :nodeID="addNode.nID"
-                @content-template="createEntry"
-            />
-        </div>
+        <entry-preview
+            v-if="selectedTemplate !== null"
+            ref="entry-prev"
+            :template="selectedTemplate"
+            :nID="addNode.nID"
+            :jID="jID"
+            @posted="entryPosted"
+        />
     </b-card>
 </template>
 
@@ -58,7 +48,14 @@ export default {
     components: {
         entryPreview,
     },
-    props: ['addNode'],
+    props: {
+        addNode: {
+            required: true,
+        },
+        jID: {
+            required: true,
+        },
+    },
     data () {
         return {
             selectedTemplate: null,
@@ -71,8 +68,8 @@ export default {
         }
     },
     methods: {
-        createEntry (content) {
-            this.$emit('info-entry', [this.selectedTemplate, content])
+        entryPosted (data) {
+            this.$emit('posted', data)
         },
         checkChanges () {
             /* No template is selected, so no changes. */

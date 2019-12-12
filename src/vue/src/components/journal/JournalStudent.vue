@@ -69,9 +69,10 @@
                                     v-if="!isLocked()"
                                     ref="entry-prev"
                                     :template="nodes[currentNode].template"
-                                    :nodeID="nodes[currentNode].nID"
+                                    :nID="nodes[currentNode].nID"
+                                    :jID="jID"
                                     :description="nodes[currentNode].description"
-                                    @content-template="fillDeadline"
+                                    @posted="entryPosted"
                                 />
                                 <b-card
                                     v-else
@@ -91,7 +92,8 @@
                             <add-card
                                 ref="add-card-ref"
                                 :addNode="nodes[currentNode]"
-                                @info-entry="addNode"
+                                :jID="jID"
+                                @posted="entryPosted"
                             />
                         </div>
                         <div v-else-if="nodes[currentNode].type == 'p'">
@@ -302,29 +304,10 @@ export default {
 
             return undefined
         },
-        addNode (infoEntry) {
-            entryAPI.create({
-                journal_id: this.jID,
-                template_id: infoEntry[0].id,
-                content: infoEntry[1],
-            })
-                .then((data) => {
-                    this.nodes = data.nodes
-                    this.loadingNodes = false
-                    this.currentNode = data.added
-                })
-        },
-        fillDeadline (data) {
-            entryAPI.create({
-                journal_id: this.jID,
-                template_id: this.nodes[this.currentNode].template.id,
-                content: data,
-                node_id: this.nodes[this.currentNode].nID,
-            })
-                .then((localData) => {
-                    this.nodes = localData.nodes
-                    this.currentNode = localData.added
-                })
+        entryPosted (data) {
+            this.nodes = data.nodes
+            this.loadingNodes = false
+            this.currentNode = data.added
         },
         findEntryNode (nodeID) {
             for (let i = 0; i < this.nodes.length; i++) {

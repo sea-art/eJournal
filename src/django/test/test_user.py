@@ -17,7 +17,7 @@ from VLE.models import User
 class UserAPITest(TestCase):
     def setUp(self):
         self.create_params = {
-            'username': 'test', 'password': 'Pa$$word!', 'email': 'test@ejourn.al',
+            'username': 'test', 'password': 'Pa$$word!', 'email': 'test@ejournal.app',
             'full_name': 'test user'
         }
         self.lti_creation_params = {
@@ -93,12 +93,12 @@ class UserAPITest(TestCase):
 
         # Test a creation with the same username and different email
         params['username'] = self.create_params['username']
-        params['email'] = 'test2@ejourn.al'
+        params['email'] = 'test2@ejournal.app'
         resp = api.create(self, 'users', params=params, status=400)
 
         # Test a creation with the different username and email
         params['username'] = 'test2'
-        params['email'] = 'test2@ejourn.al'
+        params['email'] = 'test2@ejournal.app'
         resp = api.create(self, 'users', params=params)['user']
 
     def test_lti_creation(self):
@@ -243,6 +243,12 @@ class UserAPITest(TestCase):
         old_last_login = User.objects.get(pk=user.pk).last_login
         api.login(self, user, password="wrong", status=401)
         assert old_last_login == User.objects.get(pk=user.pk).last_login, 'Last login should not be updated'
+
+        # Check that login should also be possible with different capitalizations
+        api.post(self, api.reverse('token_obtain_pair'),
+                 params={'username': user.username.lower(), 'password': user_factory.DEFAULT_PASSWORD})
+        api.post(self, api.reverse('token_obtain_pair'),
+                 params={'username': user.username.upper(), 'password': user_factory.DEFAULT_PASSWORD})
 
     def test_password(self):
         user = factory.Student()

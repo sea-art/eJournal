@@ -105,7 +105,7 @@ class AssignmentView(viewsets.ViewSet):
 
         """
         name, description, course_id = utils.required_params(request.data, "name", "description", "course_id")
-        points_possible, unlock_date, due_date, lock_date, active_lti_id, is_published = \
+        points_possible, unlock_date, due_date, lock_date, lti_id, is_published = \
             utils.optional_params(request.data, "points_possible", "unlock_date", "due_date", "lock_date", "lti_id",
                                   "is_published")
         course = Course.objects.get(pk=course_id)
@@ -113,14 +113,18 @@ class AssignmentView(viewsets.ViewSet):
         request.user.check_permission('can_add_assignment', course)
 
         assignment = factory.make_assignment(name, description, courses=[course],
-                                             author=request.user, active_lti_id=active_lti_id,
+                                             author=request.user, active_lti_id=lti_id,
                                              points_possible=points_possible,
                                              unlock_date=unlock_date, due_date=due_date,
                                              lock_date=lock_date, is_published=is_published)
 
-        if active_lti_id is not None:
-            course.set_assignment_lti_id_set(active_lti_id)
-            course.save()
+        # Add new lti id to assignment
+        if lti_id is not None:
+            request.user.check_permission('can_add_assignment', course)
+            assignment.add_lti_id(lti_id, course)
+            for user in course.users.all():
+                factory.make_journal(assignment, user)
+            request.data.pop('lti_id')
 
         for user in course.users.all():
             factory.make_journal(assignment, user)
@@ -196,8 +200,6 @@ class AssignmentView(viewsets.ViewSet):
 
         request.user.check_permission('can_edit_assignment', assignment)
 
-        response_data = {}
-
         # Remove data that must not be changed by the serializer
         req_data = request.data
         if not (request.user.is_superuser or request.user == assignment.author):
@@ -208,28 +210,22 @@ class AssignmentView(viewsets.ViewSet):
         if not assignment.can_unpublish() and is_published is False:
             return response.bad_request('You cannot unpublish an assignment that already has submissions.')
 
+        # Set active lti course
         active_lti_course, = utils.optional_typed_params(request.data, (int, 'active_lti_course'))
         if active_lti_course is not None:
-            course = Course.objects.get(pk=active_lti_course)
-            active_lti_id = assignment.get_course_lti_id(course)
-            if active_lti_id:
-                assignment.active_lti_id = active_lti_id
-                assignment.save()
+            assignment.set_active_lti_course(Course.objects.get(pk=active_lti_course))
+            request.data.pop('active_lti_course')
 
-        # Rename lti id key for serializer
-        if 'lti_id' in req_data:
-            course_id, = utils.required_params(request.data, 'course_id')
+        # Add new lti id to assignment
+        lti_id, = utils.optional_typed_params(request.data, (str, 'lti_id'))
+        if lti_id is not None:
+            course_id, = utils.required_typed_params(request.data, (int, 'course_id'))
             course = Course.objects.get(pk=course_id)
             request.user.check_permission('can_add_assignment', course)
-            if course in assignment.courses.all():
-                return response.bad_request('Assignment already used in course.')
-            course.set_assignment_lti_id_set(req_data['lti_id'])
-            course.save()
-            assignment.courses.add(course)
-            assignment.save()
-            for user in User.objects.filter(participation__course=course).exclude(journal__assignment=assignment):
+            assignment.add_lti_id(lti_id, course)
+            for user in course.users.all():
                 factory.make_journal(assignment, user)
-            req_data['active_lti_id'] = req_data.pop('lti_id')
+            request.data.pop('lti_id')
 
         # Update the other data
         serializer = AssignmentSerializer(
@@ -237,9 +233,8 @@ class AssignmentView(viewsets.ViewSet):
         if not serializer.is_valid():
             return response.bad_request()
         serializer.save()
-        response_data['assignment'] = serializer.data
 
-        return response.success(response_data)
+        return response.success({'assignment': serializer.data})
 
     def destroy(self, request, *args, **kwargs):
         """Delete an existing assignment from a course.
@@ -266,7 +261,7 @@ class AssignmentView(viewsets.ViewSet):
 
         request.user.check_permission('can_delete_assignment', course)
 
-        intersecting_assignment_lti_id = assignment.get_course_lti_id(course)
+        intersecting_assignment_lti_id = assignment.get_lti_id_from_course(course)
         if intersecting_assignment_lti_id:
             if assignment.active_lti_id == intersecting_assignment_lti_id and len(assignment.lti_id_set) > 1:
                 return response.bad_request('This assignment cannot be removed from this course, since it is' +
@@ -482,7 +477,16 @@ class AssignmentView(viewsets.ViewSet):
                 preset.forced_template = Template.objects.get(pk=template_dict[preset.forced_template.pk])
             preset.save()
 
+        # Add new lti id to new assignment
+        lti_id, = utils.optional_typed_params(request.data, (str, 'lti_id'))
+        if lti_id is not None:
+            assignment.add_lti_id(lti_id, course)
+            request.data.pop('lti_id')
         for user in course.users.all():
             factory.make_journal(assignment, user)
+
+        # Update author also
+        assignment.author = request.user
+        assignment.save()
 
         return response.success({'assignment_id': assignment.pk})

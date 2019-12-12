@@ -1,6 +1,6 @@
 ---
 
 certbot_auto_renew: true
-certbot_admin_email: admin@ejourn.al
+certbot_admin_email: admin@ejournal.app
 certbot_script: /opt/certbot-auto
 certbot_output_dir: "/etc/letsencrypt/live"
