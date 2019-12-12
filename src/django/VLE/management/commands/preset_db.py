@@ -26,7 +26,7 @@ class Command(BaseCommand):
         """Generate users with password 'pass'."""
         users_examples = {
             "Student": {
-                "username": "Student",
+                "username": "student",
                 "full_name": "Lars van Hijfte",
                 "verified_email": True,
                 "password": "pass",
@@ -35,7 +35,7 @@ class Command(BaseCommand):
                 "is_teacher": False
             },
             "Student2": {
-                "username": "Student2",
+                "username": "student2",
                 "full_name": "Rick Watertor",
                 "verified_email": True,
                 "password": "pass",
@@ -44,7 +44,7 @@ class Command(BaseCommand):
                 "is_teacher": False
             },
             "Student3": {
-                "username": "Student3",
+                "username": "student3",
                 "full_name": "Dennis Wind",
                 "password": "pass",
                 "email": "dennis@eJournal.app",
@@ -53,7 +53,7 @@ class Command(BaseCommand):
                 "is_teacher": False
             },
             "Student4": {
-                "username": "Student4",
+                "username": "student4",
                 "full_name": "Maarten van Keulen",
                 "password": "pass",
                 "email": "maarten@eJournal.app",
@@ -62,7 +62,7 @@ class Command(BaseCommand):
                 "is_teacher": False
             },
             "Student5": {
-                "username": "Student5",
+                "username": "student5",
                 "full_name": "Zi Long Zhu",
                 "password": "pass",
                 "email": "zi@eJournal.app",
@@ -81,7 +81,7 @@ class Command(BaseCommand):
                 "is_test_student": True,
             },
             "Teacher": {
-                "username": "Teacher",
+                "username": "teacher",
                 "full_name": "Engel Hamer",
                 "password": "pass",
                 "email": "test@eJournal.app",
@@ -108,7 +108,7 @@ class Command(BaseCommand):
                 "is_teacher": False
             },
             "Superuser": {
-                "username": "Superuser",
+                "username": "superuser",
                 "full_name": "Super User",
                 "password": "pass",
                 "email": "superuser@eJournal.app",
