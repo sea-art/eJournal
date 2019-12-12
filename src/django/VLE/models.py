@@ -200,7 +200,7 @@ class User(AbstractUser):
 
     def check_can_view(self, obj):
         if not self.can_view(obj):
-            raise VLEPermissionError(message='You are not allowed to view {}'.format(obj.to_string()))
+            raise VLEPermissionError(message='You are not allowed to view {}'.format(obj.to_string(user=self)))
 
     def can_view(self, obj):
         if self.is_superuser:
@@ -600,7 +600,7 @@ class Participation(models.Model):
             return "Participation"
 
         return "user: {}, course: {}, role: {}".format(
-            self.user.to_string(user), self.course.to_string(user), self.role.to_string(user))
+            self.user.to_string(user=user), self.course.to_string(user=user), self.role.to_string(user=user))
 
 
 class Assignment(models.Model):
@@ -844,6 +844,9 @@ class AssignmentParticipation(models.Model):
     sourcedid = models.TextField(null=True)
     grade_url = models.TextField(null=True)
 
+    def needs_lti_link(self):
+        return self.assignment.active_lti_id is not None and self.sourcedid is None
+
     def save(self, *args, **kwargs):
         is_new = self._state.adding
         super(AssignmentParticipation, self).save(*args, **kwargs)
@@ -907,9 +910,8 @@ class Journal(models.Model):
                                     .values('entry__grade__grade')
                                     .aggregate(Sum('entry__grade__grade'))['entry__grade__grade__sum'] or 0)
 
-    def needs_lti_link(self, user=None):
-        return self.assignment.active_lti_id is not None and \
-            any(author.sourcedid is None for author in self.authors.all())
+    def needs_lti_link(self):
+        return any(author.needs_lti_link() for author in self.authors.all())
 
     def get_name(self):
         if self.name is not None:

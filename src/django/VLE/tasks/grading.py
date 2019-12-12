@@ -38,9 +38,9 @@ def update_author_grade_to_LMS(author_pk, journal=None):
         journal = Journal.objects.filter(authors__in=[author]).first()
 
     if author.sourcedid is None:
-        return "{} has no sourcedid".format(author.to_string(user=author.user.username))
+        return "{} has no sourcedid".format(author.to_string(user=author.user))
     if author.grade_url is None:
-        return "{} has no grade_url".format(author.to_string(user=author.user.username))
+        return "{} has no grade_url".format(author.to_string(user=author.user))
 
     if journal is not None:
         # Reflag -> all entries grade needs to be submitted to LMS

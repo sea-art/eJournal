@@ -3,8 +3,8 @@
         class="badge-part"
         :class="custonClass"
     >
-        <!-- {{ leftNum ? Math.round(leftNum * 100) / 100 : 0 }} -->
         <icon :name="icon"/>
+        <slot/>
     </b-badge>
 </template>
 

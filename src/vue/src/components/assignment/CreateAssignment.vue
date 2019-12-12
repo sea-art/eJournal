@@ -49,6 +49,7 @@ export default {
                 can_set_journal_name: false,
                 can_set_journal_image: false,
                 can_lock_journal: false,
+                remove_grade_upon_leaving_group: false,
             },
             reset: null,
         }

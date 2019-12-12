@@ -162,6 +162,11 @@ class EntryView(viewsets.ViewSet):
             else:
                 factory.make_content(entry, data, field)
 
+        # Notify teacher on updated entry
+        if node.journal.authors.filter(sourcedid__isnull=False).exists() and \
+           node.entry.vle_coupling == Entry.NEED_SUBMISSION:
+            lti_tasks.needs_grading.delay(node.pk)
+
         file_handling.remove_temp_user_files(request.user)
         entry.last_edited_by = request.user
         entry.save()

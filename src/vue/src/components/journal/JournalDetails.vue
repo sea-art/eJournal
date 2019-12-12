@@ -51,14 +51,14 @@
                 </b>
             </b>
             <div
-                v-for="author in journal.authors.map(a => a.user)"
+                v-for="author in journal.authors"
                 :key="`journal-member-${author.username}`"
                 class="member"
             >
                 <div
-                    v-if="(author.username == $store.getters['user/username'] && !journal.locked) ||
+                    v-if="(author.user.username == $store.getters['user/username'] && !journal.locked) ||
                         $hasPermission('can_manage_journals')"
-                    @click="$hasPermission('can_manage_journals') ? kickFromJournal(author) : leaveJournal()"
+                    @click="$hasPermission('can_manage_journals') ? kickFromJournal(author.user) : leaveJournal()"
                 >
                     <icon
                         name="sign-out"
@@ -66,10 +66,18 @@
                     />
                 </div>
                 <b class="max-one-line">
-                    {{ author.full_name }}
+                    <b-badge
+                        v-if="author.needs_lti_link"
+                        v-b-tooltip.hover
+                        class="red float-right"
+                        title="Not linked via LTI"
+                    >
+                        <icon name="unlink"/>
+                    </b-badge>
+                    {{ author.user.full_name }}
                 </b>
                 <span class="max-one-line">
-                    {{ author.username }}
+                    {{ author.user.username }}
                 </span>
             </div>
         </div>

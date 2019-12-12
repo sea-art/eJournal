@@ -122,14 +122,18 @@ class GroupSerializer(serializers.ModelSerializer):
 
 class AssignmentParticipationSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
+    needs_lti_link = serializers.SerializerMethodField()
 
     class Meta:
         model = AssignmentParticipation
-        fields = ('id', 'journal', 'assignment', 'user')
+        fields = ('id', 'journal', 'assignment', 'user', 'needs_lti_link')
         read_only_fields = ('id', 'journal', 'assignment')
 
     def get_user(self, participation):
         return UserSerializer(participation.user, context=self.context).data
+
+    def get_needs_lti_link(self, participation):
+        return participation.needs_lti_link()
 
 
 class ParticipationSerializer(serializers.ModelSerializer):
@@ -166,7 +170,8 @@ class AssignmentDetailsSerializer(serializers.ModelSerializer):
         model = Assignment
         fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date',
                   'is_published', 'course_count', 'lti_count', 'active_lti_course', 'is_group_assignment',
-                  'can_set_journal_name', 'can_set_journal_image', 'can_lock_journal', 'can_change_type')
+                  'can_set_journal_name', 'can_set_journal_image', 'can_lock_journal', 'can_change_type',
+                  'remove_grade_upon_leaving_group', )
         read_only_fields = ('id', )
 
     def get_course_count(self, assignment):

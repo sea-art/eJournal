@@ -14,7 +14,7 @@
                 :key="a.id"
             >
                 <b-link
-                    :to="assignmentRoute(cID, a.id, a.journal, a.is_published)"
+                    :to="assignmentRoute(a)"
                     tag="b-button"
                 >
                     <assignment-card
@@ -158,24 +158,30 @@ export default {
         showModal (ref) {
             this.$refs[ref].show()
         },
-        assignmentRoute (cID, aID, jID, isPublished) {
+        assignmentRoute (assignment) {
             const route = {
                 params: {
-                    cID,
-                    aID,
+                    cID: assignment.course.id,
+                    aID: assignment.id,
                 },
             }
 
-            if (!isPublished) { // Teacher not published route
-                route.name = 'FormatEdit'
-            } else if (this.$hasPermission('can_view_all_journals', 'assignment', aID)) { // Teacher published route
-                route.name = 'Assignment'
-            } else if (jID === -1) { // Student new group assignment route
-                route.name = 'JoinJournal'
-            } else { // Student with journal route
-                route.name = 'Journal'
-                route.params.jID = jID
+            if (this.$hasPermission('can_view_all_journals', 'assignment', assignment.id)) {
+                if (!assignment.isPublished) { // Teacher not published route
+                    route.name = 'FormatEdit'
+                } else { // Teacher published route
+                    route.name = 'Assignment'
+                }
+            } else {
+                if (assignment.is_group_assignment && assignment.journal === null) {
+                    // Student new group assignment route
+                    route.name = 'JoinJournal'
+                } else { // Student with journal route
+                    route.name = 'Journal'
+                    route.params.jID = assignment.journal
+                }
             }
+
             return route
         },
     },

@@ -31,12 +31,14 @@
             >
                 <bread-crumb v-if="$root.xl"/>
                 <b-alert
-                    v-if="journal && journal.needs_lti_link && assignment && assignment.active_lti_course"
+                    v-if="journal && journal.needs_lti_link"
                     show
                 >
                     <!-- TODO GROUPS: add the names of the users that need to setup a connection through LTI -->
-                    <b>Warning:</b> You cannot update this journal until you visit the assignment in your LMS
-                    (Canvas) course '{{ assignment.active_lti_course.name }}' at least once.
+                    <b>Warning:</b> You cannot update this journal until
+                    {{ assignment.is_group_assignment ? 'all group members' : 'you' }}
+                    visit the assignment though the LMS (Canvas) course
+                    '{{ assignment.active_lti_course.name }}' at least once.
                 </b-alert>
                 <load-wrapper :loading="loadingNodes">
                     <div

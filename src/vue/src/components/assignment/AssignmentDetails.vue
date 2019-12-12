@@ -124,10 +124,20 @@
                     @parentActive="(isActive) => { assignmentDetails.can_lock_journal = isActive }"
                 />
                 <h2 class="field-heading multi-form">
-                    Allow locking journal members
+                    Allow locking for journal members
                 </h2>
                 Once the members of a journal are locked, it cannot be joined by other students.
                 Teachers can still manually add students to a journal.
+                <hr/>
+                <toggle-switch
+                    :isActive="assignmentDetails.remove_grade_upon_leaving_group"
+                    class="float-right"
+                    @parentActive="(isActive) => { assignmentDetails.remove_grade_upon_leaving_group = isActive }"
+                />
+                <h2 class="field-heading multi-form">
+                    Remove grade when leaving journal
+                </h2>
+                When selected, the grade of the student gets reset when leaving a journal.
                 <hr/>
                 <toggle-switch
                     :isActive="assignmentDetails.can_set_journal_name"

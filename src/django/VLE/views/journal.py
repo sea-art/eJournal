@@ -5,12 +5,14 @@ In this file are all the journal api requests.
 """
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from django.db.models import Q
 
+import VLE.tasks.lti as lti_tasks
 import VLE.lti_grade_passback as lti_grade
 import VLE.utils.generic_utils as utils
 import VLE.utils.grading as grading
 import VLE.utils.responses as response
-from VLE.models import Assignment, AssignmentParticipation, Course, Journal, User
+from VLE.models import Assignment, AssignmentParticipation, Course, Entry, Journal, User
 from VLE.serializers import JournalSerializer
 from VLE.tasks.grading import update_author_grade_to_LMS
 
@@ -288,6 +290,13 @@ class JournalView(viewsets.ViewSet):
 
         if journal.assignment.remove_grade_upon_leaving_group:
             update_author_grade_to_LMS.delay(author.pk)
+
+        # Notify teacher that student left the journal
+        if author.sourcedid is not None:
+            send_entries = Entry.objects.filter(node__journal=journal)
+            print(send_entries)
+            if send_entries.exists():
+                lti_tasks.needs_grading.delay(send_entries.first().node.pk, left=True)
 
         return response.success(description='Successfully removed from the journal.')
 
