@@ -5,10 +5,9 @@ In this file are all the journal api requests.
 """
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from django.db.models import Q
 
-import VLE.tasks.lti as lti_tasks
 import VLE.lti_grade_passback as lti_grade
+import VLE.tasks.lti as lti_tasks
 import VLE.utils.generic_utils as utils
 import VLE.utils.grading as grading
 import VLE.utils.responses as response
