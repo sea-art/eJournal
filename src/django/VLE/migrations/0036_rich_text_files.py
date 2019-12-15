@@ -19,6 +19,7 @@ def convertBase64ToFiles(apps, schema_editor):
     Comment = apps.get_model('VLE', 'Comment')
     Content = apps.get_model('VLE', 'Content')
     Field = apps.get_model('VLE', 'Field')
+    User = apps.get_model('VLE', 'User')
 
     base64Img = re.compile(r'<img src=\"(data:image\/[^;]+;base64[^\"]+)\" />')
 
@@ -37,6 +38,11 @@ def convertBase64ToFiles(apps, schema_editor):
     fields = Field.objects.all()
     for f in fields:
         matches = re.findall(base64Img, f.description)[0]
+
+    users = User.objects.all()
+    for u in users:
+        matches = re.findall(base64Img, u.profile_picture)[0]
+
 
 
 class Migration(migrations.Migration):
