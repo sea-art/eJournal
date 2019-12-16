@@ -7,7 +7,7 @@ import os
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, CIEmailField, CITextField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
@@ -120,7 +120,6 @@ class User(AbstractUser):
     - full_name: full name of the user
     - email: email of the user.
     - verified_email: Boolean to indicate if the user has validated their email address.
-    - USERNAME_FIELD: username of the username.
     - password: the hash of the password of the user.
     - lti_id: the DLO id of the user.
     """
@@ -129,7 +128,11 @@ class User(AbstractUser):
         null=False,
         max_length=200
     )
-    email = models.EmailField(
+    username = CITextField(
+        unique=True,
+        max_length=150,
+    )
+    email = CIEmailField(
         blank=True,
         unique=True,
         null=True,
@@ -255,6 +258,11 @@ class User(AbstractUser):
         # Enforce unique constraint
         if self.email == '':
             self.email = None
+
+        if isinstance(self.email, str):
+            self.email = self.email.lower()
+        if isinstance(self.username, str):
+            self.username = self.username.lower()
 
         super(User, self).save(*args, **kwargs)
 

@@ -146,6 +146,7 @@ postgres-init-development:
 	-c \"ALTER ROLE $(postgres_dev_user) SET default_transaction_isolation TO 'read committed'\" \
 	-c \"ALTER ROLE $(postgres_dev_user) SET timezone TO 'CET'\" \
 	-c \"GRANT ALL PRIVILEGES ON DATABASE $(postgres_db) TO $(postgres_dev_user)\" \
+	-c \"alter role $(postgres_dev_user) superuser\" \
 	" postgres
 
 preset-db:

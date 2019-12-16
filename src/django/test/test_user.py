@@ -244,6 +244,12 @@ class UserAPITest(TestCase):
         api.login(self, user, password="wrong", status=401)
         assert old_last_login == User.objects.get(pk=user.pk).last_login, 'Last login should not be updated'
 
+        # Check that login should also be possible with different capitalizations
+        api.post(self, api.reverse('token_obtain_pair'),
+                 params={'username': user.username.lower(), 'password': user_factory.DEFAULT_PASSWORD})
+        api.post(self, api.reverse('token_obtain_pair'),
+                 params={'username': user.username.upper(), 'password': user_factory.DEFAULT_PASSWORD})
+
     def test_password(self):
         user = factory.Student()
 
