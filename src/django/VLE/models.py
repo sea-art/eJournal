@@ -16,10 +16,10 @@ from django.utils import timezone
 from django.utils.timezone import now
 
 import VLE.permissions as permissions
+import VLE.utils.file_handling as file_handling
 from VLE.utils import sanitization
 from VLE.utils.error_handling import (VLEBadRequest, VLEParticipationError, VLEPermissionError, VLEProgrammingError,
                                       VLEUnverifiedEmailError)
-from VLE.utils.file_handling import get_feedback_file_path, get_path
 
 
 class Instance(models.Model):
@@ -54,7 +54,7 @@ class UserFile(models.Model):
     """
     file = models.FileField(
         null=False,
-        upload_to=get_path
+        upload_to=file_handling.get_path
     )
     file_name = models.TextField(
         null=False
@@ -113,6 +113,83 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
             os.remove(instance.file.path)
 
 
+class FileContext(models.Model):
+    """FileContext.
+
+    FileContext is a file uploaded by the user stored in MEDIA_ROOT/uID/<category>/?[id/]<filename>
+        Where category is selected from {course, assignment, journal}
+
+    - file: the actual filefield contain a reference to the physical file.
+    - file_name: The name of the file (not unique and no parts of the path to the file included).
+    - author: The user who uploaded the file. Can be null so the File persist on user deletion.
+    - assignment: The assignment that the File is linked to (e.g. assignment description).
+    - content: The content that the File is linked to. Can be rich text or a dedicated file field.
+    - course: The course that the File is linked to (e.g. course description).
+    - journal: The journal that the File is linked to.
+    - creation_date: The time and date the file was uploaded.
+    """
+    file = models.FileField(
+        null=False,
+        upload_to=file_handling.get_file_path
+    )
+    file_name = models.TextField(
+        null=False
+    )
+    author = models.ForeignKey(
+        'User',
+        null=True,
+        on_delete=models.SET_NULL
+    )
+    assignment = models.ForeignKey(
+        'Assignment',
+        on_delete=models.CASCADE,
+        null=True
+    )
+    content = models.ForeignKey(
+        'Content',
+        on_delete=models.CASCADE,
+        null=True
+    )
+    course = models.ForeignKey(
+        'Course',
+        on_delete=models.CASCADE,
+        null=True
+    )
+    # TODO File, why do we need journal if we have content
+    journal = models.ForeignKey(
+        'Journal',
+        on_delete=models.CASCADE,
+        null=True
+    )
+
+    is_temp = models.BooleanField(
+        default=True
+    )
+
+    creation_date = models.DateTimeField(editable=False)
+    last_edited = models.DateTimeField()
+
+    def cascade_from_user(self, user):
+        return self.author is user and self.assignment is None and self.course is None and self.journal is None
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            if not self.creation_date:
+                self.creation_date = timezone.now()
+            if not self.author:
+                raise VLEProgrammingError('FileContext author should be set on creation')
+        self.last_edited = timezone.now()
+
+        return super(FileContext, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.file.delete()
+        super(FileContext, self).delete(*args, **kwargs)
+
+    def to_string(self, user=None):
+        return "FileContext"
+
+
 class User(AbstractUser):
     """User.
 
@@ -154,7 +231,7 @@ class User(AbstractUser):
     feedback_file = models.FileField(
         null=True,
         blank=True,
-        upload_to=get_feedback_file_path
+        upload_to=file_handling.get_feedback_file_path
     )
     is_test_student = models.BooleanField(
         default=False
@@ -280,6 +357,14 @@ def auto_delete_feedback_file_on_user_delete(sender, instance, **kwargs):
     if instance.feedback_file:
         if os.path.isfile(instance.feedback_file.path):
             os.remove(instance.feedback_file.path)
+
+
+@receiver(models.signals.post_delete, sender=User)
+def delete_dangling_files(sender, instance, **kwargs):
+    """Deletes FileContext instances which are only of interest to the deleted user."""
+    for f in FileContext.objects.filter(author=instance):
+        if f.cascade_from_user(instance):
+            f.delete()
 
 
 class Preferences(models.Model):
