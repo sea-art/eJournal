@@ -1,6 +1,5 @@
 import base64
-import os
-import pathlib
+import logging
 import re
 import uuid
 from mimetypes import guess_extension
@@ -9,9 +8,11 @@ import django.db.models.deletion
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db import migrations, models
-import logging
 
 import VLE.utils.file_handling
+
+logger = logging.getLogger(__name__)
+base64ImgEmbedded = re.compile(r'<img src=\"(data:image\/[^;]+;base64[^\"]+)\" />')
 
 
 # Expects a string containing a single base64 file
@@ -20,6 +21,10 @@ def base64ToContentFile(string, filename):
     mimetype = matches[0]
     extension = guess_extension(mimetype)
     return ContentFile(base64.b64decode(matches[1]), name='{}{}'.format(filename, extension))
+
+
+def fileIdToEmbdeddedImageLink(id):
+    return '<img src="{}/files/{}/"/>'.format(settings.BASELINK, id)
 
 
 def convertUserFiles(apps, schema_editor):
@@ -43,33 +48,25 @@ def convertUserFiles(apps, schema_editor):
         )
         f.delete()
 
+    remaining_user_files = UserFile.objects.all()
+    if remaining_user_files.exists():
+        logger.error('UserFiles {} still exist.'.format([f.pk for f in remaining_user_files]))
 
-# TODO Start expanding
-def convertBase64ToFiles(apps, schema_editor):
-    Assignment = apps.get_model('VLE', 'Assignment')
+
+def convertBase64CommentsToFiles(apps, schema_editor):
     Comment = apps.get_model('VLE', 'Comment')
-    Content = apps.get_model('VLE', 'Content')
-    Field = apps.get_model('VLE', 'Field')
-    User = apps.get_model('VLE', 'User')
     FileContext = apps.get_model('VLE', 'FileContext')
 
-    base64Img = re.compile(r'<img src=\"(data:image\/[^;]+;base64[^\"]+)\" />')
-
-    logger = logging.getLogger(__name__)
-
-    comments = Comment.objects.all()
-    for c in comments:
-        if c.author is None and re.search(base64Img, c.text):
+    for c in Comment.objects.all():
+        if c.author is None and re.search(base64ImgEmbedded, c.text):
             logger.error('Comment {} contains base64 images without author'.format(c.id))
             continue
 
-        matches = re.findall(base64Img, c.text)
-        for m in matches:
+        def createEmbbededCommentFiles(str_match):
             file_name = 'comment-{}-from-base64-{}'.format(c.pk, uuid.uuid4().hex)
-            base64ToContentFile(m, file_name)
 
-            FileContext.objects.create(
-                file=base64ToContentFile(m, file_name),
+            f = FileContext.objects.create(
+                file=base64ToContentFile(str_match, file_name),
                 file_name=file_name,
                 author=c.author,
                 journal=c.entry.node.journal,
@@ -78,21 +75,114 @@ def convertBase64ToFiles(apps, schema_editor):
                 last_edited=c.last_edited,
             )
 
-    content = Content.objects.filter(field__type='rt')
-    for c in content:
-        matches = re.findall(base64Img, c.text)
+            return fileIdToEmbdeddedImageLink(f.pk)
 
-    assignments = Assignment.objects.all()
-    for a in assignments:
-        matches = re.findall(base64Img, a.description)
+        c.text = re.sub(base64ImgEmbedded, createEmbbededCommentFiles, c.text)
+        c.save()
 
-    fields = Field.objects.all()
-    for f in fields:
-        matches = re.findall(base64Img, f.description)
 
-    users = User.objects.all()
-    for u in users:
-        matches = re.findall(base64Img, u.profile_picture)
+def convertBase64ContentsToFiles(apps, schema_editor):
+    Content = apps.get_model('VLE', 'Content')
+    FileContext = apps.get_model('VLE', 'FileContext')
+
+    for c in Content.objects.filter(field__type='rt'):
+        def createEmbbededContentFiles(str_match):
+            file_name = 'content-{}-from-base64-{}'.format(c.pk, uuid.uuid4().hex)
+
+            f = FileContext.objects.create(
+                file=base64ToContentFile(str_match, file_name),
+                file_name=file_name,
+                author=c.entry.node.journal.user,
+                journal=c.entry.node.journal,
+                is_temp=False,
+                creation_date=c.entry.creation_date,
+                last_edited=c.entry.last_edited,
+            )
+
+            return fileIdToEmbdeddedImageLink(f.pk)
+
+        c.data = re.sub(base64ImgEmbedded, createEmbbededContentFiles, c.data)
+        c.save()
+
+
+def convertBase64AssignmentDescriptionsToFiles(apps, schema_editor):
+    Assignment = apps.get_model('VLE', 'Assignment')
+    FileContext = apps.get_model('VLE', 'FileContext')
+
+    for a in Assignment.objects.all():
+        if a.author is None and re.search(base64ImgEmbedded, a.description):
+            logger.error('Assignment {} description contains base64 images without author'.format(a.id))
+            continue
+
+        def createEmbbededAssignmentDescriptionFiles(str_match):
+            file_name = 'assignment-description-{}-from-base64-{}'.format(a.pk, uuid.uuid4().hex)
+
+            f = FileContext.objects.create(
+                file=base64ToContentFile(str_match, file_name),
+                file_name=file_name,
+                author=a.author,
+                assignment=a,
+                is_temp=False,
+                creation_date=a.creation_date,
+                last_edited=a.last_edited,
+            )
+
+            return fileIdToEmbdeddedImageLink(f.pk)
+
+        a.description = re.sub(base64ImgEmbedded, createEmbbededAssignmentDescriptionFiles, a.description)
+        a.save()
+
+
+def convertBase64FieldDescriptionsToFiles(apps, schema_editor):
+    Field = apps.get_model('VLE', 'Field')
+    FileContext = apps.get_model('VLE', 'FileContext')
+    Assignment = apps.get_model('VLE', 'Assignment')
+
+    for field in Field.objects.all():
+        assignment = Assignment.objects.get(format=field.template.format)
+        if assignment.author is None and re.search(base64ImgEmbedded, field.description):
+            logger.error('Field {} description contains base64 images without author'.format(field.id))
+            continue
+
+        def createEmbbededFieldDescriptionFiles(str_match):
+            file_name = 'field-description-{}-from-base64-{}'.format(field.pk, uuid.uuid4().hex)
+
+            f = FileContext.objects.create(
+                file=base64ToContentFile(str_match, file_name),
+                file_name=file_name,
+                author=assignment.author,
+                assignment=assignment,
+                is_temp=False,
+                # QUESTION: Should we add these dates to a template?
+                creation_date=assignment.creation_date,
+                last_edited=assignment.last_edited,
+            )
+
+            return fileIdToEmbdeddedImageLink(f.pk)
+
+        field.description = re.sub(base64ImgEmbedded, createEmbbededFieldDescriptionFiles, field.description)
+        field.save()
+
+
+def convertBase64ProfilePicturesToFiles(apps, schema_editor):
+    User = apps.get_model('VLE', 'User')
+    FileContext = apps.get_model('VLE', 'FileContext')
+    base64Img = re.compile(r'data:image\/[^;]+;base64[^\"]+')
+
+    for u in User.objects.all():
+        match = re.search(base64Img, u.profile_picture)
+        if match:
+            file_name = 'profile-picture-from-base64-{}'.format(uuid.uuid4().hex)
+
+            f = FileContext.objects.create(
+                file=base64ToContentFile(match.group(0), file_name),
+                file_name=file_name,
+                author=u,
+                is_temp=False,
+            )
+
+            u.profile_picture = '{}/files/{}/'.format(settings.BASELINK, f.pk)
+            u.save()
 
 
 class Migration(migrations.Migration):
@@ -118,8 +208,10 @@ class Migration(migrations.Migration):
                 ('journal', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='VLE.Journal')),
             ],
         ),
-        migrations.RunPython(
-            # convertUserFiles,
-            convertBase64ToFiles,
-        ),
+        migrations.RunPython(convertUserFiles),
+        migrations.RunPython(convertBase64CommentsToFiles),
+        migrations.RunPython(convertBase64ContentsToFiles),
+        migrations.RunPython(convertBase64AssignmentDescriptionsToFiles),
+        migrations.RunPython(convertBase64FieldDescriptionsToFiles),
+        migrations.RunPython(convertBase64ProfilePicturesToFiles),
     ]
