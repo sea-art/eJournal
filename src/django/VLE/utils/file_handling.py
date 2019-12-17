@@ -81,11 +81,3 @@ def get_temp_user_file(user, assignment, file_name, entry=None, node=None, conte
 def remove_temp_user_files(user):
     """Deletes floating user files."""
     user.userfile_set.filter(Q(node=None) | Q(entry=None) | Q(content=None)).delete()
-
-
-def get_embedded_file_context_from_string(string):
-    """Retrieves all file contexts embbeded in the given string based on the expected download url pattern by id"""
-    base = re.escape('{}/files'.format(settings.BASELINK))
-    base64ImgEmbedded = re.compile(r'<img\s+src=\"' + base + r'/(\d+)/\"\s*/>')
-    # TODO FILE fix import error
-    return FileContext.objects.filter(pk__in=[int(match) for match in re.findall(base64ImgEmbedded, string)])

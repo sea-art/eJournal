@@ -400,6 +400,7 @@ class UserView(viewsets.ViewSet):
 
         return response.success(description='Successfully uploaded {:s}.'.format(request.FILES['file'].name))
 
+    # TODO FILE: Rework this to FileContext
     @action(['post'], detail=False)
     def set_profile_picture(self, request):
         """Update user profile picture.

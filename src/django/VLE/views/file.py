@@ -1,6 +1,8 @@
 from rest_framework import viewsets
 
 import VLE.utils.responses as response
+import VLE.validators as validators
+from VLE.models import FileContext
 
 
 class FileView(viewsets.ViewSet):
@@ -9,4 +11,19 @@ class FileView(viewsets.ViewSet):
         return response.success("TODO implement")
 
     def create(self, request):
-        return response.succes("TODO implement")
+        if not (request.FILES and 'file' in request.FILES):
+            return response.bad_request('No accompanying file found in the request.')
+
+        validators.validate_user_file(request.FILES['file'], request.user)
+
+        file = FileContext.objects.create(
+            file=request.FILES['file'],
+            file_name=request.FILES['file'].name,
+            author=request.user,
+            is_temp=True,
+        )
+
+        return response.created(
+            description='Successfully uploaded {:s}.'.format(request.FILES['file'].name),
+            payload={'download_url': file.download_url()}
+        )

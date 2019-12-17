@@ -22,7 +22,8 @@ def validate_user_file(in_memory_uploaded_file, user):
     if in_memory_uploaded_file.size > settings.USER_MAX_FILE_SIZE_BYTES:
         raise ValidationError("Max size of file is {} Bytes".format(settings.USER_MAX_FILE_SIZE_BYTES))
 
-    user_files = user.userfile_set.all()
+    # TODO FILE: Create storage limit distinctions for staff and students
+    user_files = user.filecontext_set.all()
     # Fast check for allowed user storage space
     if settings.USER_MAX_TOTAL_STORAGE_BYTES - len(user_files) * settings.USER_MAX_FILE_SIZE_BYTES <= \
        in_memory_uploaded_file.size:
