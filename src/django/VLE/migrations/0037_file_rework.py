@@ -29,17 +29,9 @@ def convertUserFiles(apps, schema_editor):
     UserFile.objects.filter(content=None).delete()
 
     for f in UserFile.objects.all():
-        file_name = os.path.basename(f.file.name)
-        path_relative_to_media_root = '{}/journalfiles/{}/{}'.format(f.author.pk, file_name)
-        path = os.path.join(settings.MEDIA_ROOT, path_relative_to_media_root)
-
-        while not os.path.exists(path):
-            p_path = pathlib.Path(path)
-            file_name = '{}-{}{}'.format(p_path.stem, uuid.uuid4().hex, p_path.suffix)
-            path = os.path.join(os.path.dirname(path), file_name)
-
+        # Works once per file retrieval
         FileContext.objects.create(
-            file=ContentFile(f.file.file.read(), name=file_name),
+            file=ContentFile(f.file.file.read(), name=f.file_name),
             file_name=f.file_name,
             author=f.author,
             journal=f.content.entry.node.journal,
@@ -49,6 +41,7 @@ def convertUserFiles(apps, schema_editor):
             content=f.content,
         )
         f.delete()
+
 
 # TODO Start expanding
 def convertBase64ToFiles(apps, schema_editor):

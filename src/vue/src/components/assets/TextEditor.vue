@@ -265,6 +265,7 @@ export default {
                 this.editor.execCommand('mceFullScreen', { skip_focus: true })
             }
         },
+        // TODO FILE: Connect this with drag and drop and paste of files
         imageUploadHandler (blobInfo, success, failure) {
             const file = blobInfo.blob()
             const formData = new FormData()
