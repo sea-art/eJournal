@@ -12,7 +12,7 @@ from django.db import migrations, models
 import VLE.utils.file_handling
 
 logger = logging.getLogger(__name__)
-base64ImgEmbedded = re.compile(r'<img src=\"(data:image\/[^;]+;base64[^\"]+)\" />')
+base64ImgEmbedded = re.compile(r'<img\s+src=\"(data:image\/[^;]+;base64[^\"]+)\"\s*/>')
 
 
 # Expects a string containing a single base64 file

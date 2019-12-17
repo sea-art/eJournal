@@ -168,6 +168,9 @@ class FileContext(models.Model):
     creation_date = models.DateTimeField(editable=False)
     last_edited = models.DateTimeField()
 
+    def download_url(self):
+        return '{}/files/{}/'.format(settings.BASELINK, self.pk)
+
     def cascade_from_user(self, user):
         return self.author is user and self.assignment is None and self.course is None and self.journal is None
 
