@@ -9,6 +9,7 @@ import django.db.models.deletion
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db import migrations, models
+import logging
 
 import VLE.utils.file_handling
 
@@ -54,8 +55,14 @@ def convertBase64ToFiles(apps, schema_editor):
 
     base64Img = re.compile(r'<img src=\"(data:image\/[^;]+;base64[^\"]+)\" />')
 
-    comments = Comment.objects.all().exclude(author=None)
+    logger = logging.getLogger(__name__)
+
+    comments = Comment.objects.all()
     for c in comments:
+        if c.author is None and re.search(base64Img, c.text):
+            logger.error('Comment {} contains base64 images without author'.format(c.id))
+            continue
+
         matches = re.findall(base64Img, c.text)
         for m in matches:
             file_name = 'comment-{}-from-base64-{}'.format(c.pk, uuid.uuid4().hex)
@@ -70,7 +77,6 @@ def convertBase64ToFiles(apps, schema_editor):
                 creation_date=c.creation_date,
                 last_edited=c.last_edited,
             )
-    # TODO handle comments which have no author but do have base64 images.
 
     content = Content.objects.filter(field__type='rt')
     for c in content:
