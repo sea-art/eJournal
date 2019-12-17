@@ -125,7 +125,7 @@ class FileContext(models.Model):
     - assignment: The assignment that the File is linked to (e.g. assignment description).
     - content: The content that the File is linked to. Can be rich text or a dedicated file field.
     - course: The course that the File is linked to (e.g. course description).
-    - journal: The journal that the File is linked to.
+    - journal: The journal that the File is linked to (e.g. comment).
     - creation_date: The time and date the file was uploaded.
     """
     file = models.FileField(
@@ -155,7 +155,6 @@ class FileContext(models.Model):
         on_delete=models.CASCADE,
         null=True
     )
-    # TODO File, why do we need journal if we have content
     journal = models.ForeignKey(
         'Journal',
         on_delete=models.CASCADE,

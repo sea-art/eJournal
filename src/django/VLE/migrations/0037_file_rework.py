@@ -13,11 +13,11 @@ from django.db import migrations, models
 import VLE.utils.file_handling
 
 
-def base64ToContentFile(string):
+# Expects a string containing a single base64 file
+def base64ToContentFile(string, filename):
     matches = re.findall(r'data:(.*);base64,(.*)', string)[0]
     mimetype = matches[0]
     extension = guess_extension(mimetype)
-    filename = '/path/name'  # TODO
     return ContentFile(base64.b64decode(matches[1]), name='{}{}'.format(filename, extension))
 
 
@@ -50,28 +50,43 @@ def convertBase64ToFiles(apps, schema_editor):
     Content = apps.get_model('VLE', 'Content')
     Field = apps.get_model('VLE', 'Field')
     User = apps.get_model('VLE', 'User')
+    FileContext = apps.get_model('VLE', 'FileContext')
 
     base64Img = re.compile(r'<img src=\"(data:image\/[^;]+;base64[^\"]+)\" />')
 
-    comments = Comment.objects.all()
+    comments = Comment.objects.all().exclude(author=None)
     for c in comments:
-        matches = re.findall(base64Img, c.text)[0]
+        matches = re.findall(base64Img, c.text)
+        for m in matches:
+            file_name = 'comment-{}-from-base64-{}'.format(c.pk, uuid.uuid4().hex)
+            base64ToContentFile(m, file_name)
+
+            FileContext.objects.create(
+                file=base64ToContentFile(m, file_name),
+                file_name=file_name,
+                author=c.author,
+                journal=c.entry.node.journal,
+                is_temp=False,
+                creation_date=c.creation_date,
+                last_edited=c.last_edited,
+            )
+    # TODO handle comments which have no author but do have base64 images.
 
     content = Content.objects.filter(field__type='rt')
     for c in content:
-        matches = re.findall(base64Img, c.text)[0]
+        matches = re.findall(base64Img, c.text)
 
     assignments = Assignment.objects.all()
     for a in assignments:
-        matches = re.findall(base64Img, a.description)[0]
+        matches = re.findall(base64Img, a.description)
 
     fields = Field.objects.all()
     for f in fields:
-        matches = re.findall(base64Img, f.description)[0]
+        matches = re.findall(base64Img, f.description)
 
     users = User.objects.all()
     for u in users:
-        matches = re.findall(base64Img, u.profile_picture)[0]
+        matches = re.findall(base64Img, u.profile_picture)
 
 
 class Migration(migrations.Migration):
