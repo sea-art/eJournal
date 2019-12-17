@@ -41,6 +41,16 @@
                     }"
                 />
             </div>
+            <div
+                @click="deleteJournal"
+            >
+                <icon
+                    v-b-tooltip.hover
+                    class="trash-icon lock-members-icon fill-grey"
+                    title="Click to delete journal"
+                    name="trash"
+                />
+            </div>
             <b class="member-count">
                 Members
                 <b
@@ -52,7 +62,7 @@
             </b>
             <div
                 v-for="author in journal.authors"
-                :key="`journal-member-${author.username}`"
+                :key="`journal-member-${author.user.username}`"
                 class="member"
             >
                 <div
@@ -153,7 +163,7 @@ export default {
             }
         },
         kickFromJournal (user) {
-            if (window.confirm(`Are you sure you want to kick ${user.full_name} from this journal?`)) {
+            if (window.confirm(`Are you sure you want to remove ${user.full_name} from this journal?`)) {
                 journalAPI.kick(this.journal.id, user.id, { responseSuccessToast: true })
                     .then(() => {
                         this.journal.authors = this.journal.authors.filter(author => author.user.id !== user.id)
@@ -165,6 +175,38 @@ export default {
                 .then(() => {
                     this.journal.locked = !this.journal.locked
                 })
+        },
+        deleteJournal () {
+            if (window.confirm('Are you sure you want to delete this journal?')) {
+                journalAPI.delete(this.journal.id, { responseSuccessToast: true })
+                    .then(() => {
+                        this.$router.push(this.assignmentRoute(this.assignment))
+                    })
+            }
+        },
+        assignmentRoute (assignment) {
+            const route = {
+                params: {
+                    cID: assignment.course.id,
+                    aID: assignment.id,
+                },
+            }
+
+            if (this.$hasPermission('can_view_all_journals', 'assignment', assignment.id)) {
+                if (!assignment.is_published) { // Teacher not published route
+                    route.name = 'FormatEdit'
+                } else { // Teacher published route
+                    route.name = 'Assignment'
+                }
+            } else if (assignment.is_group_assignment && assignment.journal === null) {
+                // Student new group assignment route
+                route.name = 'JoinJournal'
+            } else { // Student with journal route
+                route.name = 'Journal'
+                route.params.jID = assignment.journal
+            }
+
+            return route
         },
     },
 }

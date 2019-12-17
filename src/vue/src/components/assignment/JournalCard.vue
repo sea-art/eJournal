@@ -25,6 +25,18 @@
                         class="max-one-line"
                         :title="journal.name"
                     >
+                        <div
+                            v-if="journal.authors.length === 0"
+                            class="float-right"
+                            @click="deleteJournal"
+                        >
+                            <icon
+                                v-b-tooltip.hover
+                                class="trash-icon lock-members-icon fill-grey"
+                                title="Click to delete journal"
+                                name="trash"
+                            />
+                        </div>
                         {{ journal.name }}
                     </b>
                     <span
@@ -96,6 +108,8 @@ import numberBadge from '@/components/assets/NumberBadge.vue'
 import studentCard from '@/components/assignment/StudentCard.vue'
 import draggable from 'vuedraggable'
 
+import journalAPI from '@/api/journal.js'
+
 export default {
     components: {
         progressBar,
@@ -165,6 +179,11 @@ export default {
     methods: {
         log (evt) {
             window.console.log(evt);
+        },
+        deleteJournal () {
+            if (window.confirm('Are you sure you want to delete this journal?')) {
+                journalAPI.delete(this.journal.id, { responseSuccessToast: true })
+            }
         },
     },
 }

@@ -112,19 +112,17 @@ export default {
             }
 
             if (this.$hasPermission('can_view_all_journals', 'assignment', assignment.id)) {
-                if (!assignment.isPublished) { // Teacher not published route
+                if (!assignment.is_published) { // Teacher not published route
                     route.name = 'FormatEdit'
                 } else { // Teacher published route
                     route.name = 'Assignment'
                 }
-            } else {
-                if (assignment.is_group_assignment && assignment.journal === null) {
-                    // Student new group assignment route
-                    route.name = 'JoinJournal'
-                } else { // Student with journal route
-                    route.name = 'Journal'
-                    route.params.jID = assignment.journal
-                }
+            } else if (assignment.is_group_assignment && assignment.journal === null) {
+                // Student new group assignment route
+                route.name = 'JoinJournal'
+            } else { // Student with journal route
+                route.name = 'Journal'
+                route.params.jID = assignment.journal
             }
 
             return route

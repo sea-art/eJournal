@@ -193,6 +193,23 @@ class JournalView(viewsets.ViewSet):
 
         return response.bad_request('No valid values were specified.')
 
+    def destroy(self, request, *args, **kwargs):
+        """Deleting a journals"""
+        journal_id, = utils.required_typed_params(kwargs, (int, 'pk'))
+        journal = Journal.objects.get(pk=journal_id)
+
+        request.user.check_can_view(journal.assignment)
+        request.user.check_permission('can_manage_journals', journal.assignment)
+
+        if not journal.assignment.is_group_assignment:
+            return response.bad_request('Only journals from a group assignment can be deleted.')
+
+        if journal.authors.exists():
+            return response.bad_request('There are still authors in this journal.')
+
+        journal.delete()
+        return response.success(description='Successfully deleted the journal.')
+
     @action(['patch'], detail=True)
     def join(self, request, pk):
         """Add a student to the journal

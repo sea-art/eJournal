@@ -140,6 +140,17 @@ class JournalAPITest(TestCase):
         # Check if the admin can update the journal
         api.update(self, 'journals', params={'pk': self.journal.pk, 'user': factory.Student().pk}, user=factory.Admin())
 
+    def test_delete_journal(self):
+        # Check student may not delete journals
+        api.delete(self, 'journals', params={'pk': self.journal.pk}, user=self.student, status=403)
+        # Check can only delete group journals
+        api.delete(self, 'journals', params={'pk': self.journal.pk}, user=self.teacher, status=400)
+        # Check cannot delete with authors
+        api.delete(self, 'journals', params={'pk': self.group_journal.pk}, user=self.g_teacher, status=400)
+        # Check valid deletion
+        self.group_journal.authors.remove(self.group_journal.authors.first())
+        api.delete(self, 'journals', params={'pk': self.group_journal.pk}, user=self.g_teacher)
+
     def test_join(self):
         assert not self.group_journal.authors.filter(user=self.g_student).exists(), \
             'Check if student is not yet in the journal'
