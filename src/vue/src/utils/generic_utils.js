@@ -14,11 +14,15 @@ export default {
         return split.join('-')
     },
 
+    // TODO FILE: We should no longer serve arrayBuffer type responses, remove all occurnces
     /* Converts an arraybuffer response to a humanreadable text. */
     parseArrayBuffer (arrayBuffer) {
-        const enc = new TextDecoder('utf-8')
+        if (arrayBuffer instanceof ArrayBuffer) {
+            const enc = new TextDecoder('utf-8')
 
-        return JSON.parse(enc.decode(arrayBuffer))
+            return JSON.parse(enc.decode(arrayBuffer))
+        }
+        return arrayBuffer
     },
 
     invalidAccessToken (error) {

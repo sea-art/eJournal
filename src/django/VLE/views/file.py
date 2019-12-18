@@ -8,7 +8,9 @@ from VLE.models import FileContext
 class FileView(viewsets.ViewSet):
     def retrieve(self, request, pk):
         """Get a FileContext file by ID"""
-        return response.success("TODO implement")
+        # TODO FILE implement
+        file = FileContext.objects.get(pk=pk)
+        return response.file(file, file.file_name)
 
     def create(self, request):
         if not (request.FILES and 'file' in request.FILES):

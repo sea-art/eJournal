@@ -23,12 +23,13 @@ const connFile = axios.create({
         if (store.getters['user/jwtAccess']) { headers.Authorization = `Bearer ${store.getters['user/jwtAccess']}` }
         return data
     }, ...axios.defaults.transformRequest],
-    responseType: 'arraybuffer',
+    responseType: 'arraybuffer', // TODO FILE: We no longer use base64 images -> this can be merged and removed
     headers: {
         'Content-Type': 'multipart/form-data',
     },
 })
 
+// TODO FILE: Merge or delete with above
 const connFileEmail = axios.create({
     transformRequest: [(data, headers) => {
         if (store.getters['user/jwtAccess']) { headers.Authorization = `Bearer ${store.getters['user/jwtAccess']}` }
