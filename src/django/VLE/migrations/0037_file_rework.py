@@ -23,8 +23,8 @@ def base64ToContentFile(string, filename):
     return ContentFile(base64.b64decode(matches[1]), name='{}{}'.format(filename, extension))
 
 
-def fileIdToEmbdeddedImageLink(id):
-    return '<img src="{}/files/{}/"/>'.format(settings.BASELINK, id)
+def fileToEmbdeddedImageLink(file):
+    return '<img src="{}"/>'.format(file.dowload_url())
 
 
 def convertUserFiles(apps, schema_editor):
@@ -75,7 +75,7 @@ def convertBase64CommentsToFiles(apps, schema_editor):
                 last_edited=c.last_edited,
             )
 
-            return fileIdToEmbdeddedImageLink(f.pk)
+            return fileToEmbdeddedImageLink(f)
 
         c.text = re.sub(base64ImgEmbedded, createEmbbededCommentFiles, c.text)
         c.save()
@@ -99,7 +99,7 @@ def convertBase64ContentsToFiles(apps, schema_editor):
                 last_edited=c.entry.last_edited,
             )
 
-            return fileIdToEmbdeddedImageLink(f.pk)
+            return fileToEmbdeddedImageLink(f)
 
         c.data = re.sub(base64ImgEmbedded, createEmbbededContentFiles, c.data)
         c.save()
@@ -127,7 +127,7 @@ def convertBase64AssignmentDescriptionsToFiles(apps, schema_editor):
                 last_edited=a.last_edited,
             )
 
-            return fileIdToEmbdeddedImageLink(f.pk)
+            return fileToEmbdeddedImageLink(f)
 
         a.description = re.sub(base64ImgEmbedded, createEmbbededAssignmentDescriptionFiles, a.description)
         a.save()
@@ -158,7 +158,7 @@ def convertBase64FieldDescriptionsToFiles(apps, schema_editor):
                 last_edited=assignment.last_edited,
             )
 
-            return fileIdToEmbdeddedImageLink(f.pk)
+            return fileToEmbdeddedImageLink(f)
 
         field.description = re.sub(base64ImgEmbedded, createEmbbededFieldDescriptionFiles, field.description)
         field.save()
@@ -181,7 +181,7 @@ def convertBase64ProfilePicturesToFiles(apps, schema_editor):
                 is_temp=False,
             )
 
-            u.profile_picture = '{}/files/{}/'.format(settings.BASELINK, f.pk)
+            u.profile_picture = f.download_url()
             u.save()
 
 

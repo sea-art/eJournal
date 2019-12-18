@@ -53,6 +53,7 @@ import 'public/tinymce/plugins/placeholder.js'
 // content_style: contentStyle.toString() + '\n' + contentStyle2.toString(),
 
 import auth from '@/api/auth.js'
+import genericUtils from '@/utils/generic_utils.js'
 
 export default {
     name: 'TextEditor',
@@ -265,15 +266,17 @@ export default {
                 this.editor.execCommand('mceFullScreen', { skip_focus: true })
             }
         },
+        /*
+            * Blob info consists of:
+            * blobInfo.id(): blobid -- 'blobidXXX'
+            * blobInfo.name(): filename -- 'some_img'
+            * blobInfo.blob(): javascript file object
+            * blobInfo.filename() filename with extension -- 'some_img.jpg'
+        */
         // TODO FILE: Connect this with drag and drop and paste of files
         imageUploadHandler (blobInfo, success, failure) {
             const file = blobInfo.blob()
             const formData = new FormData()
-
-            console.log(blobInfo.id()) // blobidXXX
-            console.log(blobInfo.name()) // filename
-            console.log(blobInfo.blob()) // file
-            console.log(blobInfo.filename()) // filename + extension
 
             if (file.size > this.$root.maxFileSizeBytes) {
                 return failure(`The selected file exceeds the maximum file size of: ${this.maxSizeBytes} bytes.`)
@@ -281,12 +284,11 @@ export default {
 
             formData.append('file', file)
 
-            auth.uploadFile('users/upload', formData)
-                .then(() => { success('TODO pass retrieved location from response') })
+            auth.uploadFileEmail('files', formData)
+                .then((response) => { success(response.data.download_url) })
                 .catch(() => { failure('File upload failed') })
-
-            return failure('TOO BAD')
         },
+        /* TODO File: remove if not needed for paste */
         insertDataURL () {
             const input = document.createElement('input')
             input.setAttribute('type', 'file')

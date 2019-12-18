@@ -10,6 +10,7 @@ from django.db.models import Case, When
 import VLE.factory as factory
 from VLE.models import Entry, FileContext, Node, PresetNode, Template
 from VLE.utils.error_handling import VLEBadRequest, VLEMissingRequiredKey, VLEParamWrongType
+from django.conf import settings
 
 
 # START: API-POST functions
@@ -292,6 +293,6 @@ def archive_templates(templates):
 
 def get_embedded_file_context_from_string(string):
     """Retrieves all file contexts embbeded in the given string based on the expected download url pattern by id"""
-    base = re.escape('{}/files'.format(settings.BASELINK))
+    base = re.escape('{}/files'.format(settings.API_URL))
     base64ImgEmbedded = re.compile(r'<img\s+src=\"' + base + r'/(\d+)/\"\s*/>')
     return FileContext.objects.filter(pk__in=[int(match) for match in re.findall(base64ImgEmbedded, string)])
