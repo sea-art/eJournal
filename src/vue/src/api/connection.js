@@ -1,28 +1,13 @@
 import axios from 'axios'
-import store from '@/store'
 
 axios.defaults.baseURL = CustomEnv.API_URL
 
-const conn = axios.create({
-    transformRequest: [(data, headers) => {
-        if (store.getters['user/jwtAccess']) { headers.Authorization = `Bearer ${store.getters['user/jwtAccess']}` }
-        return data
-    }, ...axios.defaults.transformRequest],
-})
+const conn = axios.create()
 
 // An instance without refresh interceptor
-const connRefresh = axios.create({
-    transformRequest: [(data, headers) => {
-        if (store.getters['user/jwtAccess']) { headers.Authorization = `Bearer ${store.getters['user/jwtAccess']}` }
-        return data
-    }, ...axios.defaults.transformRequest],
-})
+const connRefresh = axios.create()
 
 const connFile = axios.create({
-    transformRequest: [(data, headers) => {
-        if (store.getters['user/jwtAccess']) { headers.Authorization = `Bearer ${store.getters['user/jwtAccess']}` }
-        return data
-    }, ...axios.defaults.transformRequest],
     responseType: 'arraybuffer', // TODO FILE: We no longer use base64 images -> this can be merged and removed
     headers: {
         'Content-Type': 'multipart/form-data',
@@ -31,10 +16,6 @@ const connFile = axios.create({
 
 // TODO FILE: Merge or delete with above
 const connFileEmail = axios.create({
-    transformRequest: [(data, headers) => {
-        if (store.getters['user/jwtAccess']) { headers.Authorization = `Bearer ${store.getters['user/jwtAccess']}` }
-        return data
-    }, ...axios.defaults.transformRequest],
     headers: {
         'Content-Type': 'multipart/form-data',
     },

@@ -5,12 +5,12 @@ A library with useful functions.
 """
 import re
 
+from django.conf import settings
 from django.db.models import Case, When
 
 import VLE.factory as factory
 from VLE.models import Entry, FileContext, Node, PresetNode, Template
 from VLE.utils.error_handling import VLEBadRequest, VLEMissingRequiredKey, VLEParamWrongType
-from django.conf import settings
 
 
 # START: API-POST functions
