@@ -6,6 +6,10 @@
             @edit-click="handleEdit()"
         />
 
+        <rich-text-editor
+            slot="main-content-column"
+            placeholder="placeholder"
+        />
         <load-wrapper
             slot="main-content-column"
             :loading="loadingCourses"
@@ -75,6 +79,8 @@ import createCourse from '@/components/course/CreateCourse.vue'
 import editHome from '@/components/home/EditHome.vue'
 import deadlineDeck from '@/components/assets/DeadlineDeck.vue'
 
+import richTextEditor from '@/components/assets/RichTextEditor.vue'
+
 import courseAPI from '@/api/course.js'
 
 export default {
@@ -87,6 +93,7 @@ export default {
         createCourse,
         editHome,
         deadlineDeck,
+        richTextEditor,
     },
     data () {
         return {

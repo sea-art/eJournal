@@ -7,6 +7,7 @@ import 'intro.js/introjs.css'
 
 import '@/helpers/vue_awesome_icons.js'
 import initSentry from '@/helpers/sentry.js'
+import CKEditor from '@ckeditor/ckeditor5-vue';
 
 import Toasted from 'vue-toasted'
 import flatPickr from 'vue-flatpickr-component'
@@ -27,6 +28,7 @@ Vue.use(BootstrapVue)
 Vue.use(flatPickr)
 Vue.use(VueIntro)
 Vue.use(VueMoment)
+Vue.use(CKEditor)
 
 Vue.component('icon', Icon)
 Vue.component('theme-select', ThemeSelect)
