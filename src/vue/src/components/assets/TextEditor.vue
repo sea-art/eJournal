@@ -53,7 +53,6 @@ import 'public/tinymce/plugins/placeholder.js'
 // content_style: contentStyle.toString() + '\n' + contentStyle2.toString(),
 
 import auth from '@/api/auth.js'
-import genericUtils from '@/utils/generic_utils.js'
 
 export default {
     name: 'TextEditor',
@@ -121,8 +120,20 @@ export default {
                 //     return img.hasAttribute('internal-blob')
                 // },
                 images_upload_handler: this.imageUploadHandler,
+                /* eslint-disable */
+                // imagetools_fetch_image: function (img) {
+                //     alert('HOI')
+                //     console.log('fetch image')
+                //     console.log(img)
+                //     return new tinymce.util.Promise(function (resolve) {
+                //     // Fetch the image and return a blob containing the image content
+                //         // resolve(new Blob(...));
+                //     })
+                // },
+                /* eslint-enable */
                 // file_picker_types: 'image',
                 // file_picker_callback: this.insertDataURL,
+                // file_picker_callback: this.filePicker,
 
                 /* Editor size */
                 min_height: 260,
@@ -279,15 +290,58 @@ export default {
             const formData = new FormData()
 
             if (file.size > this.$root.maxFileSizeBytes) {
-                return failure(`The selected file exceeds the maximum file size of: ${this.maxSizeBytes} bytes.`)
+                failure(`The selected file exceeds the maximum file size of: ${this.maxSizeBytes} bytes.`)
+            } else {
+                formData.append('file', file)
+
+                auth.uploadFileEmail('files', formData)
+                    .then((response) => { success(response.data.download_url) })
+                    .catch(() => { failure('File upload failed') })
             }
-
-            formData.append('file', file)
-
-            auth.uploadFileEmail('files', formData)
-                .then((response) => { success(response.data.download_url) })
-                .catch(() => { failure('File upload failed') })
         },
+        /* eslint-disable */
+        // filePicker (callback, value, meta) {
+        //     if (meta.filetype === 'image') {
+        //         const vm = this
+        //         const formData = new FormData()
+
+        //         var input = document.createElement('input');
+        //         input.setAttribute('type', 'file');
+        //         input.setAttribute('accept', 'image/*');
+
+        //         input.onchange = function () {
+        //             var file = this.files[0];
+
+        //             var reader = new FileReader();
+        //             reader.onload = function () {
+        //                 /*
+        //                 Note: Now we need to register the blob in TinyMCEs image blob
+        //                 registry. In the next release this part hopefully won't be
+        //                 necessary, as we are looking to handle it internally.
+        //                 */
+        //                 var id = 'blobid' + (new Date()).getTime();
+        //                 var blobCache =  vm.editor.editorUpload.blobCache;
+        //                 var base64 = reader.result.split(',')[1];
+        //                 var blobInfo = blobCache.create(id, file, base64);
+        //                 blobCache.add(blobInfo);
+
+        //                 /* call the callback and populate the Title field with the file name */
+        //                 formData.append('file', blobInfo.blob())
+        //                 auth.uploadFileEmail('files', formData)
+        //                     .then((response) => {
+        //                         callback(response.data.download_url, { title: file.name });
+        //                     })
+        //                     .catch(() => { failure('File upload failed') })
+        //             };
+        //             reader.readAsDataURL(file);
+        //         };
+
+        //         input.click();
+        //     } else {
+        //         this.$$toasted.error('Please provide a suitable image')
+        //     }
+        // },
+        /* eslint-enable */
         /* TODO File: remove if not needed for paste */
         insertDataURL () {
             const input = document.createElement('input')
