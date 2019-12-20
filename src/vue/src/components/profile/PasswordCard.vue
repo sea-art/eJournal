@@ -9,7 +9,7 @@
                 autocomplete="username"
                 hidden
             />
-            <h2 class="field-heading">
+            <h2 class="theme-h2 field-heading">
                 Current password
             </h2>
             <b-input
@@ -19,7 +19,7 @@
                 placeholder="Current password"
                 autocomplete="new-password"
             />
-            <h2 class="field-heading">
+            <h2 class="theme-h2 field-heading">
                 New password
             </h2>
             <b-input
@@ -29,7 +29,7 @@
                 placeholder="New password"
                 autocomplete="new-password"
             />
-            <h2 class="field-heading">
+            <h2 class="theme-h2 field-heading">
                 Repeat new password
             </h2>
             <b-input

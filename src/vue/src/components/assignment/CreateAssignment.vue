@@ -27,7 +27,7 @@
                 </b-button>
             </div>
 
-            <h2 class="field-heading required">
+            <h2 class="theme-h2 field-heading required">
                 Assignment Name
             </h2>
             <b-input
@@ -36,7 +36,7 @@
                 placeholder="Assignment name"
                 required
             />
-            <h2 class="field-heading">
+            <h2 class="theme-h2 field-heading">
                 Description
             </h2>
             <text-editor
@@ -46,7 +46,7 @@
                 class="multi-form"
                 placeholder="Description of the assignment"
             />
-            <h2 class="field-heading required">
+            <h2 class="theme-h2 field-heading required">
                 Points possible
                 <tooltip
                     tip="The amount of points that represents a perfect score for this assignment, excluding bonus
@@ -61,7 +61,7 @@
             />
             <b-row>
                 <b-col xl="4">
-                    <h2 class="field-heading">
+                    <h2 class="theme-h2 field-heading">
                         Unlock date
                         <tooltip tip="Students will be able to work on the assignment from this date onwards"/>
                     </h2>
@@ -73,7 +73,7 @@
                     />
                 </b-col>
                 <b-col xl="4">
-                    <h2 class="field-heading">
+                    <h2 class="theme-h2 field-heading">
                         Due date
                         <tooltip
                             tip="Students are expected to have finished their assignment by this date, but new entries
@@ -89,7 +89,7 @@
                     />
                 </b-col>
                 <b-col xl="4">
-                    <h2 class="field-heading">
+                    <h2 class="theme-h2 field-heading">
                         Lock date
                         <tooltip tip="No more entries can be added after this date"/>
                     </h2>

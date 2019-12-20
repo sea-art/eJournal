@@ -25,11 +25,11 @@
                 Unpublished
             </b-button>
         </div>
-        <h2 class="multi-form">
+        <h2 class="theme-h2 multi-form">
             Assignment details
         </h2>
         <b-form @submit.prevent="onSubmit">
-            <h2 class="field-heading">
+            <h2 class="theme-h2 field-heading">
                 Assignment name
             </h2>
             <b-input
@@ -37,7 +37,7 @@
                 class="multi-form theme-input"
                 placeholder="Assignment name"
             />
-            <h2 class="field-heading">
+            <h2 class="theme-h2 field-heading">
                 Description
             </h2>
             <text-editor
@@ -47,7 +47,7 @@
                 class="multi-form"
                 placeholder="Enter the description of the assignment here"
             />
-            <h2 class="field-heading">
+            <h2 class="theme-h2 field-heading">
                 Points possible
                 <tooltip
                     tip="The amount of points that represents a perfect score for this assignment, excluding \
@@ -62,7 +62,7 @@
             />
             <b-row>
                 <b-col xl="4">
-                    <h2 class="field-heading">
+                    <h2 class="theme-h2 field-heading">
                         Unlock date
                         <tooltip tip="Students will be able to work on the assignment from this date onwards"/>
                     </h2>
@@ -73,7 +73,7 @@
                     />
                 </b-col>
                 <b-col xl="4">
-                    <h2 class="field-heading">
+                    <h2 class="theme-h2 field-heading">
                         Due date
                         <tooltip
                             tip="Students are expected to have finished their assignment by this date, but new \
@@ -87,7 +87,7 @@
                     />
                 </b-col>
                 <b-col xl="4">
-                    <h2 class="field-heading">
+                    <h2 class="theme-h2 field-heading">
                         Lock date
                         <tooltip tip="No more entries can be added after this date"/>
                     </h2>

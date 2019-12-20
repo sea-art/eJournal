@@ -8,7 +8,7 @@
             <h2
                 v-if="field.title"
                 :class="{ 'required': field.required }"
-                class="field-heading"
+                class="theme-h2 field-heading"
             >
                 {{ field.title }}
             </h2>
@@ -98,7 +98,7 @@
             <h2
                 v-if="field.title"
                 :class="{ 'required': field.required }"
-                class="field-heading"
+                class="theme-h2 field-heading"
             >
                 {{ field.title }}
             </h2>

@@ -61,7 +61,7 @@
                     <icon name="hourglass-half"/>
                 </div>
 
-                <h2 class="mb-2">
+                <h2 class="theme-h2 mb-2">
                     {{ entryNode.entry.template.name }}
                 </h2>
                 <entry-fields
@@ -141,7 +141,7 @@
                     </template>
                 </b-table>
                 <div v-else>
-                    <h4>No grades available</h4>
+                    <h4 class="theme-h4">No grades available</h4>
                     <hr class="m-0 mb-1"/>
                     This entry has not yet been graded.
                 </div>
@@ -153,7 +153,7 @@
         :class="$root.getBorderClass($route.params.cID)"
         class="no-hover"
     >
-        <h2 class="mb-2">
+        <h2 class="theme-h2 mb-2">
             {{ entryNode.template.name }}
         </h2>
         <b>No submission for this student</b>

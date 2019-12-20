@@ -114,7 +114,7 @@
                     class="no-hover"
                     :class="$root.getBorderClass($route.params.cID)"
                 >
-                    <h2>End of assignment</h2>
+                    <h2 class="theme-h2">End of assignment</h2>
                     <p>This is the end of the assignment.</p>
                 </b-card>
 
@@ -138,7 +138,7 @@
             xl="3"
             class="right-content-timeline-page right-content"
         >
-            <h3>Entry Templates</h3>
+            <h3 class="theme-h3">Entry Templates</h3>
             <div
                 v-intro="'Every assignment contains customizable <i>templates</i> which specify what the contents of \
                 each journal entry should be. There are two different types of templates:<br/><br/><ul><li><b>\

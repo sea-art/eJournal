@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h4 class="mb-2">
+        <h4 class="theme-h4 mb-2">
             <span>Manage course details</span>
         </h4>
         <b-card
@@ -8,7 +8,7 @@
             :class="$root.getBorderClass($route.params.uID)"
         >
             <b-form @submit.prevent="onSubmit">
-                <h2 class="field-heading required">
+                <h2 class="theme-h2 field-heading required">
                     Course name
                 </h2>
                 <b-input
@@ -17,7 +17,7 @@
                     :readonly="!$hasPermission('can_edit_course_details')"
                     placeholder="Course name"
                 />
-                <h2 class="field-heading required">
+                <h2 class="theme-h2 field-heading required">
                     Course abbreviation
                 </h2>
                 <b-input
@@ -29,7 +29,7 @@
                 />
                 <b-row>
                     <b-col cols="6">
-                        <h2 class="field-heading required">
+                        <h2 class="theme-h2 field-heading required">
                             Start date
                             <tooltip tip="Start date of the course"/>
                         </h2>
@@ -43,7 +43,7 @@
                         />
                     </b-col>
                     <b-col cols="6">
-                        <h2 class="field-heading required">
+                        <h2 class="theme-h2 field-heading required">
                             End date
                             <tooltip tip="End date of the course"/>
                         </h2>

@@ -79,7 +79,7 @@
                                     :class="$root.getBorderClass($route.params.cID)"
                                     class="no-hover"
                                 >
-                                    <h2 class="mb-2">
+                                    <h2 class="theme-h2 mb-2">
                                         {{ nodes[currentNode].template.name }}
                                     </h2>
                                     <hr class="full-width"/>
@@ -123,7 +123,7 @@
             xl="3"
             class="right-content-timeline-page right-content"
         >
-            <h3>Journal progress</h3>
+            <h3 class="theme-h3">Journal progress</h3>
             <b-card
                 :class="$root.getBorderClass($route.params.cID)"
                 class="no-hover"

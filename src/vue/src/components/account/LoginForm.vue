@@ -2,7 +2,7 @@
     <div>
         <b-card class="no-hover card-last-elem-button">
             <b-form @submit.prevent="handleLogin()">
-                <h2 class="field-heading">
+                <h2 class="theme-h2 field-heading">
                     Username
                 </h2>
                 <b-input
@@ -13,7 +13,7 @@
                     placeholder="Username"
                     autocomplete="username"
                 />
-                <h2 class="field-heading">
+                <h2 class="theme-h2 field-heading">
                     Password
                 </h2>
                 <b-input
@@ -59,7 +59,7 @@
         >
             <b-card class="no-hover">
                 <b-form @submit.prevent="handleForgotPassword">
-                    <h2 class="field-heading">
+                    <h2 class="theme-h2 field-heading">
                         Username or email
                     </h2>
                     <b-input

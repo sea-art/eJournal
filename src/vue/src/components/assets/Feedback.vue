@@ -1,6 +1,6 @@
 <template>
     <b-card class="no-hover">
-        <h2 class="multi-form">
+        <h2 class="theme-h2 multi-form">
             How can we help you?
             <div
                 v-b-tooltip.hover

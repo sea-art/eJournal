@@ -6,7 +6,7 @@
         >
             <h2
                 v-if="!lti"
-                class="field-heading required"
+                class="theme-h2 field-heading required"
             >
                 Username
             </h2>
@@ -20,7 +20,7 @@
             />
             <h2
                 v-if="!lti"
-                class="field-heading required"
+                class="theme-h2 field-heading required"
             >
                 Full name
             </h2>
@@ -32,7 +32,7 @@
                 maxlength="200"
                 required
             />
-            <h2 class="field-heading required">
+            <h2 class="theme-h2 field-heading required">
                 New password
             </h2>
             <b-input
@@ -42,7 +42,7 @@
                 placeholder="Password"
                 required
             />
-            <h2 class="field-heading required">
+            <h2 class="theme-h2 field-heading required">
                 Repeat new password
             </h2>
             <b-input
@@ -54,7 +54,7 @@
             />
             <h2
                 v-if="!lti"
-                class="field-heading required"
+                class="theme-h2 field-heading required"
             >
                 Email
             </h2>

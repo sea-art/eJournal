@@ -5,7 +5,7 @@
             @submit.prevent="onSubmit"
             @reset.prevent="onReset"
         >
-            <h2 class="field-heading required">
+            <h2 class="theme-h2 field-heading required">
                 Course name
             </h2>
             <b-input
@@ -13,7 +13,7 @@
                 class="multi-form theme-input"
                 placeholder="Course name"
             />
-            <h2 class="field-heading required">
+            <h2 class="theme-h2 field-heading required">
                 Course abbreviation
             </h2>
             <b-input
@@ -24,7 +24,7 @@
             />
             <b-row>
                 <b-col cols="6">
-                    <h2 class="field-heading required">
+                    <h2 class="theme-h2 field-heading required">
                         Start date
                         <tooltip tip="Start date of the course"/>
                     </h2>
@@ -35,7 +35,7 @@
                     />
                 </b-col>
                 <b-col cols="6">
-                    <h2 class="field-heading required">
+                    <h2 class="theme-h2 field-heading required">
                         End date
                         <tooltip tip="End date of the course"/>
                     </h2>

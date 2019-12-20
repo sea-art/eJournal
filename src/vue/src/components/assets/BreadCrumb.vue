@@ -19,7 +19,7 @@
         </b-button>
         <div>
             <div v-if="crumbs.length > 1">
-                <h4>
+                <h4 class="theme-h4">
                     <span>
                         <span
                             v-for="crumb in crumbs.slice(0, -1)"
@@ -47,7 +47,7 @@
                 </h4>
                 <br/>
             </div>
-            <h1>
+            <h1 class='theme-h1'>
                 <span>
                     {{ crumbs.slice(-1)[0].displayName }}
                     <slot/>

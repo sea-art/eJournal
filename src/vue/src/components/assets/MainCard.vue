@@ -3,7 +3,7 @@
         <div class="float-right">
             <slot/>
         </div>
-        <h2>{{ line1 }}</h2>
+        <h2 class="theme-h2">{{ line1 }}</h2>
         {{ line2 }}
     </b-card>
 </template>

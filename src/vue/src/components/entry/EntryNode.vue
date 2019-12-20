@@ -20,7 +20,7 @@
                 {{ entryNode.entry.grade.grade }}
             </div>
 
-            <h2 class="mb-2">
+            <h2 class="theme-h2 mb-2">
                 {{ entryNode.entry.template.name }}
             </h2>
             <entry-fields
@@ -91,7 +91,7 @@
                 </b-button>
             </div>
 
-            <h2 class="mb-2">
+            <h2 class="theme-h2 mb-2">
                 {{ entryNode.entry.template.name }}
             </h2>
             <entry-fields

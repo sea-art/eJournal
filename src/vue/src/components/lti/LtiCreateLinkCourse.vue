@@ -1,6 +1,6 @@
 <template>
     <div v-if="courses">
-        <h2 class="multi-form">
+        <h2 class="theme-h2 multi-form">
             Configuring a Course
         </h2>
         <span class="d-block mb-2">

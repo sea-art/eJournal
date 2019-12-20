@@ -19,14 +19,14 @@
                 Edit
             </b-button>
         </div>
-        <h4 class="mb-2 d-block">
+        <h4 class="theme-h4 mb-2 d-block">
             <span>User details</span>
         </h4>
         <b-card
             :class="$root.getBorderClass($route.params.uID)"
             class="no-hover multi-form"
         >
-            <h2 class="field-heading multi-form">
+            <h2 class="theme-h2 field-heading multi-form">
                 Username
             </h2>
             <b-form-input
@@ -35,7 +35,7 @@
                 class="theme-input multi-form"
                 type="text"
             />
-            <h2 class="field-heading multi-form">
+            <h2 class="theme-h2 field-heading multi-form">
                 Full name
             </h2>
             <b-form-input
@@ -45,7 +45,7 @@
                 type="text"
                 placeholder="Full name"
             />
-            <h2 class="field-heading multi-form">
+            <h2 class="theme-h2 field-heading multi-form">
                 Email address
             </h2>
             <email/>

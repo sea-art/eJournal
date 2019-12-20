@@ -4,7 +4,7 @@
             @submit.prevent="onSubmit"
             @reset.prevent="onReset"
         >
-            <h2 class="field-heading">
+            <h2 class="theme-h2 field-heading">
                 Institute name
             </h2>
             <b-input

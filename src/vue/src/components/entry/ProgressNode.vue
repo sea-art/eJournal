@@ -3,7 +3,7 @@
         :class="borderColor"
         class="no-hover"
     >
-        <h2 class="mb-2">
+        <h2 class="theme-h2 mb-2">
             Target: {{ currentNode.target }} point<span v-if="currentNode.target > 1">s</span>
         </h2>
         <p

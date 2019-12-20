@@ -1,6 +1,6 @@
 <template>
     <content-single-column>
-        <h1><span>Login</span></h1>
+        <h1 class='theme-h1'><span>Login</span></h1>
         <login-form @handleAction="handleLoginSucces"/>
         <custom-footer/>
     </content-single-column>

@@ -6,7 +6,7 @@
         hideFooter
     >
         <b-card class="no-hover">
-            <h2 class="multi-form">
+            <h2 class="theme-h2 multi-form">
                 Select an assignment to copy
             </h2>
             <p>
@@ -43,7 +43,7 @@
                 </div>
             </div>
             <div v-if="!copyableFormats">
-                <h4>No existing assignments available</h4>
+                <h4 class="theme-h4">No existing assignments available</h4>
                 <hr class="m-0 mb-1"/>
                 Only assignments where you have permission to edit are available for copy.
             </div>

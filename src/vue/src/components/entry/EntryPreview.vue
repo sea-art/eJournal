@@ -8,7 +8,7 @@
             :class="$root.getBorderClass($route.params.cID)"
             class="no-hover"
         >
-            <h2 class="mb-2">
+            <h2 class="theme-h2 mb-2">
                 {{ template.name }}
             </h2>
             <p v-if="description">

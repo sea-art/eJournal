@@ -1,9 +1,9 @@
 <template>
     <div>
-        <h5 class="progress-percentage">
+        <h5 class="theme-h5 progress-percentage">
             {{ progressPercentage }}%
         </h5>
-        <h5>
+        <h5 class="theme-h5">
             <b>{{ currentPoints ? currentPoints : 0 }}</b> Points
             <tooltip
                 v-if="bonusPoints != 0"

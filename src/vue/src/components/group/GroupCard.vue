@@ -13,7 +13,7 @@
                 Stop editing
             </b-button>
             <b-form @submit.prevent="updateGroupName">
-                <h2 class="field-heading">
+                <h2 class="theme-h2 field-heading">
                     Group name
                 </h2><br/>
                 <div class="d-flex">
@@ -33,7 +33,7 @@
                     </b-button>
                 </div>
             </b-form>
-            <h2 class="field-heading">
+            <h2 class="theme-h2 field-heading">
                 Members
             </h2>
             <ul
@@ -96,7 +96,7 @@
             @click="editing = true"
         >
             <span class="float-left">
-                <h2 class="field-heading">{{ group.name }}</h2>
+                <h2 class="theme-h2 field-heading">{{ group.name }}</h2>
                 {{ members.length }} {{ members.length === 1 ? "member" : "members" }}
             </span>
         </b-card>
