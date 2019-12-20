@@ -10,6 +10,7 @@
         <transition name="fade">
             <img
                 v-if="fileURL && show"
+                class="theme-img"
                 :class="showImage"
                 :src="fileURL"
             />

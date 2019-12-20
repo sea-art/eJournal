@@ -13,7 +13,10 @@
             />
         </b-modal>
         <div class="profile-picture-lg">
-            <img :src="storeProfilePic"/>
+            <img
+                :src="storeProfilePic"
+                class="theme-img"
+            />
             <b-button @click="showCropperModal()">
                 <icon name="edit"/>
                 Edit

@@ -10,7 +10,7 @@
             >
                 <div class="portrait-wrapper">
                     <img
-                        class="no-hover"
+                        class="theme-img no-hover"
                         :src="student.profile_picture"
                     />
                     <number-badge
@@ -43,7 +43,10 @@
         <div v-else>
             <div class="d-flex multi-form">
                 <div class="portrait-wrapper">
-                    <img :src="student.profile_picture"/>
+                    <img
+                        :src="student.profile_picture"
+                        class="theme-img"
+                    />
                 </div>
                 <div class="student-details">
                     <span>

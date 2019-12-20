@@ -9,11 +9,11 @@
             >
                 <img
                     src="/gb-flag.svg"
-                    class="support-lang-flag mr-1"
+                    class="theme-img support-lang-flag mr-1"
                 />
                 <img
                     src="/nl-flag.svg"
-                    class="support-lang-flag"
+                    class="theme-img support-lang-flag"
                 />
             </div>
         </h2>
