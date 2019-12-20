@@ -1,7 +1,9 @@
 <!-- Loads a preview of a template. nID are required but unused as autoupload is disabled. -->
 <template>
     <div>
-        <h2 class="theme-h2">{{ template.name }}</h2>
+        <h2 class="theme-h2">
+            {{ template.name }}
+        </h2>
         <div
             v-for="(field, i) in sortedFields"
             :key="field.eID"

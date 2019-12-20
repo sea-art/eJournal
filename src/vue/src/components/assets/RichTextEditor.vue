@@ -45,7 +45,7 @@ export default {
             editorConfig: {
                 placeholder: this.placeholder,
                 fontFamily: 'Roboto Condensed',
-                fontSize: 24
+                fontSize: 24,
             },
         }
     },

@@ -80,7 +80,9 @@
                     lg="12"
                     class="mb-4"
                 >
-                    <h3 class="theme-h3">Journal progress</h3>
+                    <h3 class="theme-h3">
+                        Journal progress
+                    </h3>
                     <student-card
                         v-if="journal"
                         :student="journal.student"
@@ -121,7 +123,9 @@
                     md="6"
                     lg="12"
                 >
-                    <h3 class="theme-h3">Controls</h3>
+                    <h3 class="theme-h3">
+                        Controls
+                    </h3>
                     <div
                         v-if="filteredJournals.length > 1"
                         class="d-flex"

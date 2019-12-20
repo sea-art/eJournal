@@ -123,7 +123,9 @@
             xl="3"
             class="right-content-timeline-page right-content"
         >
-            <h3 class="theme-h3">Journal progress</h3>
+            <h3 class="theme-h3">
+                Journal progress
+            </h3>
             <b-card
                 :class="$root.getBorderClass($route.params.cID)"
                 class="no-hover"

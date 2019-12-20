@@ -43,7 +43,9 @@
                 </div>
             </div>
             <div v-if="!copyableFormats">
-                <h4 class="theme-h4">No existing assignments available</h4>
+                <h4 class="theme-h4">
+                    No existing assignments available
+                </h4>
                 <hr class="m-0 mb-1"/>
                 Only assignments where you have permission to edit are available for copy.
             </div>

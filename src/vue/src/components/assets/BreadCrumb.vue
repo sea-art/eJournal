@@ -47,7 +47,7 @@
                 </h4>
                 <br/>
             </div>
-            <h1 class='theme-h1'>
+            <h1 class="theme-h1">
                 <span>
                     {{ crumbs.slice(-1)[0].displayName }}
                     <slot/>

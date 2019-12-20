@@ -1,6 +1,8 @@
 <template>
     <content-single-column>
-        <h1 class='theme-h1'><span>Email Verification</span></h1>
+        <h1 class="theme-h1">
+            <span>Email Verification</span>
+        </h1>
         <b-card class="no-hover">
             <div class="center-content">
                 <h2 class="theme-h2 center-content">

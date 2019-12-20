@@ -1,6 +1,6 @@
 <template>
     <content-single-column>
-        <h1 class='theme-h1'>
+        <h1 class="theme-h1">
             <span>
                 You're early!
             </span>
