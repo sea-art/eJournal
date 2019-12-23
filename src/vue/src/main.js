@@ -7,7 +7,7 @@ import 'intro.js/introjs.css'
 
 import '@/helpers/vue_awesome_icons.js'
 import initSentry from '@/helpers/sentry.js'
-import CKEditor from '@ckeditor/ckeditor5-vue';
+import CKEditor from '@ckeditor/ckeditor5-vue'
 
 import Toasted from 'vue-toasted'
 import flatPickr from 'vue-flatpickr-component'

@@ -1,6 +1,9 @@
 from rest_framework import viewsets
 
 import VLE.utils.responses as response
+from rest_framework.permissions import AllowAny
+import re
+
 import VLE.validators as validators
 from VLE.models import FileContext
 
@@ -29,3 +32,10 @@ class FileView(viewsets.ViewSet):
             description='Successfully uploaded {:s}.'.format(request.FILES['file'].name),
             payload={'download_url': file.download_url()}
         )
+
+    # TODO FILE Remove
+    def get_permissions(self):
+        if re.search(r'^/files/\d+/', self.request.path) and self.request.method == 'GET':
+            return [AllowAny()]
+        else:
+            return [permission() for permission in self.permission_classes]
