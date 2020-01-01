@@ -13,7 +13,7 @@ export default {
 
     create (data, connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.create('journals', data, connArgs)
-            .then(response => response.data.journal)
+            .then(response => response.data.journals)
     },
 
     update (id, data, connArgs = auth.DEFAULT_CONN_ARGS) {
