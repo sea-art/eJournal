@@ -109,7 +109,7 @@ class JournalView(viewsets.ViewSet):
             name = 'Journal'
         assignment = Assignment.objects.get(pk=assignment_id)
         if amount < 1:
-            return response.bad_request('Amount needs to be higher then 1.')
+            return response.bad_request('Amount needs to be higher than 0.')
 
         request.user.check_permission('can_manage_journals', assignment)
 
@@ -119,7 +119,7 @@ class JournalView(viewsets.ViewSet):
             journals.append(Journal.objects.create(
                 assignment=assignment,
                 author_limit=author_limit,
-                name=name if amount == 1 else '{} {}'.format(name, i + journal_count + 1)
+                name=name if (amount == 1 and name != 'Journal') else '{} {}'.format(name, i + journal_count + 1)
             ))
 
         serializer = JournalSerializer(

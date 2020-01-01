@@ -235,19 +235,18 @@
                         </h2>
                         <b-input
                             v-model="newJournalName"
-                            placeholder="Journal name"
+                            placeholder="Journal"
                             class="theme-input multi-form"
                         />
-                        <h2 class="field-heading required">
+                        <h2 class="field-heading">
                             Member limit
                         </h2>
                         <b-input
                             v-model="newJournalMemberLimit"
                             type="number"
                             placeholder="No member limit"
-                            min="1"
+                            min="2"
                             class="theme-input multi-form"
-                            required
                         />
 
                         <b-button
@@ -535,12 +534,19 @@ export default {
             this.newJournalCount = null
         },
         createNewJournals () {
+            if (!this.newJournalCount) {
+                this.newJournalCount = 1
+            }
             journalAPI.create({
                 name: this.newJournalName,
                 amount: this.newJournalCount,
-                author_limit: this.newJournalMemberLimit,
+                author_limit: this.newJournalMemberLimit > 1 ? this.newJournalMemberLimit : 0,
                 assignment_id: this.assignment.id,
-            }).then((journals) => { this.assignment.journals = journals })
+            }).then((journals) => {
+                this.assignment.journals = journals
+                this.assignmentJournals = journals
+                this.hideModal('createJournalModal')
+            })
         },
     },
 }
