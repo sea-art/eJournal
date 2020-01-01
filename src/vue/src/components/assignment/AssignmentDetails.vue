@@ -130,16 +130,6 @@
                 Teachers can still manually add students to a journal.
                 <hr/>
                 <toggle-switch
-                    :isActive="assignmentDetails.remove_grade_upon_leaving_group"
-                    class="float-right"
-                    @parentActive="(isActive) => { assignmentDetails.remove_grade_upon_leaving_group = isActive }"
-                />
-                <h2 class="field-heading multi-form">
-                    Remove grade when leaving journal
-                </h2>
-                When selected, the grade of the student gets reset when leaving a journal.
-                <hr/>
-                <toggle-switch
                     :isActive="assignmentDetails.can_set_journal_name"
                     class="float-right"
                     @parentActive="(isActive) => { assignmentDetails.can_set_journal_name = isActive }"
@@ -147,7 +137,7 @@
                 <h2 class="field-heading">
                     Allow custom journal name
                 </h2>
-                When selected, members of a journal can override its given name.
+                Allow members of a journal to override its given name.
                 <hr/>
                 <toggle-switch
                     :isActive="assignmentDetails.can_set_journal_image"
@@ -157,7 +147,17 @@
                 <h2 class="field-heading">
                     Allow custom display picture
                 </h2>
-                When selected, members of a journal can override its display picture.
+                Allow members of a journal to override its display picture.
+                <hr/>
+                <toggle-switch
+                    :isActive="assignmentDetails.remove_grade_upon_leaving_group"
+                    class="float-right"
+                    @parentActive="(isActive) => { assignmentDetails.remove_grade_upon_leaving_group = isActive }"
+                />
+                <h2 class="field-heading multi-form">
+                    Reset grade when leaving journal
+                </h2>
+                Reset the grade of a student to 0 if they leave (or are removed from) a journal.
             </template>
         </b-card>
     </div>
