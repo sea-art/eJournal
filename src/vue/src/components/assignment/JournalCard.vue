@@ -25,18 +25,14 @@
                         class="max-one-line"
                         :title="journal.name"
                     >
-                        <div
-                            v-if="journal.authors.length === 0"
-                            class="float-right"
-                            @click="deleteJournal"
-                        >
-                            <icon
-                                v-b-tooltip.hover
-                                class="trash-icon lock-members-icon fill-grey"
-                                title="Click to delete journal"
-                                name="trash"
-                            />
-                        </div>
+                        <icon
+                            v-if="canManageJournal"
+                            name="edit"
+                            class="edit-journal"
+                            v-b-tooltip.hover
+                            title="Edit journal"
+                            @click.native.prevent="showEditJournalModal"
+                        />
                         {{ journal.name }}
                     </b>
                     <span
@@ -99,6 +95,20 @@
             </div>
         </div>
         <slot/>
+        <b-modal
+            v-if="canManageJournal"
+            ref="editJournalSettingsModal"
+            size="lg"
+            title="Edit journal"
+            class="default-cursor"
+            hideFooter
+            @click.native.prevent=""
+        >
+            <edit-journal-settings
+                :journal="journal"
+                :assignment="assignment"
+            />
+        </b-modal>
     </b-card>
 </template>
 
@@ -107,8 +117,7 @@ import progressBar from '@/components/assets/ProgressBar.vue'
 import numberBadge from '@/components/assets/NumberBadge.vue'
 import studentCard from '@/components/assignment/StudentCard.vue'
 import draggable from 'vuedraggable'
-
-import journalAPI from '@/api/journal.js'
+import editJournalSettings from '@/components/journal/EditJournalSettings.vue'
 
 export default {
     components: {
@@ -116,6 +125,7 @@ export default {
         numberBadge,
         studentCard,
         draggable,
+        editJournalSettings,
     },
     props: {
         assignment: {
@@ -175,15 +185,17 @@ export default {
             const s = info.join(' and ')
             return `${s.charAt(0).toUpperCase()}${s.slice(1)}`
         },
+        canManageJournal () {
+            return this.assignment.is_group_assignment && (this.assignment.can_set_journal_name
+                || this.assignment.can_set_journal_image || this.$hasPermission('can_grade'))
+        },
     },
     methods: {
         log (evt) {
             window.console.log(evt);
         },
-        deleteJournal () {
-            if (window.confirm('Are you sure you want to delete this journal?')) {
-                journalAPI.delete(this.journal.id, { responseSuccessToast: true })
-            }
+        showEditJournalModal () {
+            this.$refs.editJournalSettingsModal.show()
         },
     },
 }
@@ -230,5 +242,13 @@ export default {
         padding-left: 40px
     @include sm-max
         align-items: flex-end
+    .edit-journal
+        margin-top: -2px
+        fill: grey !important
+        &:hover:not(.no-hover)
+            cursor: pointer
+            fill: darken(grey, 20) !important
 
+.default-cursor
+    cursor: default
 </style>

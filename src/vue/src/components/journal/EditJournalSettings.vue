@@ -32,6 +32,7 @@
         </b-button>
     </b-card>
 </template>
+
 <script>
 import journalAPI from '@/api/journal.js'
 
@@ -56,11 +57,16 @@ export default {
             journalAPI.update(
                 this.journal.id,
                 { name: this.journalName },
-                { customSuccessToast: 'Successfully set journal name' })
+                { customSuccessToast: 'Successfully updated journal' })
                 .then(() => {
                     this.journal.name = this.journalName
                     this.editingName = false
                 })
+        },
+        deleteJournal () {
+            if (window.confirm('Are you sure you want to delete this journal?')) {
+                journalAPI.delete(this.journal.id, { responseSuccessToast: true })
+            }
         },
     },
 }
