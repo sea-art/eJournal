@@ -5,12 +5,14 @@
             title="Edit profile picture"
             hideFooter
         >
-            <cropper
-                v-if="profileImageDataURL"
-                ref="cropperRef"
-                :pictureUrl="profileImageDataURL"
-                @newPicture="fileHandler"
-            />
+            <b-card class="no-hover">
+                <cropper
+                    v-if="profileImageDataURL"
+                    ref="cropperRef"
+                    :pictureUrl="profileImageDataURL"
+                    @newPicture="fileHandler"
+                />
+            </b-card>
         </b-modal>
         <div class="profile-picture-lg">
             <img :src="storeProfilePic"/>

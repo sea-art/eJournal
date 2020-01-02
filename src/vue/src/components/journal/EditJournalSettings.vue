@@ -6,7 +6,14 @@
         class="no-hover"
     >
         <div v-if="assignment.can_set_journal_image || $hasPermission('can_manage_journals')">
-            <!-- TODO GROUPS: Add journal picture (croppa, like in profile picture) -->
+            <h2 class="field-heading multi-form">
+                Image
+            </h2>
+            <cropper
+                ref="journalImageCropper"
+                :pictureUrl="newJournalImage"
+                :hideSaveButton="true"
+            />
         </div>
         <div v-if="assignment.can_set_journal_name || $hasPermission('can_manage_journals')">
             <h2 class="field-heading multi-form">
@@ -16,6 +23,7 @@
                 v-model="newJournalName"
                 placeholder="Journal name"
                 class="theme-input multi-form"
+                required
             />
         </div>
         <div v-if="assignment.is_group_assignment && $hasPermission('can_manage_journals')">
@@ -28,7 +36,6 @@
                 placeholder="No member limit"
                 min="2"
                 class="theme-input multi-form"
-                required
             />
         </div>
         <b-button
@@ -53,10 +60,15 @@
 </template>
 
 <script>
+import cropper from '@/components/assets/ImageCropper.vue'
+
 import journalAPI from '@/api/journal.js'
 
 export default {
     name: 'EditJournalSettings',
+    components: {
+        cropper,
+    },
     props: {
         journal: {
             required: true,
@@ -67,21 +79,41 @@ export default {
     },
     data () {
         return {
+            newJournalImage: null,
             newJournalName: '',
             newJournalMemberLimit: null,
             saveRequestInFlight: false,
         }
     },
+    created () {
+        this.newJournalImage = this.journal.image
+        this.newJournalName = this.journal.name
+        if (this.journal.author_limit > 1) {
+            this.newJournalMemberLimit = this.journal.author_limit
+        }
+    },
     methods: {
         updateJournal () {
+            this.newJournalImage = this.$refs.journalImageCropper.getPicture()
+            console.log(this.newJournalImage)
+
+            const newJournalData = {}
+            if (this.newJournalImage !== this.journal.image) {
+                newJournalData.image = this.newJournalImage
+            }
+            if (this.newJournalName !== this.journal.name) {
+                newJournalData.name = this.newJournalName
+            }
+
             this.saveRequestInFlight = true
             journalAPI.update(
                 this.journal.id,
-                { name: this.journalName },
+                newJournalData,
                 { customSuccessToast: 'Successfully updated journal' })
-                .then(() => {
-                    this.journal.name = this.journalName
-                    this.editingName = false
+                .then((journal) => {
+                    this.journal.name = journal.name
+                    this.journal.image = journal.image
+                    this.journal.author_limit = journal.author_limit
                     this.saveRequestInFlight = false
                 })
                 .catch(() => { this.saveRequestInFlight = false })

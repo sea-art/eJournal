@@ -50,7 +50,7 @@
                             :title="`This journal currently has ${ journal.authors.length } members and no member limit`"
                             class="text-grey"
                         >
-                            ({{ journal.authors.length > 0 ? journal.authors.length : 'No members' }})
+                            ({{ journal.authors.length }})
                         </b>
                         <icon
                             v-if="journal.locked"
