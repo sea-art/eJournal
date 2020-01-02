@@ -285,7 +285,7 @@
                         <b-button
                             type="submit"
                             class="add-button d-block float-right"
-                            :class="{'input-disabled': false}"
+                            :class="{'input-disabled': newJournalRequestInFlight}"
                         >
                             <icon name="plus-square"/>
                             Create
@@ -354,6 +354,7 @@ export default {
             newJournalMemberLimit: null,
             repeatCreateJournal: false,
             newJournalCount: null,
+            newJournalRequestInFlight: false,
         }
     },
     computed: {
@@ -531,6 +532,7 @@ export default {
             this.newJournalCount = null
         },
         createNewJournals () {
+            this.newJournalRequestInFlight = true
             if (!this.newJournalCount) {
                 this.newJournalCount = 1
             }
@@ -539,11 +541,14 @@ export default {
                 amount: this.newJournalCount,
                 author_limit: this.newJournalMemberLimit > 1 ? this.newJournalMemberLimit : 0,
                 assignment_id: this.assignment.id,
-            }).then((journals) => {
-                this.assignment.journals = journals
-                this.assignmentJournals = journals
-                this.hideModal('createJournalModal')
             })
+                .then((journals) => {
+                    this.assignment.journals = journals
+                    this.assignmentJournals = journals
+                    this.hideModal('createJournalModal')
+                    this.newJournalRequestInFlight = false
+                })
+                .catch(() => { this.newJournalRequestInFlight = false })
         },
         journalDeleted (journal) {
             this.assignmentJournals.splice(this.assignmentJournals.indexOf(journal), 1)
