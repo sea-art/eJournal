@@ -18,7 +18,7 @@
                 class="theme-input multi-form"
             />
         </div>
-        <div v-if="$hasPermission('can_manage_journals')">
+        <div v-if="assignment.is_group_assignment && $hasPermission('can_manage_journals')">
             <h2 class="field-heading">
                 Member limit
             </h2>
@@ -32,6 +32,7 @@
             />
         </div>
         <b-button
+            v-if="assignment.is_group_assignment && $hasPermission('can_manage_journals')"
             :class="{
                 'input-disabled': !journal.members,
             }"

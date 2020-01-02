@@ -31,7 +31,8 @@
                 <icon
                     v-b-tooltip.hover
                     class="lock-members-icon fill-grey"
-                    :title="`Click to ${ journal.locked ? 'un' : '' }lock journal members`"
+                    :title="`Journal members are ${ journal.locked ? '' : 'not ' }locked, this journal can${ journal.locked ? 'not' : '' }
+                    be joined or left: click to ${ journal.locked ? 'un' : '' }lock journal members`"
                     :name="journal.locked ? 'lock' : 'unlock'"
                     :class="{
                         'unlocked-icon': !journal.locked && (assignment.can_lock_journal

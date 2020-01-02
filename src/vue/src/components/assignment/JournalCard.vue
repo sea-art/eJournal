@@ -1,9 +1,6 @@
 <template>
     <b-card :class="$root.getBorderClass(journal.id)">
-        <b-row
-            v-if="!editJournal"
-            noGutters
-        >
+        <b-row noGutters>
             <b-col
                 class="d-flex"
                 :md="$hasPermission('can_view_all_journals') ? 7 : 12"
@@ -26,12 +23,12 @@
                         :title="journal.name"
                     >
                         <icon
-                            v-if="canManageJournal"
+                            v-if="$hasPermission('can_manage_journals')"
                             name="edit"
                             class="edit-journal"
                             v-b-tooltip.hover
                             title="Edit journal"
-                            @click.native.prevent="showEditJournalModal"
+                            @click.native.stop="showEditJournalModal"
                         />
                         {{ journal.name }}
                     </b>
@@ -41,9 +38,19 @@
                     >
                         <b
                             v-if="journal.author_limit > 1"
+                            v-b-tooltip.hover
+                            :title="`This journal currently has ${ journal.authors.length } of max ${ journal.author_limit } members`"
                             class="text-grey"
                         >
                             ({{ journal.authors.length }}/{{ journal.author_limit }})
+                        </b>
+                        <b
+                            v-if="journal.author_limit === 0"
+                            v-b-tooltip.hover
+                            :title="`This journal currently has ${ journal.authors.length } members and no member limit`"
+                            class="text-grey"
+                        >
+                            ({{ journal.authors.length > 0 ? journal.authors.length : 'No members' }})
                         </b>
                         {{ journalAuthors }}
                     </span>
@@ -60,40 +67,6 @@
                 />
             </b-col>
         </b-row>
-        <div v-else>
-            <div class="d-flex multi-form">
-                <div class="portrait-wrapper">
-                    <img
-                        class="no-hover"
-                        :src="journal.image"
-                    />
-                </div>
-                <div class="student-details">
-                    <h4>{{ journal.name }}</h4>
-                    <draggable
-                        class="list-group"
-                        :list="journal.authors"
-                        group="journals"
-                        @change="log"
-                    >
-                        <student-card
-                            v-for="author in journal.authors"
-                            :key="author.user.id"
-                            :user="author.user"
-                        >
-                            <div class="handle d-inline d-sm-block float-right">
-                                <icon
-                                    class="move-icon"
-                                    name="arrows"
-                                    scale="1.75"
-                                />
-                            </div>
-                        </student-card>
-                    </draggable>
-                    <div class="invisible"/>
-                </div>
-            </div>
-        </div>
         <slot/>
         <b-modal
             v-if="canManageJournal"
@@ -102,7 +75,7 @@
             title="Edit journal"
             class="default-cursor"
             hideFooter
-            @click.native.prevent=""
+            @click.native.stop=""
         >
             <edit-journal-settings
                 :journal="journal"
@@ -187,7 +160,7 @@ export default {
         },
         canManageJournal () {
             return this.assignment.is_group_assignment && (this.assignment.can_set_journal_name
-                || this.assignment.can_set_journal_image || this.$hasPermission('can_grade'))
+                || this.assignment.can_set_journal_image || this.$hasPermission('can_manage_journals'))
         },
     },
     methods: {
