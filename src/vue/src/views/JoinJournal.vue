@@ -4,23 +4,28 @@
             slot="main-content-column"
             @edit-click="handleEdit()"
         />
-        <journal-card
-            v-for="journal in journals"
+        <load-wrapper
             slot="main-content-column"
-            :key="`join-journal-${journal.id}`"
-            :listView="true"
-            :journal="journal"
-            :assignment="assignment"
-            :class="{ 'input-disabled': journal.author_limit != 0 && journal.authors.length >= journal.author_limit }"
-            @click.native="joinJournal(journal.id)"
-        />
-        <main-card
-            v-if="journals.length === 0"
-            slot="main-content-column"
-            line1="No journals for this assignment"
-            line2="Please ask your teacher to create a journal for you to join."
-            class="no-hover border-dark-grey"
-        />
+            :loading="loadingJournals"
+        >
+            <div v-if="journals.length > 0">
+                <journal-card
+                    v-for="journal in journals"
+                    :key="`join-journal-${journal.id}`"
+                    :listView="true"
+                    :journal="journal"
+                    :assignment="assignment"
+                    :class="{ 'input-disabled': journal.author_limit != 0 && journal.authors.length >= journal.author_limit }"
+                    @click.native="joinJournal(journal.id)"
+                />
+            </div>
+            <main-card
+                v-else
+                line1="No journals for this assignment"
+                line2="Please ask your teacher to create a journal for you to join."
+                class="no-hover border-dark-grey"
+            />
+        </load-wrapper>
     </content-columns>
 </template>
 
@@ -30,6 +35,7 @@ import contentColumns from '@/components/columns/ContentColumns.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import journalCard from '@/components/assignment/JournalCard.vue'
+import loadWrapper from '@/components/loading/LoadWrapper.vue'
 
 import journalAPI from '@/api/journal.js'
 import assignmentAPI from '@/api/assignment.js'
@@ -41,6 +47,7 @@ export default {
         breadCrumb,
         mainCard,
         journalCard,
+        loadWrapper,
     },
     props: {
         cID: {
