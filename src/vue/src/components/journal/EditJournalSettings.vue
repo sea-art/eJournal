@@ -1,5 +1,10 @@
 <template>
-    <b-card class="no-hover">
+    <b-card
+        :class="{
+            'input-disabled': saveRequestInFlight,
+        }"
+        class="no-hover"
+    >
         <div v-if="assignment.can_set_journal_image || $hasPermission('can_manage_journals')">
             <!-- TODO GROUPS: Add journal picture (croppa, like in profile picture) -->
         </div>
@@ -26,7 +31,22 @@
                 required
             />
         </div>
-        <b-button class="add-button float-right">
+        <b-button
+            :class="{
+                'input-disabled': !journal.members,
+            }"
+            :title="journal.members ? 'Cannot delete a journal with members' : 'Delete this journal'"
+            v-b-tooltip.hover
+            class="delete-button"
+            @click="deleteJournal"
+        >
+            <icon name="trash"/>
+            Delete journal
+        </b-button>
+        <b-button
+            class="add-button float-right"
+            @click="updateJournal"
+        >
             <icon name="save"/>
             Save
         </b-button>
@@ -49,11 +69,13 @@ export default {
     data () {
         return {
             newJournalName: '',
-            newJournalMemberLimit: 0,
+            newJournalMemberLimit: null,
+            saveRequestInFlight: false,
         }
     },
     methods: {
         saveJournalSettings () {
+            this.saveRequestInFlight = true
             journalAPI.update(
                 this.journal.id,
                 { name: this.journalName },
@@ -61,11 +83,19 @@ export default {
                 .then(() => {
                     this.journal.name = this.journalName
                     this.editingName = false
+                    this.saveRequestInFlight = false
                 })
+                .catch(() => { this.saveRequestInFlight = false })
         },
         deleteJournal () {
+            this.saveRequestInFlight = true
             if (window.confirm('Are you sure you want to delete this journal?')) {
                 journalAPI.delete(this.journal.id, { responseSuccessToast: true })
+                    .then(() => {
+                        this.$emit('journal-deleted')
+                        this.saveRequestInFlight = false
+                    })
+                    .catch(() => { this.saveRequestInFlight = false })
             }
         },
     },

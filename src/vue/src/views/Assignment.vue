@@ -180,23 +180,19 @@
                 v-for="journal in filteredJournals"
                 :key="journal.id"
             >
-                <b-link
-                    :to="{
+                <journal-card
+                    :listView="true"
+                    :journal="journal"
+                    :assignment="assignment"
+                    @click.native="$router.push({
                         name: 'Journal',
                         params: {
                             cID: $route.params.cID,
                             aID: assignment.id,
                             jID: journal.id
                         }
-                    }"
-                    tag="b-button"
-                >
-                    <journal-card
-                        :listView="true"
-                        :journal="journal"
-                        :assignment="assignment"
-                    />
-                </b-link>
+                    })"
+                />
             </div>
             <main-card
                 v-if="assignmentJournals.length === 0"

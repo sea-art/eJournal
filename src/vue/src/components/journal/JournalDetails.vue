@@ -41,16 +41,6 @@
                     }"
                 />
             </div>
-            <div
-                @click="deleteJournal"
-            >
-                <icon
-                    v-b-tooltip.hover
-                    class="trash-icon lock-members-icon fill-grey"
-                    title="Click to delete journal"
-                    name="trash"
-                />
-            </div>
             <b class="member-count">
                 Members
                 <b
@@ -175,14 +165,6 @@ export default {
                 .then(() => {
                     this.journal.locked = !this.journal.locked
                 })
-        },
-        deleteJournal () {
-            if (window.confirm('Are you sure you want to delete this journal?')) {
-                journalAPI.delete(this.journal.id, { responseSuccessToast: true })
-                    .then(() => {
-                        this.$router.push(this.assignmentRoute(this.assignment))
-                    })
-            }
         },
         assignmentRoute (assignment) {
             const route = {
