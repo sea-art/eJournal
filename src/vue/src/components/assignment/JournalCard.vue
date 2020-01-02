@@ -52,6 +52,13 @@
                         >
                             ({{ journal.authors.length > 0 ? journal.authors.length : 'No members' }})
                         </b>
+                        <icon
+                            v-if="journal.locked"
+                            v-b-tooltip.hover
+                            title="Members are locked: it is not possible to join or leave this journal"
+                            name="lock"
+                            class="fill-grey shift-up-2"
+                        />
                         {{ journalAuthors }}
                     </span>
                 </div>

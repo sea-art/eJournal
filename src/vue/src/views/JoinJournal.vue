@@ -15,7 +15,9 @@
                     :listView="true"
                     :journal="journal"
                     :assignment="assignment"
-                    :class="{ 'input-disabled': journal.author_limit != 0 && journal.authors.length >= journal.author_limit }"
+                    :class="{
+                        'input-disabled': (journal.author_limit != 0 && journal.authors.length >= journal.author_limit) || journal.locked,
+                    }"
                     @click.native="joinJournal(journal.id)"
                 />
             </div>
