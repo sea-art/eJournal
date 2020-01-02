@@ -34,10 +34,8 @@
         <b-button
             v-if="assignment.is_group_assignment && $hasPermission('can_manage_journals')"
             :class="{
-                'input-disabled': !journal.members,
+                'input-disabled': journal.authors.length > 0,
             }"
-            :title="journal.members ? 'Cannot delete a journal with members' : 'Delete this journal'"
-            v-b-tooltip.hover
             class="delete-button"
             @click="deleteJournal"
         >
@@ -75,7 +73,7 @@ export default {
         }
     },
     methods: {
-        saveJournalSettings () {
+        updateJournal () {
             this.saveRequestInFlight = true
             journalAPI.update(
                 this.journal.id,
@@ -93,8 +91,8 @@ export default {
             if (window.confirm('Are you sure you want to delete this journal?')) {
                 journalAPI.delete(this.journal.id, { responseSuccessToast: true })
                     .then(() => {
-                        this.$emit('journal-deleted')
                         this.saveRequestInFlight = false
+                        this.$emit('journal-deleted')
                     })
                     .catch(() => { this.saveRequestInFlight = false })
             }

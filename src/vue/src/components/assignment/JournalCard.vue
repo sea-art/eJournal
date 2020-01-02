@@ -87,6 +87,7 @@
             <edit-journal-settings
                 :journal="journal"
                 :assignment="assignment"
+                @journal-deleted="journalDeleted"
             />
         </b-modal>
     </b-card>
@@ -176,6 +177,10 @@ export default {
         },
         showEditJournalModal () {
             this.$refs.editJournalSettingsModal.show()
+        },
+        journalDeleted () {
+            this.$refs.editJournalSettingsModal.hide()
+            this.$emit('journal-deleted')
         },
     },
 }

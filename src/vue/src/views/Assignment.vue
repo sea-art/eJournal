@@ -192,6 +192,7 @@
                             jID: journal.id
                         }
                     })"
+                    @journal-deleted="journalDeleted(journal)"
                 />
             </div>
             <main-card
@@ -543,6 +544,10 @@ export default {
                 this.assignmentJournals = journals
                 this.hideModal('createJournalModal')
             })
+        },
+        journalDeleted (journal) {
+            this.assignmentJournals.splice(this.assignmentJournals.indexOf(journal), 1)
+            this.assignment.journals.splice(this.assignment.journals.indexOf(journal), 1)
         },
     },
 }
