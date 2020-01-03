@@ -98,6 +98,7 @@
             <edit-journal-settings
                 :journal="journal"
                 :assignment="assignment"
+                @journal-updated="hideEditJournalModal"
                 @journal-deleted="$router.push(assignmentRoute(assignment))"
             />
         </b-modal>
@@ -146,6 +147,9 @@ export default {
     methods: {
         showEditJournalModal () {
             this.$refs.editJournalSettingsModal.show()
+        },
+        hideEditJournalModal () {
+            this.$refs.editJournalSettingsModal.hide()
         },
         leaveJournal () {
             if (window.confirm('Are you sure you want to leave this journal?')) {

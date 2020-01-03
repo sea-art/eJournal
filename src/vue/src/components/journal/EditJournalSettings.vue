@@ -115,6 +115,7 @@ export default {
                     this.journal.image = journal.image
                     this.journal.author_limit = journal.author_limit
                     this.saveRequestInFlight = false
+                    this.$emit('journal-updated')
                 })
                 .catch(() => { this.saveRequestInFlight = false })
         },
