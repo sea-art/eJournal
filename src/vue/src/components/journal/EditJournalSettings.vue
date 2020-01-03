@@ -16,7 +16,7 @@
             />
         </div>
         <div v-if="assignment.can_set_journal_name || $hasPermission('can_manage_journals')">
-            <h2 class="field-heading multi-form">
+            <h2 class="field-heading multi-form required">
                 Name
             </h2>
             <b-input
@@ -102,6 +102,10 @@ export default {
                 }
             }
             if (this.newJournalName !== this.journal.name) {
+                if (!this.newJournalName) {
+                    this.$toasted.error('A journal must have a valid name.')
+                    return
+                }
                 newJournalData.name = this.newJournalName
             }
             if (this.assignment.is_group_assignment && this.$hasPermission('can_manage_journals')

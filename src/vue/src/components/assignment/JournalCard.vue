@@ -23,7 +23,7 @@
                         :title="journal.name"
                     >
                         <icon
-                            v-if="$hasPermission('can_manage_journals')"
+                            v-if="canManageJournal"
                             name="edit"
                             class="edit-journal"
                             v-b-tooltip.hover

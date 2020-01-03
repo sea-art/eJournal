@@ -177,7 +177,6 @@ class JournalView(viewsets.ViewSet):
                 journal.name = name
                 journal.save()
             # Update image if allowed
-            # TODO GROUPS: ADD IMAGE TO MODEL FOR JOURNAL
             if image is not None:
                 if not request.user.has_permission('can_manage_journals', journal.assignment):
                     if not journal.assignment.can_set_journal_image:
