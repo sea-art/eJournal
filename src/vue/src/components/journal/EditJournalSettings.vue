@@ -104,6 +104,18 @@ export default {
             if (this.newJournalName !== this.journal.name) {
                 newJournalData.name = this.newJournalName
             }
+            if (this.assignment.is_group_assignment && this.$hasPermission('can_manage_journals')
+                && this.newJournalMemberLimit !== this.journal.author_limit) {
+                if (this.newJournalMemberLimit > 0) {
+                    if (this.newJournalMemberLimit < this.journal.authors.length) {
+                        this.$toasted.error('It is not possible to set a member limit lower than the amount of journal members.')
+                        return
+                    }
+                    newJournalData.author_limit = this.newJournalMemberLimit
+                } else if (this.journal.author_limit > 1) {
+                    newJournalData.author_limit = 0
+                }
+            }
 
             this.saveRequestInFlight = true
             journalAPI.update(
