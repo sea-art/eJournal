@@ -94,12 +94,12 @@ export default {
     },
     methods: {
         updateJournal () {
-            this.newJournalImage = this.$refs.journalImageCropper.getPicture()
-            console.log(this.newJournalImage)
-
             const newJournalData = {}
-            if (this.newJournalImage !== this.journal.image) {
-                newJournalData.image = this.newJournalImage
+            if (this.assignment.can_set_journal_image || this.$hasPermission('can_manage_journals')) {
+                this.newJournalImage = this.$refs.journalImageCropper.getPicture()
+                if (this.newJournalImage !== this.journal.image) {
+                    newJournalData.image = this.newJournalImage
+                }
             }
             if (this.newJournalName !== this.journal.name) {
                 newJournalData.name = this.newJournalName
@@ -118,9 +118,7 @@ export default {
             }
 
             this.saveRequestInFlight = true
-            journalAPI.update(
-                this.journal.id,
-                newJournalData,
+            journalAPI.update(this.journal.id, newJournalData,
                 { customSuccessToast: 'Successfully updated journal' })
                 .then((journal) => {
                     this.journal.name = journal.name

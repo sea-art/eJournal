@@ -32,7 +32,8 @@
                     v-b-tooltip.hover
                     class="lock-members-icon fill-grey"
                     :title="`Journal members are ${ journal.locked ? '' : 'not ' }locked, this journal can${ journal.locked ? 'not' : '' }
-                    be joined or left: click to ${ journal.locked ? 'un' : '' }lock journal members`"
+                    be joined or left${ (assignment.can_lock_journal || $hasPermission('can_manage_journals')) ? `: click to
+                    ${ journal.locked ? 'un' : '' }lock journal members` : '' }`"
                     :name="journal.locked ? 'lock' : 'unlock'"
                     :class="{
                         'unlocked-icon': !journal.locked && (assignment.can_lock_journal
@@ -178,10 +179,12 @@ ${ this.journal.authors.length === 1 ? 'Since they are the last member of this j
             }
         },
         lockJournal () {
-            journalAPI.lock(this.journal.id, !this.journal.locked, { responseSuccessToast: true })
-                .then(() => {
-                    this.journal.locked = !this.journal.locked
-                })
+            if (this.assignment.can_lock_journal || this.$hasPermission('can_manage_journals')) {
+                journalAPI.lock(this.journal.id, !this.journal.locked, { responseSuccessToast: true })
+                    .then(() => {
+                        this.journal.locked = !this.journal.locked
+                    })
+            }
         },
         assignmentRoute (assignment) {
             const route = {

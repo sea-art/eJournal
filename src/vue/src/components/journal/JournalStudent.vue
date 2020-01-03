@@ -15,7 +15,11 @@
                 xl="4"
                 class="left-content-timeline-page"
             >
-                <bread-crumb v-if="$root.lgMax"/>
+                <bread-crumb v-if="$root.lgMax">
+                    <template v-if="assignment.is_group_assignment">
+                        - {{ journal.name }}
+                    </template>
+                </bread-crumb>
                 <timeline
                     :selected="currentNode"
                     :nodes="nodes"
@@ -29,7 +33,11 @@
                 xl="8"
                 class="main-content-timeline-page"
             >
-                <bread-crumb v-if="$root.xl"/>
+                <bread-crumb v-if="$root.xl">
+                    <template v-if="assignment.is_group_assignment">
+                        - {{ journal.name }}
+                    </template>
+                </bread-crumb>
                 <b-alert
                     v-if="journal && journal.needs_lti_link"
                     show
