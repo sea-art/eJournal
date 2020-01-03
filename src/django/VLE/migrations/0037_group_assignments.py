@@ -63,6 +63,11 @@ class Migration(migrations.Migration):
             field=models.TextField(null=True),
         ),
         migrations.AddField(
+            model_name='journal',
+            name='image',
+            field=models.TextField(null=True),
+        ),
+        migrations.AddField(
             model_name='role',
             name='can_manage_journals',
             field=models.BooleanField(default=False),

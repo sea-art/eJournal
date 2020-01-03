@@ -905,6 +905,10 @@ class Journal(models.Model):
         null=True,
     )
 
+    image = models.TextField(
+        null=True,
+    )
+
     locked = models.BooleanField(
         default=False,
     )
@@ -928,11 +932,13 @@ class Journal(models.Model):
         return self.get_full_names()
 
     def get_image(self):
-        for author in self.authors.all():
-            if author.user.profile_picture != settings.DEFAULT_PROFILE_PICTURE:
-                return author.user.profile_picture
+        if self.image is None:
+            for author in self.authors.all():
+                if author.user.profile_picture != settings.DEFAULT_PROFILE_PICTURE:
+                    return author.user.profile_picture
 
-        return settings.DEFAULT_PROFILE_PICTURE
+            return settings.DEFAULT_PROFILE_PICTURE
+        return self.image
 
     def get_full_names(self):
         if self.authors.count() == 0:
