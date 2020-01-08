@@ -193,7 +193,7 @@ class AssignmentDetailsSerializer(serializers.ModelSerializer):
         return None
 
     def get_can_change_type(self, assignment):
-        return not Journal.objects.filter(assignment=assignment).exists()
+        return not assignment.has_entries()
 
 
 class AssignmentSerializer(serializers.ModelSerializer):

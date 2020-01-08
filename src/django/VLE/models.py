@@ -694,7 +694,7 @@ class Assignment(models.Model):
         self.description = sanitization.strip_script_tags(self.description)
 
         active_lti_id_modified = False
-        delete_journals = False
+        type_changed = False
 
         # Instance is being created (not modified)
         if self._state.adding:
@@ -711,7 +711,7 @@ class Assignment(models.Model):
                     if pre_save.has_entries():
                         raise ValidationError('Cannot change the type of an assignment that has entries.')
                     else:
-                        delete_journals = True
+                        type_changed = True
             # A copy is being made of the original instance
             else:
                 self.active_lti_id = None
@@ -738,9 +738,12 @@ class Assignment(models.Model):
 
         super(Assignment, self).save(*args, **kwargs)
 
-        # When changing the published state, create journals if it is no group assignment
-        if is_new or not old_publish:
-            if self.is_published and not self.is_group_assignment:
+        if type_changed:
+            # Delete all journals if assignment type changes
+            Journal.objects.filter(assignment=self).delete()
+
+            # Create journals if it is changed to a non group assignment
+            if not self.is_group_assignment:
                 users = self.courses.values('users').distinct()
                 if is_new:
                     existing = []
@@ -754,9 +757,6 @@ class Assignment(models.Model):
                         journal = Journal.objects.create(assignment=self)
                         journal.authors.add(ap)
 
-        # Delete all journals if assignment type changes
-        if delete_journals:
-            Journal.objects.filter(assignment=self).delete()
 
     def get_active_lti_course(self):
         """"Query for retrieving the course which matches the active lti id of the assignment."""
