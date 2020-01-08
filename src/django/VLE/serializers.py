@@ -295,16 +295,17 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
 
     def get_journals(self, assignment):
-        """Retrieves the journals of an assignment of the users who have the permission
-        to own a journal.
-        """
+        """Retrieves the journals of an assignment."""
         if 'journals' in self.context and 'course' in self.context \
            and self.context['journals'] and self.context['course']:
+            # Group assignment retrieves all journals
             if assignment.is_group_assignment:
+                # First select all journals with authors, then add journals without any author
                 journals = Journal.objects.filter(
                     Q(assignment=assignment, authors__isnull=False) |
                     Q(assignment=assignment, authors__isnull=True)
                 )
+            # Normal assignments should only get the journals of users that should have a journal
             else:
                 course = self.context['course']
                 users = course.participation_set.filter(role__can_have_journal=True).values('user')

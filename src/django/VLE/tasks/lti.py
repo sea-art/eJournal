@@ -11,7 +11,6 @@ from VLE.models import Entry, Node
 def needs_grading(node_pk, left=False):
     """Give the teacher a needs grading notification in lti instance."""
     node = Node.objects.get(pk=node_pk)
-    print(left)
 
     journal = node.journal
 

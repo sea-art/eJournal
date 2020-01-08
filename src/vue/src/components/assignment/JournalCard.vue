@@ -173,9 +173,6 @@ export default {
         },
     },
     methods: {
-        log (evt) {
-            window.console.log(evt);
-        },
         showEditJournalModal () {
             this.$refs.editJournalSettingsModal.show()
         },

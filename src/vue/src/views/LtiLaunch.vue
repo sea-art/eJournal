@@ -293,14 +293,25 @@ export default {
             case this.states.finish_s:
                 /* Student has created a journal for an existing assignment, we need to update the store. */
                 this.$store.dispatch('user/populateStore').then(() => {
-                    this.$router.push({
-                        name: 'Journal',
-                        params: {
-                            cID: this.page.cID,
-                            aID: this.page.aID,
-                            jID: this.page.jID,
-                        },
-                    })
+                    /* If journal id is not set, it is a group assignment, and it should go to JoinJournal. */
+                    if (this.page.jID !== null) {
+                        this.$router.push({
+                            name: 'Journal',
+                            params: {
+                                cID: this.page.cID,
+                                aID: this.page.aID,
+                                jID: this.page.jID,
+                            },
+                        })
+                    } else {
+                        this.$router.push({
+                            name: 'JoinJournal',
+                            params: {
+                                cID: this.page.cID,
+                                aID: this.page.aID,
+                            },
+                        })
+                    }
                 }, (error) => {
                     this.$router.push({
                         name: 'ErrorPage',

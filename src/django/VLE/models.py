@@ -683,7 +683,7 @@ class Assignment(models.Model):
     def is_locked(self):
         return self.unlock_date and self.unlock_date > now() or self.lock_date and self.lock_date < now()
 
-    def add_course(self, course, *args, **kwargs):
+    def add_course(self, course):
         if not self.courses.filter(pk=course.pk).exists():
             self.courses.add(course)
             existing = AssignmentParticipation.objects.filter(assignment=self).values('user')
@@ -704,9 +704,8 @@ class Assignment(models.Model):
                 pre_save = Assignment.objects.get(pk=self.pk)
                 active_lti_id_modified = pre_save.active_lti_id != self.active_lti_id
 
-                if pre_save.is_published and not self.is_published:
-                    if pre_save.has_entries():
-                        raise ValidationError('Cannot unpublish an assignment that has entries.')
+                if pre_save.is_published and not self.is_published and pre_save.has_entries():
+                    raise ValidationError('Cannot unpublish an assignment that has entries.')
                 if pre_save.is_group_assignment != self.is_group_assignment:
                     if pre_save.has_entries():
                         raise ValidationError('Cannot change the type of an assignment that has entries.')
@@ -742,7 +741,8 @@ class Assignment(models.Model):
             # Delete all journals if assignment type changes
             Journal.objects.filter(assignment=self).delete()
 
-            # Create journals if it is changed to a non group assignment
+        if type_changed or not old_publish and self.is_published:
+            # Create journals if it is changed to (or published as) a non group assignment
             if not self.is_group_assignment:
                 users = self.courses.values('users').distinct()
                 if is_new:
@@ -756,7 +756,6 @@ class Assignment(models.Model):
                     if not Journal.objects.filter(assignment=self, authors__in=[ap]).exists():
                         journal = Journal.objects.create(assignment=self)
                         journal.authors.add(ap)
-
 
     def get_active_lti_course(self):
         """"Query for retrieving the course which matches the active lti id of the assignment."""
@@ -933,9 +932,9 @@ class Journal(models.Model):
 
     def get_image(self):
         if self.image is None:
-            for author in self.authors.all():
-                if author.user.profile_picture != settings.DEFAULT_PROFILE_PICTURE:
-                    return author.user.profile_picture
+            user_with_pic = self.authors.all().exclude(user__profile_picture=settings.DEFAULT_PROFILE_PICTURE).first()
+            if user_with_pic is not None:
+                return user_with_pic.user.profile_picture
 
             return settings.DEFAULT_PROFILE_PICTURE
         return self.image

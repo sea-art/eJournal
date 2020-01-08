@@ -109,7 +109,7 @@ class JournalView(viewsets.ViewSet):
             name = 'Journal'
         assignment = Assignment.objects.get(pk=assignment_id)
         if amount < 1:
-            return response.bad_request('Amount needs to be higher than 0.')
+            return response.bad_request('Number of journals needs to be higher than 0.')
 
         request.user.check_permission('can_manage_journals', assignment)
 
@@ -219,12 +219,7 @@ class JournalView(viewsets.ViewSet):
 
     @action(['patch'], detail=True)
     def join(self, request, pk):
-        """Add a student to the journal
-
-        Arguments:
-        request -- request data
-            user_id -- (optional) user of student who joins the journal
-        """
+        """Add a student to the journal"""
         journal = Journal.objects.get(pk=pk)
         # TODO GROUPS: result data needs to be set to LTI passback when student joins.
         # Only when entries need to be graded
@@ -317,7 +312,6 @@ class JournalView(viewsets.ViewSet):
         # Notify teacher that student left the journal
         if author.sourcedid is not None:
             send_entries = Entry.objects.filter(node__journal=journal)
-            print(send_entries)
             if send_entries.exists():
                 lti_tasks.needs_grading.delay(send_entries.first().node.pk, left=True)
 

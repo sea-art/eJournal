@@ -162,7 +162,7 @@ def get_lti_params_from_jwt(request):
         'state': get_finish_state(user, assignment, lti_params),
         'cID': course.pk,
         'aID': assignment.pk,
-        'jID': journal.pk if user.has_permission('can_have_journal', assignment) else None,
+        'jID': journal.pk if user.has_permission('can_have_journal', assignment) and journal else None,
     }})
 
 
