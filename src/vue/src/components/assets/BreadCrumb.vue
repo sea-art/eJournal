@@ -79,7 +79,7 @@ export default {
                     CourseEdit: 'Course Editor',
                     AssignmentsOverview: 'Assignments',
                     UserRoleConfiguration: 'Permission Manager',
-                    JoinJournal: 'Join a Journal',
+                    JoinJournal: 'Overview Journals',
                     JournalsEdit: 'Edit Journals',
                 },
                 namedViews: {

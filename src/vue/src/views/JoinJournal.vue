@@ -58,6 +58,9 @@ export default {
         aID: {
             required: true,
         },
+        viewing: {
+            default: false,
+        },
     },
     data () {
         return {
@@ -78,15 +81,24 @@ export default {
     },
     methods: {
         joinJournal (jID) {
-            journalAPI.join(jID)
-                .then((journal) => {
-                    this.$router.push({
-                        name: 'Journal',
-                        params: {
-                            cID: this.cID, aID: this.aID, jID: journal.id,
-                        },
+            if (!this.viewing) {
+                journalAPI.join(jID)
+                    .then((journal) => {
+                        this.$router.push({
+                            name: 'Journal',
+                            params: {
+                                cID: this.cID, aID: this.aID, jID: journal.id,
+                            },
+                        })
                     })
+            } else {
+                this.$router.push({
+                    name: 'Journal',
+                    params: {
+                        cID: this.cID, aID: this.aID, jID: jID,
+                    },
                 })
+            }
         },
     },
 }
