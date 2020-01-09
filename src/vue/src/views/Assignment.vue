@@ -551,8 +551,8 @@ export default {
                 .catch(() => { this.newJournalRequestInFlight = false })
         },
         journalDeleted (journal) {
-            this.assignmentJournals.splice(this.assignmentJournals.indexOf(journal), 1)
             this.assignment.journals.splice(this.assignment.journals.indexOf(journal), 1)
+            this.assignmentJournals = this.assignment.journals
         },
     },
 }

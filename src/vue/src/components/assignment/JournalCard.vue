@@ -180,7 +180,7 @@ export default {
             this.$refs.editJournalSettingsModal.hide()
         },
         journalDeleted () {
-            hideEditJournalModal()
+            this.hideEditJournalModal()
             this.$emit('journal-deleted')
         },
     },
