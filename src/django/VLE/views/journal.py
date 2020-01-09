@@ -114,17 +114,36 @@ class JournalView(viewsets.ViewSet):
         request.user.check_permission('can_manage_journals', assignment)
 
         journals = []
-        journal_count = Journal.objects.filter(assignment=assignment).count()
         for i in range(amount):
+
             journals.append(Journal.objects.create(
                 assignment=assignment,
                 author_limit=author_limit,
-                name=name if (amount == 1 and name != 'Journal') else '{} {}'.format(name, i + journal_count + 1)
+                name=self._get_name(name, amount, assignment)
             ))
 
         serializer = JournalSerializer(
             Journal.objects.filter(assignment=assignment), many=True, context={'user': request.user})
         return response.created({'journals': serializer.data})
+
+    def _get_name(self, name, amount, assignment):
+        # Get other journal names with the same name
+        journal_names = Journal.objects.filter(
+            assignment=assignment,
+            name__regex=r"^({0} [\d]*)$|(^{0}$)".format(name)
+        ).values_list('name', flat=True)
+
+        # If there are no other journals like it, just set the name as is
+        if amount == 1 and not journal_names:
+            return name
+
+        # If "Journal" exists, the second one needs to be "Journal 2", not "Journal 1"
+        extra = 2 if Journal.objects.filter(name=name).exists() else 1
+        # Find the first empty spot for the journal name
+        while True:
+            if '{} {}'.format(name, extra) not in journal_names:
+                return '{} {}'.format(name, extra)
+            extra += 1
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing journal.
@@ -313,7 +332,7 @@ class JournalView(viewsets.ViewSet):
         if author.sourcedid is not None:
             send_entries = Entry.objects.filter(node__journal=journal)
             if send_entries.exists():
-                lti_tasks.needs_grading.delay(send_entries.first().node.pk, left=True)
+                lti_tasks.left_journal_passback.delay(author.pk, send_entries.first().node.pk)
 
         return response.success(description='Successfully removed from the journal.')
 
@@ -345,6 +364,12 @@ class JournalView(viewsets.ViewSet):
 
         if journal.assignment.remove_grade_upon_leaving_group:
             update_author_grade_to_LMS.delay(author.pk)
+
+        # Notify teacher that student left the journal
+        if author.sourcedid is not None:
+            send_entries = Entry.objects.filter(node__journal=journal)
+            if send_entries.exists():
+                lti_tasks.left_journal_passback.delay(author.pk, send_entries.first().node.pk)
 
         return response.success(description='Successfully removed {} from the journal.'.format(author.user.full_name))
 
