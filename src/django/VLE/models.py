@@ -971,7 +971,7 @@ class Journal(models.Model):
         if not user.can_view(self):
             return "Journal"
 
-        return "the {0} journal of {1}".format(self.assignment.name, self.get_name())
+        return "the {0} journal of {1}".format(self.assignment.name, self.get_full_names())
 
 
 class Node(models.Model):

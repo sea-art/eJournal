@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
 from celery import shared_task
+from django.conf import settings
 
 import VLE.lti_grade_passback as lti_grade
 from VLE import factory
@@ -45,7 +46,12 @@ def update_author_grade_to_LMS(author_pk, journal=None):
     if journal is not None:
         # Reflag -> all entries grade needs to be submitted to LMS
         Entry.objects.filter(grade__published=True, node__journal=journal).update(vle_coupling=Entry.GRADING)
-        grade_request = GradePassBackRequest(author, journal.get_grade(), send_score=True)
+        course = journal.assignment.get_active_course(author.user)
+        result_data = {
+            'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}'.format(
+                settings.BASELINK, course.pk, journal.assignment.pk, journal.pk)
+        }
+        grade_request = GradePassBackRequest(author, journal.get_grade(), result_data=result_data, send_score=True)
     else:
         grade_request = GradePassBackRequest(author, 0, send_score=True)
 
