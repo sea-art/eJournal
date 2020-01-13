@@ -57,11 +57,11 @@ export default {
         croppa: Croppa.component,
     },
     props: {
-        'pictureUrl': {
+        pictureUrl: {
             required: false,
             default: null,
         },
-        'hideSaveButton': {
+        hideSaveButton: {
             required: false,
             default: false,
         },

@@ -16,7 +16,8 @@
                     :journal="journal"
                     :assignment="assignment"
                     :class="{
-                        'input-disabled': (journal.author_limit != 0 && journal.authors.length >= journal.author_limit) || journal.locked,
+                        'input-disabled': (journal.author_limit != 0 && journal.authors.length >= journal.author_limit)
+                            || journal.locked,
                     }"
                     @click.native="joinJournal(journal.id)"
                 />
@@ -95,7 +96,7 @@ export default {
                 this.$router.push({
                     name: 'Journal',
                     params: {
-                        cID: this.cID, aID: this.aID, jID: jID,
+                        cID: this.cID, aID: this.aID, jID,
                     },
                 })
             }

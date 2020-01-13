@@ -24,9 +24,9 @@
                     >
                         <icon
                             v-if="canManageJournal"
-                            name="edit"
-                            class="edit-journal"
                             v-b-tooltip.hover
+                            class="edit-journal"
+                            name="edit"
                             title="Edit journal"
                             @click.native.stop="showEditJournalModal"
                         />
@@ -39,7 +39,8 @@
                         <b
                             v-if="journal.author_limit > 1"
                             v-b-tooltip.hover
-                            :title="`This journal currently has ${ journal.authors.length } of max ${ journal.author_limit } members`"
+                            :title="`This journal currently has ${ journal.authors.length } of max `
+                                + `${ journal.author_limit } members`"
                             class="text-grey"
                         >
                             ({{ journal.authors.length }}/{{ journal.author_limit }})
@@ -47,7 +48,8 @@
                         <b
                             v-if="journal.author_limit === 0"
                             v-b-tooltip.hover
-                            :title="`This journal currently has ${ journal.authors.length } members and no member limit`"
+                            :title="`This journal currently has ${ journal.authors.length } members `
+                                + 'and no member limit'"
                             class="text-grey"
                         >
                             ({{ journal.authors.length }})
@@ -97,16 +99,12 @@
 <script>
 import progressBar from '@/components/assets/ProgressBar.vue'
 import numberBadge from '@/components/assets/NumberBadge.vue'
-import studentCard from '@/components/assignment/StudentCard.vue'
-import draggable from 'vuedraggable'
 import editJournalSettings from '@/components/journal/EditJournalSettings.vue'
 
 export default {
     components: {
         progressBar,
         numberBadge,
-        studentCard,
-        draggable,
         editJournalSettings,
     },
     props: {

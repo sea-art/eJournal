@@ -31,9 +31,9 @@
                 <icon
                     v-b-tooltip.hover
                     class="lock-members-icon fill-grey"
-                    :title="`Journal members are ${ journal.locked ? '' : 'not ' }locked, this journal can${ journal.locked ? 'not' : '' }
-                    be joined or left${ (assignment.can_lock_journal || $hasPermission('can_manage_journals')) ? `: click to
-                    ${ journal.locked ? 'un' : '' }lock journal members` : '' }`"
+                    :title="`Journal members are ${ journal.locked ? '' : 'not ' }locked, this journal can`
+                        + `${ journal.locked ? 'not' : '' } be joined or left${ (assignment.can_lock_journal
+                            || $hasPermission('can_manage_journals')) ? ': click to toggle' : ''}`"
                     :name="journal.locked ? 'lock' : 'unlock'"
                     :class="{
                         'unlocked-icon': !journal.locked && (assignment.can_lock_journal
@@ -167,13 +167,13 @@ export default {
         },
         kickFromJournal (user) {
             if (window.confirm(`Are you sure you want to remove ${user.full_name} from this journal?
-${ this.journal.authors.length === 1 ? 'Since they are the last member of this journal, doing so will reset the' +
-' journal and remove all its entries. This action cannot be undone.' : '' }`)) {
+${this.journal.authors.length === 1 ? 'Since they are the last member of this journal, doing so will reset the'
++ ' journal and remove all its entries. This action cannot be undone.' : ''}`)) {
                 journalAPI.kick(this.journal.id, user.id, { responseSuccessToast: true })
                     .then(() => {
                         this.journal.authors = this.journal.authors.filter(author => author.user.id !== user.id)
-                        if (this.journal.authors) {
-
+                        if (this.journal.authors.length === 0) {
+                            this.$router.push(this.assignmentRoute(this.assignment))
                         }
                     })
             }
