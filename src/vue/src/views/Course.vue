@@ -31,21 +31,6 @@
                             <icon name="edit"/>
                             Edit
                         </b-button>
-                        <b-button
-                            v-else-if="$hasPermission('can_have_journal', 'assignment', a.id) && a.is_group_assignment"
-                            class="float-right"
-                            @click.prevent.stop="$router.push({
-                                name: 'JoinJournal',
-                                params: {
-                                    cID: cID,
-                                    aID: a.id,
-                                    viewing: true,
-                                },
-                            })"
-                        >
-                            <icon name="users"/>
-                            View journals
-                        </b-button>
                     </assignment-card>
                 </b-link>
             </div>
