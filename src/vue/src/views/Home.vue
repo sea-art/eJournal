@@ -8,8 +8,32 @@
 
         <rich-text-editor
             slot="main-content-column"
+            v-model="test"
             placeholder="placeholder"
         />
+        <!-- <img
+            slot="main-content-column"
+            v-auth-image="'http://localhost:8000/files/76/'"
+        /> -->
+        <img
+            slot="main-content-column"
+            src="http://localhost:8000/files/76/"
+        />
+        <!-- <sandboxed-iframe
+            slot="main-content-column"
+            content="<img src='http://localhost:8000/files/76/'/>"
+        />
+        <sandboxed-iframe
+            slot="main-content-column"
+            content="<img v-auth-image='http://localhost:8000/files/76/'/>"
+        /> -->
+        <b-button
+            slot="main-content-column"
+            @click="testt"
+        >
+            Test
+        </b-button>
+
         <load-wrapper
             slot="main-content-column"
             :loading="loadingCourses"
@@ -80,6 +104,7 @@ import editHome from '@/components/home/EditHome.vue'
 import deadlineDeck from '@/components/assets/DeadlineDeck.vue'
 
 import richTextEditor from '@/components/assets/RichTextEditor.vue'
+import sandboxedIframe from '@/components/assets/SandboxedIframe.vue'
 
 import courseAPI from '@/api/course.js'
 
@@ -94,17 +119,22 @@ export default {
         editHome,
         deadlineDeck,
         richTextEditor,
+        sandboxedIframe,
     },
     data () {
         return {
             courses: [],
             loadingCourses: true,
+            test: '',
         }
     },
     created () {
         this.loadCourses()
     },
     methods: {
+        testt () {
+            courseAPI.get(1697)
+        },
         loadCourses () {
             courseAPI.getUserEnrolled()
                 .then((courses) => {

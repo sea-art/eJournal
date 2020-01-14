@@ -90,6 +90,33 @@ const mutations = {
 const actions = {
     /* Authenticates the user and poplates the store, if either fails the login fails. */
     login ({ state, commit, dispatch }, { username, password }) {
+        // TODO FILE: only run a single service worker -> document on load?
+        // TODO FILE: Combine promises
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('SW registered!', reg))
+                .catch(err => console.log('Boo!', err))
+
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                // for every message we expect an action field
+                // determining operation that we should perform
+                const { action } = event.data
+                // we use 2nd port provided by the message channel
+                const port = event.ports[0]
+
+                if (action === 'getAuthInfo') {
+                    console.log('init request from sw')
+                    // return authHeader, will be accessible in sw via event.data.authHeader
+                    port.postMessage({ apiUrl: CustomEnv.API_URL, jwtAccess: state.jwtAccess })
+                } else {
+                    console.error('Unknown event', event)
+                    port.postMessage({ error: 'Unknown request' })
+                }
+            })
+        } else {
+            // TODO FILE: Warning for no support
+        }
+
         return new Promise((resolve, reject) => {
             connection.conn.post('/token/', { username, password }).then((response) => {
                 commit(types.SET_JWT, response.data)

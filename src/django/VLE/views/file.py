@@ -1,14 +1,23 @@
-from rest_framework import viewsets
-
-import VLE.utils.responses as response
-from rest_framework.permissions import AllowAny
 import re
 
+from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
+
+import VLE.utils.responses as response
 import VLE.validators as validators
 from VLE.models import FileContext
 
 
 class FileView(viewsets.ViewSet):
+
+    def list(self, request):
+        """Get a FileContext file by ID"""
+        print(request.session.__dict__)
+        request.session['test'] = 1
+        print(request.session.__dict__)
+
+        return response.success()
+
     def retrieve(self, request, pk):
         """Get a FileContext file by ID"""
         # TODO FILE implement
@@ -35,6 +44,7 @@ class FileView(viewsets.ViewSet):
 
     # TODO FILE Remove
     def get_permissions(self):
+        return [AllowAny()]
         if re.search(r'^/files/\d+/', self.request.path) and self.request.method == 'GET':
             return [AllowAny()]
         else:

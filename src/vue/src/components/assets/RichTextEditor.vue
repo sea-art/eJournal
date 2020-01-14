@@ -6,7 +6,7 @@
             :config="editorConfig"
             @ready="editorInstanceReady"
         />
-        <!-- TODO FILE: make this look great -->
+        <!-- TODO FILE: improve wordcount appearance -->
         <p v-if="wordCount">
             {{ nWords }} WORDS
         </p>
@@ -69,12 +69,15 @@ export default {
             type: String,
             default: '',
         },
+        value: {
+            type: String,
+            required: true,
+        },
     },
     data () {
         return {
             editor: classicEditor,
             instance: null,
-            editorData: '',
             toolbarGroups: {
                 text: ['bold', 'italic', 'underline', 'strikethrough', 'code'],
                 alignment: ['alignment:left', 'alignment:right', 'alignment:center', 'alignment:justify'],
@@ -144,6 +147,12 @@ export default {
             nWords: null,
             nChars: null,
         }
+    },
+    computed: {
+        editorData: {
+            get () { return this.value },
+            set (editorData) { this.$emit('input', editorData) },
+        },
     },
     methods: {
         editorInstanceReady (editorInstance) {

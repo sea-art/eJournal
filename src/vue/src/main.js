@@ -21,6 +21,7 @@ import store from './store'
 import ThemeSelect from './components/assets/ThemeSelect.vue'
 
 import connection from '@/api/connection.js'
+import authImage from '@/helpers/auth_image.js'
 
 Vue.config.productionTip = false
 Vue.use(Toasted, { position: 'top-center', duration: 4000 })
@@ -29,6 +30,7 @@ Vue.use(flatPickr)
 Vue.use(VueIntro)
 Vue.use(VueMoment)
 Vue.use(CKEditor)
+Vue.use(authImage)
 
 Vue.component('icon', Icon)
 Vue.component('theme-select', ThemeSelect)
@@ -39,11 +41,11 @@ initSentry(Vue)
 Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
 const toApi = new RegExp(`^${CustomEnv.API_URL}`)
 
-/* eslint-disable */
-Vue.config.productionTip = false;
+Vue.config.productionTip = false
 
-(function (open, send) {
-    let xhrOpenRequestUrl;
+/* eslint-disable */
+;(function (open, send) {
+    let xhrOpenRequestUrl
 
     XMLHttpRequest.prototype.open = function (_, url) {
         xhrOpenRequestUrl = url
