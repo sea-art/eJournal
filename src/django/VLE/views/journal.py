@@ -256,7 +256,7 @@ class JournalView(viewsets.ViewSet):
             return response.bad_request('You are already in this journal.')
         if Journal.objects.filter(assignment=journal.assignment, authors__user=request.user).exists():
             return response.bad_request('You may only be in one journal at the time.')
-        if journal.author_limit != 0 and journal.authors.count() >= journal.author_limit:
+        if journal.author_limit != Journal.UNLIMITED and journal.authors.count() >= journal.author_limit:
             return response.bad_request('This journal is already full.')
 
         author = AssignmentParticipation.objects.get(assignment=journal.assignment, user=request.user)
@@ -293,7 +293,7 @@ class JournalView(viewsets.ViewSet):
             return response.bad_request('Student is already in this journal.')
         if Journal.objects.filter(assignment=journal.assignment, authors__user=user).exists():
             return response.bad_request('Students can only be in one journal at the time.')
-        if journal.author_limit != 0 and journal.authors.count() >= journal.author_limit:
+        if journal.author_limit != Journal.UNLIMITED and journal.authors.count() >= journal.author_limit:
             return response.bad_request('This journal is already full.')
 
         author = AssignmentParticipation.objects.get(assignment=journal.assignment, user=user)

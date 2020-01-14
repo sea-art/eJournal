@@ -60,9 +60,8 @@ def update_author_grade_to_LMS(author_pk, journal=None):
     if response['code_mayor'] == 'success':
         # Reflag -> all entries grade (weighted avg) has been successfully submitted to LMS
         Entry.objects.filter(grade__published=True, node__journal=journal).update(vle_coupling=Entry.LINK_COMPLETE)
-        return "{}'s grade was succesfully sent to the LMS".format(author.user.username)
 
-    return "{}'s grade could not be sent to the LMS. Response was: {}".format(author.user.username, response)
+    return response
 
 
 @shared_task
@@ -77,4 +76,4 @@ def send_journal_grade_to_LMS(journal_pk):
     responses = []
     for author in journal.authors.all():
         responses.append(update_author_grade_to_LMS(author.pk, journal))
-    return '\n'.join(responses)
+    return responses

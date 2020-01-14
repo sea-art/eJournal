@@ -886,6 +886,7 @@ class Journal(models.Model):
     - assignment: a foreign key linked to an assignment.
     - user: a foreign key linked to a user.
     """
+    UNLIMITED = 0
 
     assignment = models.ForeignKey(
         'Assignment',

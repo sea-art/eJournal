@@ -23,6 +23,7 @@ class GradePassBackRequest(object):
         self.url = None if author is None else author.grade_url
         self.sourcedid = None if author is None else author.sourcedid
         self.timestamp = submitted_at
+        self.author = author
         if send_score and author and author.assignment and author.assignment.points_possible:
             score = grade / float(author.assignment.points_possible)
             self.score = str(min(score, 1.0))
@@ -110,7 +111,12 @@ class GradePassBackRequest(object):
                 body=self.create_xml(),
                 headers={'Content-Type': 'application/xml'}
             )
-            return self.parse_return_xml(content)
+            return {
+                'user': self.author.user.username,
+                'grade': 'NOT UPDATED' if self.score is None else self.score,
+                'result_data': self.result_data,
+                **self.parse_return_xml(content),
+            }
         return {'severity': 'status',
                 'code_mayor': 'No grade passback url set',
                 'description': 'not found'}
