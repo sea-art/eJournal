@@ -153,7 +153,9 @@ export default {
             this.$refs.editJournalSettingsModal.hide()
         },
         leaveJournal () {
-            if (window.confirm('Are you sure you want to leave this journal?')) {
+            if (window.confirm('Are you sure you want to leave this journal?'
+                + `${this.journal.authors.length === 1 ? ' Since you are the last member of this journal, doing so '
+                + 'will reset the journal and remove all its entries. This action cannot be undone.' : ''}`)) {
                 journalAPI.leave(this.journal.id)
                     .then(() => {
                         this.$router.push({
@@ -166,9 +168,9 @@ export default {
             }
         },
         kickFromJournal (user) {
-            if (window.confirm(`Are you sure you want to remove ${user.full_name} from this journal?
-${this.journal.authors.length === 1 ? 'Since they are the last member of this journal, doing so will reset the'
-+ ' journal and remove all its entries. This action cannot be undone.' : ''}`)) {
+            if (window.confirm(`Are you sure you want to remove ${user.full_name} from this journal?`
+                + `${this.journal.authors.length === 1 ? ' Since they are the last member of this journal, doing so '
+                + 'will reset the journal and remove all its entries. This action cannot be undone.' : ''}`)) {
                 journalAPI.kick(this.journal.id, user.id, { responseSuccessToast: true })
                     .then(() => {
                         this.journal.authors = this.journal.authors.filter(author => author.user.id !== user.id)
