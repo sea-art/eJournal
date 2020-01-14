@@ -1,99 +1,104 @@
 <template>
-    <b-card :class="$root.getBorderClass(journal.id)">
-        <b-row noGutters>
-            <b-col
-                class="d-flex"
-                :md="$hasPermission('can_view_all_journals') ? 7 : 12"
-            >
-                <div class="portrait-wrapper">
-                    <img
-                        class="no-hover"
-                        :src="journal.image"
-                    />
-                    <number-badge
-                        v-if="$hasPermission('can_view_all_journals') && markingNeeded + unpublished > 0"
-                        :leftNum="markingNeeded"
-                        :rightNum="unpublished"
-                        :title="squareInfo"
-                    />
-                </div>
-                <div class="student-details">
-                    <b
-                        class="max-one-line"
-                        :title="journal.name"
-                    >
-                        <icon
-                            v-if="canManageJournal"
-                            v-b-tooltip.hover
-                            class="edit-journal"
-                            name="edit"
-                            title="Edit journal"
-                            @click.native.stop="showEditJournalModal"
+    <div>
+        <b-card :class="$root.getBorderClass(journal.id)">
+            <b-row noGutters>
+                <b-col
+                    class="d-flex"
+                    :md="$hasPermission('can_view_all_journals') ? 7 : 12"
+                >
+                    <div class="portrait-wrapper">
+                        <img
+                            class="no-hover"
+                            :src="journal.image"
                         />
-                        {{ journal.name }}
-                    </b>
-                    <span
-                        class="max-one-line"
-                        :title="journalAuthors"
-                    >
-                        <b
-                            v-if="journal.author_limit > 1"
-                            v-b-tooltip.hover
-                            :title="`This journal currently has ${ journal.authors.length } of max `
-                                + `${ journal.author_limit } members`"
-                            class="text-grey"
-                        >
-                            ({{ journal.authors.length }}/{{ journal.author_limit }})
-                        </b>
-                        <b
-                            v-if="journal.author_limit === 0"
-                            v-b-tooltip.hover
-                            :title="`This journal currently has ${ journal.authors.length } members `
-                                + 'and no member limit'"
-                            class="text-grey"
-                        >
-                            ({{ journal.authors.length }})
-                        </b>
-                        <icon
-                            v-if="journal.locked"
-                            v-b-tooltip.hover
-                            title="Members are locked: it is not possible to join or leave this journal"
-                            name="lock"
-                            class="fill-grey shift-up-2"
+                        <number-badge
+                            v-if="$hasPermission('can_view_all_journals') && markingNeeded + unpublished > 0"
+                            :leftNum="markingNeeded"
+                            :rightNum="unpublished"
+                            :title="squareInfo"
                         />
-                        {{ journalAuthors }}
-                    </span>
-                </div>
-            </b-col>
-            <b-col
-                v-if="$hasPermission('can_view_all_journals')"
-                class="mt-2"
-                md="5"
+                    </div>
+                    <div class="student-details">
+                        <b
+                            class="max-one-line"
+                            :title="journal.name"
+                        >
+                            {{ journal.name }}
+                        </b>
+                        <span
+                            class="max-one-line shift-up-4"
+                            :title="journalAuthors"
+                        >
+                            <b-badge
+                                v-if="journal.author_limit > 1"
+                                v-b-tooltip.hover
+                                :title="`This journal currently has ${ journal.authors.length } of max `
+                                    + `${ journal.author_limit } members`"
+                                class="text-white mr-1"
+                            >
+                                ({{ journal.authors.length }}/{{ journal.author_limit }})
+                            </b-badge>
+                            <b-badge
+                                v-if="journal.author_limit === 0"
+                                v-b-tooltip.hover
+                                :title="`This journal currently has ${ journal.authors.length } members `
+                                    + 'and no member limit'"
+                                class="text-white mr-1"
+                            >
+                                ({{ journal.authors.length }})
+                            </b-badge>
+                            <b-badge
+                                v-if="!journal.locked"
+                                class="background-red"
+                            >
+                                <icon
+                                    v-b-tooltip.hover
+                                    title="Members are locked: it is not possible to join or leave this journal"
+                                    name="lock"
+                                    class="fill-white"
+                                    scale="0.65"
+                                />
+                            </b-badge>
+                            <span v-if="!expanded">
+                                {{ journalAuthors }}
+                            </span>
+                        </span>
+                    </div>
+                </b-col>
+                <b-col
+                    v-if="$hasPermission('can_view_all_journals')"
+                    class="mt-2"
+                    md="5"
+                >
+                    <progress-bar
+                        :currentPoints="journal.stats.acquired_points"
+                        :totalPoints="assignment.points_possible"
+                    />
+                </b-col>
+            </b-row>
+            <slot/>
+            <div
+                v-if="$hasPermission('can_manage_journals')"
+                style="position: absolute; left:50%; bottom:0px"
+                class="p-2"
+                @click.prevent.stop="expanded = !expanded"
             >
-                <progress-bar
-                    :currentPoints="journal.stats.acquired_points"
-                    :totalPoints="assignment.points_possible"
+                <icon
+                    :name="expanded ? 'caret-up' : 'caret-down'"
+                    class="fill-grey"
                 />
-            </b-col>
-        </b-row>
-        <slot/>
-        <b-modal
-            v-if="canManageJournal"
-            ref="editJournalSettingsModal"
-            size="lg"
-            title="Edit journal"
-            class="default-cursor"
-            hideFooter
+            </div>
+        </b-card>
+        <edit-journal-settings
+            v-if="expanded"
+            :journal="journal"
+            :assignment="assignment"
+            class="background-medium-grey ml-2 mr-2"
+            @journal-updated="expanded = false"
+            @journal-deleted="journalDeleted"
             @click.native.stop=""
-        >
-            <edit-journal-settings
-                :journal="journal"
-                :assignment="assignment"
-                @journal-updated="hideEditJournalModal"
-                @journal-deleted="journalDeleted"
-            />
-        </b-modal>
-    </b-card>
+        />
+    </div>
 </template>
 
 <script>
@@ -118,6 +123,7 @@ export default {
     data () {
         return {
             editJournal: false,
+            expanded: false,
         }
     },
     computed: {
@@ -171,14 +177,7 @@ export default {
         },
     },
     methods: {
-        showEditJournalModal () {
-            this.$refs.editJournalSettingsModal.show()
-        },
-        hideEditJournalModal () {
-            this.$refs.editJournalSettingsModal.hide()
-        },
         journalDeleted () {
-            this.hideEditJournalModal()
             this.$emit('journal-deleted')
         },
     },

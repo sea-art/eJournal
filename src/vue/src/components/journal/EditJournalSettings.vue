@@ -1,8 +1,6 @@
 <template>
     <b-card
-        :class="{
-            'input-disabled': saveRequestInFlight,
-        }"
+        :class="cardClass"
         class="no-hover"
     >
         <div v-if="assignment.can_set_journal_image || $hasPermission('can_manage_journals')">
@@ -85,6 +83,15 @@ export default {
             saveRequestInFlight: false,
         }
     },
+    computed: {
+        cardClass () {
+            const classes = { 'input-disabled': this.saveRequestInFlight }
+            const borderClass = this.$root.getBorderClass(this.journal.id)
+            classes[borderClass] = true
+
+            return classes
+        },
+    },
     created () {
         this.newJournalImage = this.journal.image
         this.newJournalName = this.journal.name
@@ -143,6 +150,8 @@ export default {
                         this.$emit('journal-deleted')
                     })
                     .catch(() => { this.saveRequestInFlight = false })
+            } else {
+                this.saveRequestInFlight = false
             }
         },
     },

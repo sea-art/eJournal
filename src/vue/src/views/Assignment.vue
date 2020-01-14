@@ -9,6 +9,7 @@
             v-if="$route.query.left"
             slot="main-content-column"
             show
+            dismissible
         >
             <b>Warning:</b> The student whose submission you viewed in the LMS (Canvas) is no longer a
             member of any journal.
