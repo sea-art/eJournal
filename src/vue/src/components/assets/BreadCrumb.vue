@@ -7,7 +7,6 @@
 
 <template>
     <div class="breadcrumb-container">
-        <version-alert/>
         <div>
             <div v-if="crumbs.length > 1">
                 <h4>
@@ -53,6 +52,7 @@
                 </b-button>
             </h1>
         </div>
+        <version-alert/>
     </div>
 </template>
 

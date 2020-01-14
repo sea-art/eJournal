@@ -5,6 +5,14 @@
             slot="main-content-column"
             @edit-click="handleEdit()"
         />
+        <b-alert
+            v-if="$route.query.left"
+            slot="main-content-column"
+            show
+        >
+            <b>Warning:</b> The student whose submission you viewed in the LMS (Canvas) is no longer a
+            member of any journal.
+        </b-alert>
 
         <div slot="main-content-column">
             <input
