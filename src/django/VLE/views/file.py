@@ -21,6 +21,7 @@ class FileView(viewsets.ViewSet):
     def retrieve(self, request, pk):
         """Get a FileContext file by ID"""
         # TODO FILE implement
+        print(request.headers)
         file = FileContext.objects.get(pk=pk)
         return response.file(file, file.file_name)
 

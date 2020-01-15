@@ -1,133 +1,113 @@
-self.addEventListener('install', event => {
-    console.log('V1 installing…');
-
-    // cache a cat SVG
-    event.waitUntil(
-        caches.open('static-v1').then(cache => cache.add('/cat.svg'))
-    );
+/* SW starting point */
+self.addEventListener('install', (event) => {
+    self.channel = new MessageChannel();
+    // TODO FILE: Check if we can block initialize and retrieve all data in SW on install, so we dont miss any fetches
+    postTwoWayMsg('getJwtAccess').then((jwtAccess) => { console.log('intstall jwt', jwtAccess) })
+    event.waitUntil(self.skipWaiting());
 });
 
-self.addEventListener('activate', event => {
-    clients.claim(); // If a page loads without a SW neither will its subresources so we claim the client.
-
-    console.log('V1 now ready to handle fetches!');
+self.addEventListener('activate', (event) => {
+    event.waitUntil(self.clients.claim());
+    console.log('Activated');
 });
 
-// TODO FILE: Avoid CSRF pitfalls, only set header to our file API on get requests
-// const toApi = new RegExp(`^${CustomEnv.API_URL}`)
+/* Generic SW message listener, used for one way communication from page to SW */
+self.addEventListener('message', (event) => {
+    const { action } = event.data
+
+    console.log('SW received message', event)
+
+    if (action === 'init') {
+        console.log('Init from page to sw receved', event)
+        self.apiUrl = event.data.apiUrl
+        self.toApi = new RegExp(`^${event.data.apiUrl}`);
+        self.jwtAccess = event.data.jwtAccess
+    } else if (action === 'jwtUpdate') {
+        self.jwtAccess = event.data.jwtAccess
+    } else {
+        postOneWayMsg('error', { error: 'Unregistered SW message action received.'})
+    }
+});
+
+// TODO FILE: Are there CSRF pitfalls? Only set header to our file API on get requests
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url)
-    // console.log(url)
-    // console.log(event.request)
+    console.log(self.jwtAccess, event)
 
-    // event.request.headers['Authorization'] = 'test'
-
-
-    // if (toApi.test(url)) {
-    // console.log(event)
-
-    // serve the cat SVG from the cache if the request is
-    // same-origin and the path is '/dog.svg'
-    if (url.origin == location.origin && url.pathname == '/dog.svg') {
-        event.respondWith(caches.match('/cat.svg'));
+    const toApi = new RegExp(`^http://localhost:8000/files`);
+    if (toApi.test(url)) {
+        console.log(event)
+        let reqClone = event.request.clone();
+        reqClone.headers['Authorization'] = `Bearer ${self.jwtAccess}`
+        // event.respondWith(getResponse(event.request))
+        // https://developer.mozilla.org/en-US/docs/Web/API/FetchEvent/respondWith
+        console.log(reqClone)
+        event.respondWith(fetch(reqClone))
     }
-    // }
 
-    // event.respondWith(getResponse(event.request))
+    if (url.origin == location.origin && url.pathname == '/dog.svg') {
+    }
 });
 
 const getResponse = async request => {
-    // there is no easy way to add
-    // a new field to a request, so we
-    // need to create a copy of a request with
-    // a new field already set
+    /* There is no simple way of adding a new a field to a request.
+     * Therefore a copy of the request is created with the new fields already set */
     const headers = {};
     for (let entry of request.headers) {
         headers[entry[0]] = headers[entry[1]];
     }
 
-    const { apiUrl, jwtAccess } = await getAuthInfo()
-
-    // when we can't get auth token, we can try our best
-    // and ask our user to log in
-    // that situation may occur due to a lack of a page in scope,
-    // auth token has expired or a user had a link from
-    // some other external source
-    if (jwtAccess === null) {
-        // if a request was executed by clicking on a link
-        // or changing window.location
-        // we can redirect a user to ui login page
-        if (request.mode === 'navigate') {
-            return new Response(null, {
-                status: 302,
-                statusText: 'Found',
-                headers: new Headers({
-                    'location': '/login',
-                })
-            })
-        }
-
-        // if a request was executed using Ajax,
-        // we can just return auth error
-        return new Response(null, {
-            status: 401,
-            statusText: 'Unauthorized'
-        });
-    }
-
-    headers['Authorization'] = `Bearer ${jwtAccess}`
+    headers['Authorization'] = `Bearer ${self.jwtAccess}`
     const body = await ['HEAD', 'GET'].includes(request.method) ? Promise.resolve() : request.text();
     const bodyObj = body ? { body, } : {};
 
-    // we proceed with a request using Fetch API
     return fetch(new Request(request.url, {
         method: request.method,
         headers,
         cache: request.cache,
-        mode: 'cors', // we cannot use mode 'navigate', but can fall back to cors, which is good enough
+        mode: 'cors', /* Navigate is not available, but can fall back to cors, which is good enough */
         credentials: request.credentials,
-        redirect: 'manual', // browser will handle redirect on its own
+        redirect: 'manual', /* Allow the browser to handle redirect on its own */
         ...bodyObj,
     }));
 };
 
-
-const getAuthInfo = async () => {
-    // we can't get a client that sent the current request, therefore we need
-    // to ask any controlled page for auth token
+/* Post a message without expecting a response in turn */
+const postOneWayMsg = async (action, msgObj) => {
     const allClients = await self.clients.matchAll();
     const client = allClients.filter(client => client.type === 'window')[0];
 
-    // if there is no page in scope, we can't get any token
-    // and we indicate it with null value
-    if (!client) {
-        console.log('No client found')
-        return null;
-    }
-
-    // to communicate with a page we will use MessageChannels
-    // they expose pipe-like interface, where a receiver of
-    // a message uses one end of a port for messaging and
-    // we use the other end for listening
-    const channel = new MessageChannel();
-
-    console.log('Requesting init from app');
-    client.postMessage(
-        { 'action': 'getAuthInfo' },
-        [channel.port1]
-    );
-
-    // ports support only onmessage callback which
-    // is cumbersome to use, so we wrap it with Promise
     return new Promise((resolve, reject) => {
-        channel.port2.onmessage = event => {
-            if (event.data.error) {
-                console.log('Port error', event.error);
-                reject(event.data.error);
-            }
-
-            console.log('Resolving auth')
-            resolve(event.data);
+        if (!client) {
+            reject(new Error(`SW could not find client for action: ${action} sending message: ${msgObj}`))
         }
+
+        client.postMessage(
+            { action, ...msgObj },
+            [self.channel.port1]
+        );
+
+        resolve()
     });
-};
+}
+
+/* Post a message, then wait for a response in turn */
+const postTwoWayMsg = async (action, msgObj) => {
+    return new Promise((resolve, reject) => {
+        postOneWayMsg(action, msgObj)
+            .then(() => {
+                self.channel.port2.onmessage = (event) => {
+                    if (event.data.error) {
+                        console.log('Port error', event.error);
+                        /* The actual error logging should be handled by the client */
+                        reject(event.data.error);
+                    }
+
+                    console.log('Two way message success', event.data)
+                    resolve(event.data);
+                }
+            })
+            // TODO FILE: Send errors occuring in the SW only to Sentry as well
+            .catch((error) => { reject(error) })
+    });
+}

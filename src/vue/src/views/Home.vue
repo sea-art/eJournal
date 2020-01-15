@@ -15,9 +15,13 @@
             slot="main-content-column"
             v-auth-image="'http://localhost:8000/files/76/'"
         /> -->
-        <img
+        <!-- <img
             slot="main-content-column"
             src="http://localhost:8000/files/76/"
+        /> -->
+        <img
+            slot="main-content-column"
+            src="http://localhost:8000/files/72/"
         />
         <!-- <sandboxed-iframe
             slot="main-content-column"
