@@ -91,7 +91,7 @@ const actions = {
     /* Authenticates the user and poplates the store, if either fails the login fails. */
     login ({ state, commit, dispatch }, { username, password }) {
         return new Promise((resolve, reject) => {
-            connection.conn.post('/token/', { username, password }).then((response) => {
+            connection.conn.post('/users/login/', { username, password }).then((response) => {
                 commit(types.SET_JWT, response.data)
 
                 dispatch('populateStore').then(() => {

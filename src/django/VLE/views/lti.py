@@ -9,6 +9,7 @@ from django.shortcuts import redirect
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
+# TODO FILE REMOVE
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 import VLE.factory as factory

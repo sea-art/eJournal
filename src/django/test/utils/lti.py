@@ -3,6 +3,7 @@ from urllib import parse
 
 import oauth2
 from django.conf import settings
+# TODO FILE Remove
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 import VLE.views.lti as lti_view

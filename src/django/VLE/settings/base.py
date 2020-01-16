@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 import os
 from collections import OrderedDict
-from datetime import timedelta
 
 import sentry_sdk
 from sentry_sdk.integrations.celery import CeleryIntegration
@@ -24,6 +23,38 @@ sentry_sdk.init(
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 BASELINK = os.environ['BASELINK']
+
+# TODO FILE: Cookie Config
+# Secure, HttpOnly, domain subdomain (default to full domain)
+# SameSite (not supported by IE)
+# A request from uva.ejournal.app to api.uva.ejournal.app should be a same site request?
+# So with our scheme we should be able to use SameSite=Strict,
+# domain=uva.ejournal.app is accessible for *.uva.ejournal.app
+# Conflicting info, a leading dot (.uva.ejournal.app) should be different from not (OK is an old RFC ignore)
+# If domain is not set we are dealing with a host only cookie, can only be read by the exact domain that set it.
+# Path indicates a URL path that must exist in the requested URL in order to send the cookie header, nested paths work.
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
+# Defaults to one year
+CSRF_COOKIE_AGE = 31449600
+# Defaults to None, could be used
+CSRF_COOKIE_DOMAIN = None
+# Defaults to False, if an attacker can read the cookie via JS we are dealing with XSS anyway.
+CSRF_COOKIE_HTTPONLY = False
+# Defaults to '/'
+# TODO FILE: Figure out if we do not need to seperate based on instance already
+CSRF_COOKIE_PATH = '/'
+# Defaults to 'Lax'
+# TODO FILE: Figure out if we can't use 'Strict' instead
+CSRF_COOKIE_SAMESITE = 'Lax'
+# Defaults to False
+CSRF_COOKIE_SECURE = True
+# Defaults to, 'HTTP_X_CSRFTOKEN', Django normalizes all headers names (toUpper, - -> _, prefix HTTP_)
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
+# Defaults to []
+# TODO FILE: It appears this could be used for our subdomain configuration
+CSRF_TRUSTED_ORIGINS = []
 
 STATIC_URL = '/static/'
 # NOTE: Public media directory (not used as such, should probably be renamed.)
@@ -92,10 +123,10 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ),
     'DEFAULT_THROTTLE_CLASSES': (
         'VLE.utils.throttle.GDPRThrottle',
@@ -106,13 +137,6 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = "VLE.User"
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=2),
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'id',
-}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

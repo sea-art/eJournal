@@ -22,18 +22,13 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
-from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
-from VLE.views import common, email, lti, user
+from VLE.views import common, email, lti
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     url(r'^', include(('VLE.views', 'VLE.views'), namespace='VLE')),
-
-    path('token/', user.LoginView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
     path('forgot_password/', email.forgot_password, name='forgot_password'),
     path('recover_password/', email.recover_password, name='recover_password'),

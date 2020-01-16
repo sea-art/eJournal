@@ -3,12 +3,13 @@ user.py.
 
 In this file are all the user api requests.
 """
+# from django.contrib.auth import authenticate, login, logout
+import django.contrib.auth as auth
 from django.conf import settings
 from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.views import TokenObtainPairView
 
 import VLE.factory as factory
 import VLE.lti_launch as lti_launch
@@ -32,15 +33,6 @@ def get_lti_params(request, *keys):
     values = utils.optional_params(lti_params, *keys)
     values.append(settings.ROLES['Teacher'] in lti_launch.roles_to_list(lti_params))
     return values
-
-
-class LoginView(TokenObtainPairView):
-    def post(self, request):
-        result = super(LoginView, self).post(request)
-        if result.status_code == 200:
-            username, = utils.required_params(request.data, 'username')
-            User.objects.filter(username=username).update(last_login=timezone.now())
-        return result
 
 
 class UserView(viewsets.ViewSet):
@@ -77,6 +69,7 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- with the user data
         """
+        print(request.session.__dict__)
         if int(pk) == 0:
             pk = request.user.id
 
@@ -378,6 +371,7 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- name of the file.
         """
+        # TODO FILE: request.data is more flexible, can handle both JSON and form encoded inputs. Rework to .data only
         assignment_id, content_id = utils.required_params(request.POST, 'assignment_id', 'content_id')
         assignment = Assignment.objects.get(pk=assignment_id)
 
@@ -423,6 +417,25 @@ class UserView(viewsets.ViewSet):
         request.user.save()
 
         return response.success(description='Successfully updated profile picture')
+
+    # TODO FILE: Rate limit login attempts
+    @action(methods=['post'], detail=False, permission_classes=[AllowAny])
+    def login(self, request):
+        username, password = utils.required_params(request.data, 'username', 'password')
+        user = auth.authenticate(username=username, password=password)
+
+        if user is None:
+            return response.unauthorized(description='Invalid authentication credentials provided.')
+
+        auth.login(request, user)
+        user.last_login = timezone.now()
+        user.save()
+        return response.success(description='Login succesfull')
+
+    @action(methods=['get'], detail=False)
+    def logout(self, request):
+        auth.logout(request)
+        return response.success(description='User logged out succesfully')
 
     def get_permissions(self):
         if self.request.path == '/users/' and self.request.method == 'POST':
