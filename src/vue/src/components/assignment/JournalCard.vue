@@ -1,116 +1,117 @@
 <template>
-    <div>
-        <b-card :class="$root.getBorderClass(journal.id)">
-            <b-row noGutters>
-                <b-col
-                    class="d-flex"
-                    :md="$hasPermission('can_view_all_journals') ? 7 : 12"
-                >
-                    <div class="portrait-wrapper">
-                        <img
-                            class="no-hover"
-                            :src="journal.image"
-                        />
-                        <number-badge
-                            v-if="$hasPermission('can_view_all_journals') && markingNeeded + unpublished > 0"
-                            :leftNum="markingNeeded"
-                            :rightNum="unpublished"
-                            :title="squareInfo"
-                        />
-                    </div>
-                    <div class="student-details">
-                        <b
-                            class="max-one-line"
-                            :title="journal.name"
-                        >
-                            {{ journal.name }}
-                        </b>
-                        <span
-                            class="max-one-line shift-up-4"
-                            :title="journalAuthors"
-                        >
-                            <b-badge
-                                v-if="journal.author_limit > 1"
-                                v-b-tooltip.hover
-                                :title="`This journal currently has ${ journal.authors.length } of max `
-                                    + `${ journal.author_limit } members`"
-                                class="text-white mr-1"
-                            >
-                                ({{ journal.authors.length }}/{{ journal.author_limit }})
-                            </b-badge>
-                            <b-badge
-                                v-if="journal.author_limit === 0"
-                                v-b-tooltip.hover
-                                :title="`This journal currently has ${ journal.authors.length } members `
-                                    + 'and no member limit'"
-                                class="text-white mr-1"
-                            >
-                                ({{ journal.authors.length }})
-                            </b-badge>
-                            <b-badge
-                                v-if="!journal.locked"
-                                class="background-red"
-                            >
-                                <icon
-                                    v-b-tooltip.hover
-                                    title="Members are locked: it is not possible to join or leave this journal"
-                                    name="lock"
-                                    class="fill-white"
-                                    scale="0.65"
-                                />
-                            </b-badge>
-                            <span v-if="!expanded">
-                                {{ journalAuthors }}
-                            </span>
-                        </span>
-                    </div>
-                </b-col>
-                <b-col
-                    v-if="$hasPermission('can_view_all_journals')"
-                    class="mt-2"
-                    md="5"
-                >
-                    <progress-bar
-                        :currentPoints="journal.stats.acquired_points"
-                        :totalPoints="assignment.points_possible"
-                    />
-                </b-col>
-            </b-row>
-            <slot/>
-            <div
-                v-if="$hasPermission('can_manage_journals')"
-                style="position: absolute; left:50%; bottom:0px"
-                class="p-2"
-                @click.prevent.stop="expanded = !expanded"
+    <b-card
+        :class="$root.getBorderClass(journal.id)"
+        class="journal-card"
+    >
+        <b-row noGutters>
+            <b-col
+                class="d-flex"
+                :md="$hasPermission('can_view_all_journals') ? 7 : 12"
             >
-                <icon
-                    :name="expanded ? 'caret-up' : 'caret-down'"
-                    class="fill-grey"
+                <div class="portrait-wrapper">
+                    <img
+                        class="no-hover"
+                        :src="journal.image"
+                    />
+                    <number-badge
+                        v-if="$hasPermission('can_view_all_journals') && markingNeeded + unpublished > 0"
+                        :leftNum="markingNeeded"
+                        :rightNum="unpublished"
+                        :title="squareInfo"
+                    />
+                </div>
+                <div class="student-details">
+                    <b
+                        class="max-one-line"
+                        :title="journal.name"
+                    >
+                        {{ journal.name }}
+                    </b>
+                    <span
+                        class="max-one-line shift-up-4"
+                        :title="journalAuthors"
+                    >
+                        <b-badge
+                            v-if="journal.author_limit > 1"
+                            v-b-tooltip.hover
+                            :title="`This journal currently has ${ journal.authors.length } of max `
+                                + `${ journal.author_limit } members`"
+                            class="text-white mr-1"
+                        >
+                            ({{ journal.authors.length }}/{{ journal.author_limit }})
+                        </b-badge>
+                        <b-badge
+                            v-if="journal.author_limit === 0"
+                            v-b-tooltip.hover
+                            :title="`This journal currently has ${ journal.authors.length } members `
+                                + 'and no member limit'"
+                            class="text-white mr-1"
+                        >
+                            ({{ journal.authors.length }})
+                        </b-badge>
+                        <b-badge
+                            v-if="journal.locked"
+                            class="background-red"
+                        >
+                            <icon
+                                v-b-tooltip.hover
+                                title="Members are locked: it is not possible to join or leave this journal"
+                                name="lock"
+                                class="fill-white"
+                                scale="0.65"
+                            />
+                        </b-badge>
+                        <span v-if="!expanded">
+                            {{ journalAuthors }}
+                        </span>
+                    </span>
+                </div>
+            </b-col>
+            <b-col
+                v-if="$hasPermission('can_view_all_journals')"
+                class="mt-2"
+                md="5"
+            >
+                <progress-bar
+                    :currentPoints="journal.stats.acquired_points"
+                    :totalPoints="assignment.points_possible"
                 />
-            </div>
-        </b-card>
-        <edit-journal-settings
+            </b-col>
+        </b-row>
+        <slot/>
+        <div
+            v-if="$hasPermission('can_manage_journals')"
+            class="expand-controls full-width text-center"
+            @click.prevent.stop="expanded = !expanded"
+        >
+            <icon
+                :name="expanded ? 'caret-up' : 'caret-down'"
+                class="fill-grey"
+            />
+        </div>
+        <div
             v-if="expanded"
-            :journal="journal"
-            :assignment="assignment"
-            class="background-medium-grey ml-2 mr-2"
-            @journal-updated="expanded = false"
-            @journal-deleted="journalDeleted"
-            @click.native.stop=""
-        />
-    </div>
+            class="mt-3 mb-4"
+            @click.prevent.stop=""
+        >
+            <journal-members
+                :journal="journal"
+                :assignment="assignment"
+            />
+        </div>
+    </b-card>
 </template>
 
 <script>
 import progressBar from '@/components/assets/ProgressBar.vue'
 import numberBadge from '@/components/assets/NumberBadge.vue'
-import editJournalSettings from '@/components/journal/EditJournalSettings.vue'
+import journalMembers from '@/components/journal/JournalMembers.vue'
 
 export default {
     components: {
         progressBar,
         numberBadge,
-        editJournalSettings,
+        journalMembers,
     },
     props: {
         assignment: {
@@ -122,7 +123,6 @@ export default {
     },
     data () {
         return {
-            editJournal: false,
             expanded: false,
         }
     },
@@ -189,49 +189,46 @@ export default {
 @import '~sass/modules/breakpoints.sass'
 @import '~sass/modules/colors.sass'
 
-.portrait-wrapper
-    position: relative
-    min-width: 80px
-    height: 70px
-    img
-        @extend .shadow
-        width: 70px
+.journal-card
+    .portrait-wrapper
+        position: relative
+        min-width: 80px
         height: 70px
-        border-radius: 50% !important
-    .number-badge, .badge
+        img
+            @extend .shadow
+            width: 70px
+            height: 70px
+            border-radius: 50% !important
+        .number-badge, .badge
+            position: absolute
+            right: 0px
+            top: 0px
+            font-family: 'Roboto Condensed', sans-serif
+            font-size: 1em
+            border-radius: 5px !important
+            border: 1px solid #CCCCCC
+            background-color: white
+            color: $theme-dark-blue
+    .student-details
+        position: relative
+        width: calc(100% - 80px)
+        min-height: 70px
+        flex-direction: column
+        padding: 10px
+        .max-one-line
+            display: block
+            width: 100%
+            text-overflow: ellipsis
+            white-space: nowrap
+            overflow: hidden
+        &.list-view
+            padding-left: 40px
+        @include sm-max
+            align-items: flex-end
+    .default-cursor
+        cursor: default
+    .expand-controls
         position: absolute
-        right: 0px
-        top: 0px
-        font-family: 'Roboto Condensed', sans-serif
-        font-size: 1em
-        border-radius: 5px !important
-        border: 1px solid #CCCCCC
-        background-color: white
-        color: $theme-dark-blue
-
-.student-details
-    position: relative
-    width: calc(100% - 80px)
-    min-height: 70px
-    flex-direction: column
-    padding: 10px
-    .max-one-line
-        display: block
-        width: 100%
-        text-overflow: ellipsis
-        white-space: nowrap
-        overflow: hidden
-    &.list-view
-        padding-left: 40px
-    @include sm-max
-        align-items: flex-end
-    .edit-journal
-        margin-top: -2px
-        fill: grey !important
-        &:hover:not(.no-hover)
-            cursor: pointer
-            fill: darken(grey, 20) !important
-
-.default-cursor
-    cursor: default
+        bottom: 0px
+        left: 0px
 </style>

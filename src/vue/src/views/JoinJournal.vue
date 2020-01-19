@@ -12,7 +12,6 @@
                 <journal-card
                     v-for="journal in journals"
                     :key="`join-journal-${journal.id}`"
-                    :listView="true"
                     :journal="journal"
                     :assignment="assignment"
                     :class="{

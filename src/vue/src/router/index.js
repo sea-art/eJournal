@@ -19,7 +19,6 @@ import NotSetup from '@/views/NotSetup.vue'
 import CourseEdit from '@/views/CourseEdit.vue'
 import UserRoleConfiguration from '@/views/UserRoleConfiguration.vue'
 import FormatEdit from '@/views/FormatEdit.vue'
-import JournalsEdit from '@/views/JournalsEdit.vue'
 import LtiLogin from '@/views/LtiLogin.vue'
 import Logout from '@/views/Logout.vue'
 import EmailVerification from '@/views/EmailVerification.vue'
@@ -108,11 +107,6 @@ const router = new Router({
         path: '/Home/Course/:cID/Assignment/:aID/Format',
         name: 'FormatEdit',
         component: FormatEdit,
-        props: true,
-    }, {
-        path: '/Home/Course/:cID/Assignment/:aID/Journals',
-        name: 'JournalsEdit',
-        component: JournalsEdit,
         props: true,
     }, {
         path: '/Home/Course/:cID/Assignment/:aID/Journal/New',

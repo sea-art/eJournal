@@ -36,6 +36,11 @@ export default {
             .then(response => response.data)
     },
 
+    addMembers (id, userIds, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.update(`journals/${id}/add_members`, { user_ids: userIds }, connArgs)
+            .then(response => response.data.journal)
+    },
+
     kick (id, userId, connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.update(`journals/${id}/kick`, { user_id: userId }, connArgs)
             .then(response => response.data)

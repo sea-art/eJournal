@@ -197,46 +197,46 @@ class JournalAPITest(TestCase):
         self.group_journal.save()
         api.update(self, 'journals/join', params={'pk': self.group_journal.pk}, user=self.g_student, status=400)
 
-    def test_add_student(self):
+    def test_add_members(self):
         assert not Journal.objects.get(pk=self.group_journal.pk).authors.filter(user=self.g_student).exists(), \
-            'Check if student is not yet in the journal'
+            'Check if user is not yet in the journal'
         api.update(
-            self, 'journals/add_student', params={'pk': self.group_journal.pk, 'user_id': self.g_student.pk},
+            self, 'journals/add_members', params={'pk': self.group_journal.pk, 'user_ids': [self.g_student.pk]},
             user=self.g_teacher)
         assert Journal.objects.get(pk=self.group_journal.pk).authors.filter(user=self.g_student).exists(), \
-            'Check if student is added to the journal'
+            'Check if user is added to the journal'
         # Check already joined
         api.update(
-            self, 'journals/add_student', params={'pk': self.group_journal.pk, 'user_id': self.g_student.pk},
+            self, 'journals/add_members', params={'pk': self.group_journal.pk, 'user_ids': [self.g_student.pk]},
             user=self.g_teacher, status=400)
         # Check not in assignment
         api.update(
-            self, 'journals/add_student', params={'pk': self.group_journal.pk, 'user_id': factory.Student().pk},
+            self, 'journals/add_members', params={'pk': self.group_journal.pk, 'user_ids': [factory.Student().pk]},
             user=self.g_teacher, status=403)
         # Check teacher is not able to join
         api.update(
-            self, 'journals/add_student', params={'pk': self.group_journal.pk, 'user_id': self.g_teacher.pk},
+            self, 'journals/add_members', params={'pk': self.group_journal.pk, 'user_ids': [self.g_teacher.pk]},
             user=self.g_teacher, status=403)
         # Check only 1 journal at the time
         api.update(
-            self, 'journals/add_student', params={'pk': self.group_journal2.pk, 'user_id': self.g_student.pk},
+            self, 'journals/add_members', params={'pk': self.group_journal2.pk, 'user_ids': [self.g_student.pk]},
             user=self.g_teacher, status=400)
-        # Check max student
+        # Check max members
         for _ in range(self.group_journal2.author_limit - self.group_journal2.authors.count()):
             student = factory.AssignmentParticipation(assignment=self.group_assignment).user
             api.update(
-                self, 'journals/add_student', params={'pk': self.group_journal2.pk, 'user_id': student.pk},
+                self, 'journals/add_members', params={'pk': self.group_journal2.pk, 'user_ids': [student.pk]},
                 user=self.g_teacher)
         student = factory.AssignmentParticipation(assignment=self.group_assignment).user
         api.update(
-            self, 'journals/add_student', params={'pk': self.group_journal2.pk, 'user_id': student.pk},
+            self, 'journals/add_members', params={'pk': self.group_journal2.pk, 'user_ids': [student.pk]},
             user=self.g_teacher, status=400)
 
         # Check if teacher can still add when it is a locked journal
         self.group_journal.locked = True
         self.group_journal.save()
         api.update(
-            self, 'journals/add_student', params={'pk': self.group_journal.pk, 'user_id': student.pk},
+            self, 'journals/add_members', params={'pk': self.group_journal.pk, 'user_ids': [student.pk]},
             user=self.g_teacher)
 
     def test_leave(self):

@@ -80,7 +80,6 @@ export default {
                     AssignmentsOverview: 'Assignments',
                     UserRoleConfiguration: 'Permission Manager',
                     JoinJournal: 'Join a Journal',
-                    JournalsEdit: 'Edit Journals',
                 },
                 namedViews: {
                     Course: { apiReturnValue: 'course', primaryParam: 'cID' },

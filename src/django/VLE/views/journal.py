@@ -238,11 +238,11 @@ class JournalView(viewsets.ViewSet):
 
     @action(['patch'], detail=True)
     def join(self, request, pk):
-        """Add a student to the journal"""
+        """Become a member of a journal"""
         journal = Journal.objects.get(pk=pk)
         # TODO GROUPS: result data needs to be set to LTI passback when student joins.
         # Only when entries need to be graded
-        # Check if user is student in assignment
+        # Check if user can have journal in assignment
         request.user.check_can_view(journal.assignment)
         request.user.check_permission('can_have_journal', journal.assignment)
 
@@ -267,38 +267,43 @@ class JournalView(viewsets.ViewSet):
         return response.success({'journal': serializer.data})
 
     @action(['patch'], detail=True)
-    def add_student(self, request, pk):
-        """Add a student to the journal
+    def add_members(self, request, pk):
+        """Add a member to the journal.
 
         Arguments:
         request -- request data
-            user_id -- user of student who joins the journal
+            user_id -- user who joins the journal
         """
         journal = Journal.objects.get(pk=pk)
 
         request.user.check_permission('can_edit_assignment', journal.assignment)
 
-        user_id, = utils.required_typed_params(request.data, (int, 'user_id'))
-        user = User.objects.get(pk=user_id)
-
         if not journal.assignment.is_group_assignment:
             return response.bad_request('Joining journals is only allowed for group assignments.')
 
-        # Check if user is student in assignment
-        user.check_participation(journal.assignment)
-        user.check_permission('can_have_journal', journal.assignment)
+        user_ids, = utils.required_typed_params(request.data, (int, 'user_ids'))
 
-        # Check if it is valid to join journal
-        if journal.authors.filter(user=user).exists():
-            return response.bad_request('Student is already in this journal.')
-        if Journal.objects.filter(assignment=journal.assignment, authors__user=user).exists():
-            return response.bad_request('Students can only be in one journal at the time.')
-        if journal.author_limit != Journal.UNLIMITED and journal.authors.count() >= journal.author_limit:
-            return response.bad_request('This journal is already full.')
+        if journal.author_limit != Journal.UNLIMITED and \
+                journal.authors.count() + len(user_ids) > journal.author_limit:
+            return response.bad_request('Adding these members would exceed this journal\'s member limit.')
 
-        author = AssignmentParticipation.objects.get(assignment=journal.assignment, user=user)
-        journal.authors.add(author)
-        update_author_grade_to_LMS.delay(author.pk)
+        users = User.objects.filter(pk__in=user_ids)
+
+        for user in users:
+            # Check if users can have journal in assignment
+            user.check_participation(journal.assignment)
+            user.check_permission('can_have_journal', journal.assignment)
+
+            # Check if it is valid to join journal
+            if journal.authors.filter(user=user).exists():
+                return response.bad_request('{} is already a member of this journal.'.format(user.full_name))
+            if Journal.objects.filter(assignment=journal.assignment, authors__user=user).exists():
+                return response.bad_request('{} is already a member of another journal.'.format(user.full_name))
+
+        for user in users:
+            author = AssignmentParticipation.objects.get(assignment=journal.assignment, user=user)
+            journal.authors.add(author)
+            update_author_grade_to_LMS.delay(author.pk)
 
         serializer = JournalSerializer(journal, context={'user': request.user})
         return response.success({'journal': serializer.data})
@@ -315,7 +320,7 @@ class JournalView(viewsets.ViewSet):
             return response.bad_request('You can only leave group assignments.')
 
         if not journal.authors.filter(user=request.user).exists():
-            return response.bad_request('You are currently not in this journal.')
+            return response.bad_request('You are currently not a member of this journal.')
 
         if journal.locked:
             return response.bad_request('You are not allowed to leave a locked journal.')

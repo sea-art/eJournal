@@ -190,7 +190,6 @@
                 :key="journal.id"
             >
                 <journal-card
-                    :listView="true"
                     :journal="journal"
                     :assignment="assignment"
                     @click.native="$router.push({

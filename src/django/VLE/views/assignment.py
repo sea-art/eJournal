@@ -491,3 +491,23 @@ class AssignmentView(viewsets.ViewSet):
         assignment.save()
 
         return response.success({'assignment_id': assignment.pk})
+
+    @action(methods=['get'], detail=True)
+    def participants_without_journal(self, request, pk):
+        """Get all assignment participants that are not yet a member of a journal.
+
+        Returns a list of users."""
+        assignment = Assignment.objects.get(pk=pk)
+
+        request.user.check_permission('can_manage_journals', assignment)
+
+        participants_without_journal = []
+        for participant_without_journal in User.objects.filter(assignmentparticipation__assignment__pk=pk,
+                                                               assignmentparticipation__journal=None):
+            if participant_without_journal.has_permission('can_have_journal', assignment):
+                participants_without_journal.append({
+                    'full_name': participant_without_journal.full_name,
+                    'id': participant_without_journal.pk
+                })
+
+        return response.success({'data': participants_without_journal})

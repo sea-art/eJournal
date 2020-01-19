@@ -1,6 +1,8 @@
 <template>
     <b-card
-        :class="cardClass"
+        :class="{
+            'input-disabled': saveRequestInFlight,
+        }"
         class="no-hover"
     >
         <div v-if="assignment.can_set_journal_image || $hasPermission('can_manage_journals')">
@@ -63,7 +65,7 @@ import cropper from '@/components/assets/ImageCropper.vue'
 import journalAPI from '@/api/journal.js'
 
 export default {
-    name: 'EditJournalSettings',
+    name: 'EditJournal',
     components: {
         cropper,
     },
@@ -82,15 +84,6 @@ export default {
             newJournalMemberLimit: null,
             saveRequestInFlight: false,
         }
-    },
-    computed: {
-        cardClass () {
-            const classes = { 'input-disabled': this.saveRequestInFlight }
-            const borderClass = this.$root.getBorderClass(this.journal.id)
-            classes[borderClass] = true
-
-            return classes
-        },
     },
     created () {
         this.newJournalImage = this.journal.image

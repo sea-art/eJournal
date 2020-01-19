@@ -103,7 +103,6 @@
     </div>
 </template>
 
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style lang="sass">
 .member-list
     padding: 0

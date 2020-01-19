@@ -44,4 +44,9 @@ export default {
         return auth.post(`assignments/${id}/copy/`, data, connArgs)
             .then(response => response.data)
     },
+
+    getParticipantsWithoutJournal (id, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.get(`assignments/${id}/participants_without_journal`, null, connArgs)
+            .then(response => response.data.data)
+    },
 }
