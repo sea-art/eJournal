@@ -34,20 +34,21 @@ export default {
         }
 
         function groupFilter (journal) {
+            if (groups === null) {
+                return false
+            }
             const groupsList = []
             journal.authors.forEach((student) => {
                 if (student.user.groups) {
                     student.user.groups.forEach((group) => {
                         if (!groupsList.includes(group)) {
-                            groupsList.push(group)
+                            groupsList.push(group.id)
                         }
                     })
                 }
             })
-            if (groups === null) {
-                return false
-            }
-            return groups.some(group => groupsList.includes(group))
+
+            return groups.some(group => groupsList.includes(group.id))
         }
 
         function searchFilter (journal) {

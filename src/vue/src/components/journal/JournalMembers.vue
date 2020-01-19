@@ -71,7 +71,7 @@
             No members yet
         </div>
         <div
-            v-if="$hasPermission('can_manage_journals')"
+            v-if="$hasPermission('can_manage_journals') && journal.authors.length < journal.author_limit"
             class="d-flex mt-3 flex-wrap"
         >
             <theme-select
