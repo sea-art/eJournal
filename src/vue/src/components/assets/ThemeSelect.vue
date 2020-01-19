@@ -154,7 +154,6 @@ export default {
         user-select: none
         position: relative
         cursor: default
-        height: 1.575rem
         font-family: 'Roboto Condensed', sans-serif
         font-size: 1.2em
         border-radius: 5px !important
@@ -213,6 +212,7 @@ export default {
     &.multiselect--active
         .multiselect__tags
             box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23) !important
+            max-height: 1.575em
     &.multiselect--above
         .multiselect__content-wrapper
             border-radius: 5px 5px 0px 0px !important

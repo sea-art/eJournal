@@ -71,8 +71,9 @@
             No members yet
         </div>
         <div
-            v-if="$hasPermission('can_manage_journals')"
-            class="d-flex mt-3 flex-wrap"
+            v-if="$hasPermission('can_manage_journals') && (journal.author_limit === 0
+                || journal.authors.length < journal.author_limit) && participantsWithoutJournal.length"
+            class="d-flex mt-2"
         >
             <theme-select
                 v-model="participantsToAdd"
@@ -84,10 +85,11 @@
                 :multiSelectText="`user${participantsToAdd &&
                     participantsToAdd.length === 1 ? '' : 's'} selected`"
                 placeholder="Select users to add"
-                class="multi-form flex-shrink-1"
+                style="width: 0px"
+                class="mr-2 flex-grow-1"
             />
             <b-button
-                class="add-button multi-form flex-grow-1"
+                class="add-button"
                 @click="addMembers">
                 <icon name="user-plus"/>
                 Add
