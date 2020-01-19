@@ -1123,14 +1123,14 @@ class Entry(models.Model):
     - creation_date: the date and time when the entry was posted.
     - last_edited: the date and time when the etry was last edited
     """
-    NEED_SUBMISSION = 'Submission needs to be sent to VLE'
-    SEND_SUBMISSION = 'Submission is successfully received by VLE'
-    GRADING = 'Grade needs to be sent to VLE'
+    NEEDS_SUBMISSION = 'Submission needs to be sent to VLE'
+    SENT_SUBMISSION = 'Submission is successfully received by VLE'
+    NEEDS_GRADE_PASSBACK = 'Grade needs to be sent to VLE'
     LINK_COMPLETE = 'Everything is sent to VLE'
     TYPES = (
-        (NEED_SUBMISSION, 'entry_submission'),
-        (SEND_SUBMISSION, 'entry_submitted'),
-        (GRADING, 'grade_submission'),
+        (NEEDS_SUBMISSION, 'entry_submission'),
+        (SENT_SUBMISSION, 'entry_submitted'),
+        (NEEDS_GRADE_PASSBACK, 'grade_submission'),
         (LINK_COMPLETE, 'done'),
     )
 
@@ -1164,7 +1164,7 @@ class Entry(models.Model):
     )
 
     vle_coupling = models.TextField(
-        default=NEED_SUBMISSION,
+        default=NEEDS_SUBMISSION,
         choices=TYPES,
     )
 

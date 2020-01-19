@@ -10,13 +10,13 @@ from VLE.tasks.lti import needs_grading as needs_grading_task
 @shared_task
 def check_if_need_VLE_publish():
     for node in Node.objects.filter(
-        entry__vle_coupling=Entry.NEED_SUBMISSION,
+        entry__vle_coupling=Entry.NEEDS_SUBMISSION,
         journal__authors__sourcedid__isnull=False,
         journal__authors__user__participation__role__can_have_journal=True
     ):
         needs_grading_task(node.pk)
     for journal in Entry.objects.filter(
-        vle_coupling=Entry.GRADING,
+        vle_coupling=Entry.NEEDS_GRADE_PASSBACK,
         grade__published=True,
         node__journal__authors__user__participation__role__can_have_journal=True
     ).values('node__journal').distinct():

@@ -2,6 +2,7 @@ import xml.etree.cElementTree as ET
 
 import oauth2
 from django.conf import settings
+from django.db.models import F
 
 from VLE.models import Counter, Entry
 
@@ -34,16 +35,10 @@ class GradePassBackRequest(object):
     @classmethod
     def get_message_id_and_increment(cls):
         """Get the current count for message_id and increment this count."""
-        try:
-            message_id_counter = Counter.objects.get(name='message_id')
-        except Counter.DoesNotExist:
-            message_id_counter = Counter.objects.create(name='message_id')
-
-        count = message_id_counter.count
-        message_id_counter.count += 1
+        message_id_counter = Counter.objects.get_or_create(name='message_id')[0]
+        message_id_counter.count = F('count') + 1
         message_id_counter.save()
-
-        return str(count)
+        return str(message_id_counter.count-1)
 
     def create_xml(self):
         """Create the xml used as the body of the lti communication."""
@@ -117,9 +112,11 @@ class GradePassBackRequest(object):
                 'result_data': self.result_data,
                 **self.parse_return_xml(content),
             }
-        return {'severity': 'status',
-                'code_mayor': 'No grade passback url set',
-                'description': 'not found'}
+        return {
+            'severity': 'status',
+            'code_mayor': 'No grade passback url set',
+            'description': 'not found'
+        }
 
     def parse_return_xml(self, xml):
         """
@@ -159,12 +156,11 @@ class GradePassBackRequest(object):
 
 
 def change_entry_vle_coupling(journal, status):
-    Entry.objects.filter(grade__published=True, node__journal=journal).exclude(
-        vle_coupling=Entry.LINK_COMPLETE).update(vle_coupling=status)
+    Entry.objects.filter(grade__published=True, node__journal=journal, vle_coupling=Entry.SENT_SUBMISSION).update(vle_coupling=status)
 
 
 # TODO Move to celery, however order and return is tricky
-def replace_result(journal):
+def replace_result(journal, authors=None):
     """Replace a grade on the LTI instance based on the request.
 
     Arguments:
@@ -172,16 +168,12 @@ def replace_result(journal):
 
     returns the lti reponse.
     """
-    change_entry_vle_coupling(journal, Entry.GRADING)
+    change_entry_vle_coupling(journal, Entry.NEEDS_GRADE_PASSBACK)
     response = {}
     failed = False
-    for author in journal.authors.all():
-        if author.sourcedid is None or author.grade_url is None:
-            continue
-
-        grade_request = GradePassBackRequest(author, journal.get_grade(), send_score=True)
-        response[author.id] = grade_request.send_post_request()
-
+    authors = authors or journal.authors.all()
+    for author in authors:
+        response[author.id] = send_grade_to_LMS(journal, author)
         if response[author.id]['code_mayor'] != 'success':
             failed = True
 

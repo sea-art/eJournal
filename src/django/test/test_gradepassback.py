@@ -168,7 +168,7 @@ class GradePassBackRequestXMLTest(TestCase):
 
     def test_check_if_need_VLE_publish_journals(self):
         """Hopefully doesnt crash."""
-        factory.Entry(node__journal=self.journal, vle_coupling=Entry.GRADING)
+        factory.Entry(node__journal=self.journal, vle_coupling=Entry.NEEDS_GRADE_PASSBACK)
         factory.Entry(node__journal=self.journal)
         lti_beats.check_if_need_VLE_publish()
 
@@ -177,10 +177,10 @@ class GradePassBackRequestXMLTest(TestCase):
         entry = factory.Entry(node__journal=self.journal)
         api.create(self, 'grades', params={'entry_id': entry.id, 'grade': 0, 'published': True},
                    user=self.teacher)
-        lti_grade.change_entry_vle_coupling(self.journal, Entry.GRADING)
+        lti_grade.change_entry_vle_coupling(self.journal, Entry.NEEDS_GRADE_PASSBACK)
 
         entry = Entry.objects.get(pk=entry.pk)
-        assert entry.vle_coupling == Entry.GRADING, 'Check if change_entry_vle_coupling works'
+        assert entry.vle_coupling == Entry.NEEDS_GRADE_PASSBACK, 'Check if change_entry_vle_coupling works'
 
     def test_replace_result_no_url(self):
         """Hopefully doesnt crash."""
