@@ -7,8 +7,8 @@
             <b>{{ currentPoints ? currentPoints : 0 }}</b> Points
             <tooltip
                 v-if="bonusPoints != 0"
-                :tip="`${currentPoints - bonusPoints} journal point${Math.abs(currentPoints - bonusPoints) > 1 ? 's' :
-                    ''} + ${bonusPoints} bonus point${Math.abs(bonusPoints) > 1 ? 's' : ''}`"
+                :tip="`${currentPoints - bonusPoints} journal point${Math.abs(currentPoints - bonusPoints) === 1 ? 's'
+                    : ''} + ${bonusPoints} bonus point${Math.abs(bonusPoints) > 1 ? 's' : ''}`"
             />
         </h5>
         <b-progress
@@ -48,7 +48,7 @@
                 name="star"
                 class="fill-orange shift-up-2 mr-1"
             />
-            <b>{{ bonusPoints }}</b> bonus point{{ Math.abs(bonusPoints) > 1 ? "s" : "" }}
+            <b>{{ bonusPoints }}</b> bonus point{{ Math.abs(bonusPoints) === 1 ? "s" : "" }}
             <br/>
         </span>
         <span v-if="comparePoints >= 0">
