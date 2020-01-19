@@ -165,6 +165,7 @@ export default {
         overflow: hidden
         .multiselect__placeholder, .multiselect__single
             color: inherit
+            text-transform: capitalize
             font-size: inherit
             margin: 0px
             padding: 0px

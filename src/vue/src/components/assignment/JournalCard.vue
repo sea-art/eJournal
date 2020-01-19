@@ -61,7 +61,7 @@
                                 scale="0.65"
                             />
                         </b-badge>
-                        <span v-if="!expanded">
+                        <span v-if="!assignment.is_group_assignment || !expanded">
                             {{ journalAuthors }}
                         </span>
                     </span>
@@ -80,7 +80,7 @@
         </b-row>
         <slot/>
         <div
-            v-if="$hasPermission('can_manage_journals')"
+            v-if="assignment.is_group_assignment && $hasPermission('can_manage_journals')"
             class="expand-controls full-width text-center"
             @click.prevent.stop="expanded = !expanded"
         >
@@ -95,6 +95,7 @@
             @click.prevent.stop=""
         >
             <journal-members
+                v-if="assignment.is_group_assignment"
                 :journal="journal"
                 :assignment="assignment"
             />
