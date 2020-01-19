@@ -106,9 +106,8 @@ export default {
             immediate: true,
             handler (newValue) {
                 if (newValue !== null && newValue !== undefined) {
-                    this.valueCopy = this.valueCopy.filter((selectedElement) => {
-                        newValue.includes(selectedElement)
-                    })
+                    this.valueCopy = this.valueCopy.filter(
+                        selectedElement => newValue.includes(selectedElement))
                 }
                 if (!this.isOpen) {
                     this.sortOptions()

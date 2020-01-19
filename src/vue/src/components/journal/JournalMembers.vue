@@ -88,7 +88,8 @@
             />
             <b-button
                 class="add-button multi-form flex-grow-1"
-                @click="addMembers">
+                @click="addMembers"
+            >
                 <icon name="user-plus"/>
                 Add
             </b-button>
@@ -117,15 +118,15 @@ export default {
             saveRequestInFlight: false,
         }
     },
-    created () {
-        if (this.$hasPermission('can_manage_journals')) {
-            this.getParticipantsWithoutJournal()
-        }
-    },
     computed: {
         ...mapGetters({
             participantsWithoutJournal: 'content/assignmentParticipantsWithoutJournal',
         }),
+    },
+    created () {
+        if (this.$hasPermission('can_manage_journals')) {
+            this.getParticipantsWithoutJournal()
+        }
     },
     methods: {
         leaveJournal () {
@@ -196,8 +197,8 @@ export default {
                 })
         },
         addMembers () {
-            if (this.journal.author_limit > 1 && this.journal.authors.length + this.participantsToAdd.length >
-                this.journal.author_limit) {
+            if (this.journal.author_limit > 1 && this.journal.authors.length + this.participantsToAdd.length
+                > this.journal.author_limit) {
                 this.$toasted.error('Adding these members would exceed this journal\'s member limit.')
             } else if (this.participantsToAdd.length === 0) {
                 this.$toasted.error('No users selected.')
@@ -218,7 +219,6 @@ export default {
                     })
                     .catch(() => { this.saveRequestInFlight = false })
             }
-
         },
     },
 }
