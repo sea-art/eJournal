@@ -100,6 +100,8 @@
 import journalAPI from '@/api/journal.js'
 import assignmentAPI from '@/api/assignment.js'
 
+import { mapGetters } from 'vuex'
+
 export default {
     props: {
         assignment: {
@@ -111,7 +113,6 @@ export default {
     },
     data () {
         return {
-            participantsWithoutJournal: [],
             participantsToAdd: [],
             saveRequestInFlight: false,
         }
@@ -120,6 +121,11 @@ export default {
         if (this.$hasPermission('can_manage_journals')) {
             this.getParticipantsWithoutJournal()
         }
+    },
+    computed: {
+        ...mapGetters({
+            participantsWithoutJournal: 'content/assignmentParticipantsWithoutJournal',
+        }),
     },
     methods: {
         leaveJournal () {
@@ -143,10 +149,7 @@ export default {
                 + 'will reset the journal and remove all its entries. This action cannot be undone.' : ''}`)) {
                 journalAPI.kick(this.journal.id, user.id, { responseSuccessToast: true })
                     .then(() => {
-                        this.participantsWithoutJournal.push({
-                            'full_name': user.full_name,
-                            'id': user.id,
-                        })
+                        this.getParticipantsWithoutJournal()
                         this.journal.authors = this.journal.authors.filter(author => author.user.id !== user.id)
                         if (this.journal.authors.length === 0) {
                             this.$router.push(this.assignmentRoute(this.assignment))
@@ -189,7 +192,7 @@ export default {
         getParticipantsWithoutJournal () {
             assignmentAPI.getParticipantsWithoutJournal(this.assignment.id)
                 .then((data) => {
-                    this.participantsWithoutJournal = data
+                    this.$store.commit('content/SET_ASSIGNMENT_PARTICIPANTS_WITHOUT_JOURNAL', data)
                 })
         },
         addMembers () {
@@ -209,9 +212,7 @@ export default {
                     .then((journal) => {
                         this.journal.authors = journal.authors
                         this.saveRequestInFlight = false
-                        this.participantsWithoutJournal = this.participantsWithoutJournal.filter((participant) => {
-                            return !idsToAdd.includes(participant.id)
-                        })
+                        this.getParticipantsWithoutJournal()
                         this.participantsToAdd = []
                         this.$toasted.success('Successfully added journal members.')
                     })

@@ -3,17 +3,11 @@ export default {
     debug: false,
     state: {
         cachedMap: {},
-        format: { templatePool: [], nodes: [] },
         filteredJournals: [],
     },
     setCachedMap (cachedMap) {
         if (this.debug) { console.log('setCachedMap triggered with', cachedMap) }
         this.state.cachedMap = cachedMap
-    },
-    setFormat (templatePool, nodes) {
-        if (this.debug) { console.log('setFormat triggered with', templatePool, nodes) }
-        this.state.format.templatePool = templatePool
-        this.state.format.nodes = nodes
     },
     setFilteredJournals (journals, order = true, groups = null, searchValue = null, sortBy = 'name') {
         if (this.debug) { console.log('setFilteredJournals triggered with', journals) }
@@ -70,9 +64,6 @@ export default {
         }
         filteredJournals.sort(sortOptions[sortBy])
         this.state.filteredJournals = filteredJournals
-    },
-    clearFormat () {
-        this.state.format = { templatePool: [], nodes: [] }
     },
     debugOn () {
         this.debug = true

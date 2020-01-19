@@ -102,6 +102,19 @@ export default {
                 }
             },
         },
+        options: {
+            immediate: true,
+            handler (newValue) {
+                if (newValue !== null && newValue !== undefined) {
+                    this.valueCopy = this.valueCopy.filter((selectedElement) => {
+                        newValue.includes(selectedElement)
+                    })
+                }
+                if (!this.isOpen) {
+                    this.sortOptions()
+                }
+            },
+        },
     },
     methods: {
         updateSelection (newValue) {

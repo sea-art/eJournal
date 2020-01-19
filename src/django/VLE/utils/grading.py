@@ -1,8 +1,9 @@
 
 from django.conf import settings
+
 from VLE import factory
-from VLE.models import Comment, Entry
 from VLE.lti_grade_passback import GradePassBackRequest
+from VLE.models import Comment, Entry
 
 
 def publish_all_journal_grades(journal, author):

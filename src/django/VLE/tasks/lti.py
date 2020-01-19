@@ -4,7 +4,7 @@ from celery import shared_task
 from django.conf import settings
 
 from VLE.lti_grade_passback import GradePassBackRequest
-from VLE.models import AssignmentParticipation, Entry, Node, Journal
+from VLE.models import AssignmentParticipation, Entry, Journal, Node
 from VLE.utils import grading
 
 
