@@ -51,7 +51,9 @@ def required_typed_params(post, *keys):
         try:
             if post[key] == '':
                 VLEMissingRequiredKey(key)
-            if post[key] is not None:
+            if isinstance(post[key], list):
+                result.append([func(elem) for elem in post[key]])
+            elif post[key] is not None:
                 result.append(func(post[key]))
             else:
                 result.append(None)
