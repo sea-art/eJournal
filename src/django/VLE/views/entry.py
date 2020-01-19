@@ -88,7 +88,7 @@ class EntryView(viewsets.ViewSet):
 
         # Notify teacher on new entry
         if node.journal.authors.filter(sourcedid__isnull=False).exists() and \
-           node.entry.vle_coupling == Entry.NEED_SUBMISSION:
+           node.entry.vle_coupling == Entry.NEEDS_SUBMISSION:
             lti_tasks.needs_grading.delay(node.pk)
 
         # Delete old user files
@@ -164,7 +164,7 @@ class EntryView(viewsets.ViewSet):
 
         # Notify teacher on updated entry
         if entry.node.journal.authors.filter(sourcedid__isnull=False).exists() and \
-           entry.node.entry.vle_coupling == Entry.NEED_SUBMISSION:
+           entry.node.entry.vle_coupling == Entry.NEEDS_SUBMISSION:
             lti_tasks.needs_grading.delay(entry.node.pk)
 
         file_handling.remove_temp_user_files(request.user)

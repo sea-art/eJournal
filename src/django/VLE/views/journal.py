@@ -13,7 +13,6 @@ import VLE.utils.grading as grading
 import VLE.utils.responses as response
 from VLE.models import Assignment, AssignmentParticipation, Course, Entry, Journal, User
 from VLE.serializers import JournalSerializer
-from VLE.tasks.grading import update_author_grade_to_LMS
 
 
 class JournalView(viewsets.ViewSet):
@@ -261,7 +260,7 @@ class JournalView(viewsets.ViewSet):
 
         author = AssignmentParticipation.objects.get(assignment=journal.assignment, user=request.user)
         journal.authors.add(author)
-        update_author_grade_to_LMS.delay(author.pk)
+        lti_tasks.join_journal_passback.delay(author.pk, journal.pk)
 
         serializer = JournalSerializer(journal, context={'user': request.user})
         return response.success({'journal': serializer.data})
@@ -298,7 +297,7 @@ class JournalView(viewsets.ViewSet):
 
         author = AssignmentParticipation.objects.get(assignment=journal.assignment, user=user)
         journal.authors.add(author)
-        update_author_grade_to_LMS.delay(author.pk)
+        lti_tasks.join_journal_passback.delay(author.pk, journal.pk)
 
         serializer = JournalSerializer(journal, context={'user': request.user})
         return response.success({'journal': serializer.data})
@@ -325,15 +324,7 @@ class JournalView(viewsets.ViewSet):
         if journal.authors.count() == 0:
             journal.reset()
 
-        if journal.assignment.remove_grade_upon_leaving_group:
-            update_author_grade_to_LMS.delay(author.pk)
-
-        # Notify teacher that student left the journal
-        if author.sourcedid is not None:
-            send_entries = Entry.objects.filter(node__journal=journal)
-            if send_entries.exists():
-                lti_tasks.left_journal_passback.delay(author.pk, send_entries.first().node.pk)
-
+        lti_tasks.left_journal_passback.delay(author.pk, journal.pk)
         return response.success(description='Successfully removed from the journal.')
 
     @action(['patch'], detail=True)
@@ -362,14 +353,7 @@ class JournalView(viewsets.ViewSet):
         if journal.authors.count() == 0:
             journal.reset()
 
-        if journal.assignment.remove_grade_upon_leaving_group:
-            update_author_grade_to_LMS.delay(author.pk)
-
-        # Notify teacher that student left the journal
-        if author.sourcedid is not None:
-            send_entries = Entry.objects.filter(node__journal=journal)
-            if send_entries.exists():
-                lti_tasks.left_journal_passback.delay(author.pk, send_entries.first().node.pk)
+        lti_tasks.left_journal_passback.delay(author.pk, journal.pk)
 
         return response.success(description='Successfully removed {} from the journal.'.format(author.user.full_name))
 
@@ -405,19 +389,16 @@ class JournalView(viewsets.ViewSet):
 
         return response.success({'journal': serializer.data})
 
-    # TODO: lti_info is never used, move replace_result to celery
     def publish(self, request, journal):
         grading.publish_all_journal_grades(journal, request.user)
         if journal.authors.filter(sourcedid__isnull=False).exists():
             payload = lti_grade.replace_result(journal)
             if payload and 'code_mayor' in payload and payload['code_mayor'] == 'success':
                 return response.success({
-                    'lti_info': payload,
                     'journal': JournalSerializer(journal, context={'user': request.user}).data
                 })
             else:
                 return response.bad_request({
-                    'lti_info': payload,
                     'journal': JournalSerializer(journal, context={'user': request.user}).data
                 })
         else:
