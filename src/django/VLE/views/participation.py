@@ -33,7 +33,7 @@ class ParticipationView(viewsets.ViewSet):
 
         request.user.check_permission('can_view_course_users', course)
 
-        users = UserSerializer(course.users, context={'course': course}, many=True).data
+        users = UserSerializer(course.users, context={'user': request.user, 'course': course}, many=True).data
         return response.success({'participants': users})
 
     def retrieve(self, request, pk=None):

@@ -153,30 +153,3 @@ class GradePassBackRequest(object):
 
         return {'severity': severity, 'code_mayor': code_mayor,
                 'description': description}
-
-
-def change_entry_vle_coupling(journal, status):
-    Entry.objects.filter(grade__published=True, node__journal=journal, vle_coupling=Entry.SENT_SUBMISSION).update(vle_coupling=status)
-
-
-# TODO Move to celery, however order and return is tricky
-def replace_result(journal, authors=None):
-    """Replace a grade on the LTI instance based on the request.
-
-    Arguments:
-        journal -- the journal of which the grade needs to be updated through lti.
-
-    returns the lti reponse.
-    """
-    change_entry_vle_coupling(journal, Entry.NEEDS_GRADE_PASSBACK)
-    response = {}
-    failed = False
-    authors = authors or journal.authors.all()
-    for author in authors:
-        response[author.id] = send_grade_to_LMS(journal, author)
-        if response[author.id]['code_mayor'] != 'success':
-            failed = True
-
-    if not failed:
-        change_entry_vle_coupling(journal, Entry.LINK_COMPLETE)
-    return response if response != {} else None

@@ -16,6 +16,7 @@ import VLE.utils.responses as response
 import VLE.validators as validators
 from VLE.models import Assignment, Course, Field, Journal, PresetNode, Template, User
 from VLE.serializers import AssignmentDetailsSerializer, AssignmentSerializer, CourseSerializer
+from VLE.utils import grading
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
 
@@ -390,7 +391,7 @@ class AssignmentView(viewsets.ViewSet):
         for j, b in bonuses.items():
             j.bonus_points = b
             j.save()
-            lti_grade.replace_result(journal)
+            grading.replace_result(journal)
 
         return response.success()
 

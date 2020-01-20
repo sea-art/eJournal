@@ -88,6 +88,7 @@ class JournalView(viewsets.ViewSet):
 
         serializer = JournalSerializer(journal, context={
             'user': request.user,
+            'course': journal.assignment.get_active_course(request.user)
         })
         return response.success({'journal': serializer.data})
 
@@ -311,8 +312,6 @@ class JournalView(viewsets.ViewSet):
     def leave(self, request, pk):
         """Leave a journal"""
         journal = Journal.objects.get(pk=pk)
-        # TODO GROUPS: result data needs to be reset on LTI passback when student leaves
-        # Links needs to be set to where the teacher gets explained that the author recently left
         request.user.check_can_view(journal.assignment)
 
         if not journal.assignment.is_group_assignment:
@@ -397,7 +396,7 @@ class JournalView(viewsets.ViewSet):
     def publish(self, request, journal):
         grading.publish_all_journal_grades(journal, request.user)
         if journal.authors.filter(sourcedid__isnull=False).exists():
-            payload = lti_grade.replace_result(journal)
+            payload = grading.replace_result(journal)
             if payload and 'code_mayor' in payload and payload['code_mayor'] == 'success':
                 return response.success({
                     'journal': JournalSerializer(journal, context={'user': request.user}).data

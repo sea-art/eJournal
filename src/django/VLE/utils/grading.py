@@ -20,6 +20,34 @@ def publish_all_journal_grades(journal, author):
     Comment.objects.filter(entry__node__journal=journal).exclude(entry__grade=None).update(published=True)
 
 
+def change_entry_vle_coupling(journal, status):
+    Entry.objects.filter(grade__published=True, node__journal=journal, vle_coupling=Entry.SENT_SUBMISSION).update(vle_coupling=status)
+
+
+def replace_result(journal, authors=None):
+    """Replace a grade on the LTI instance based on the request.
+
+    Arguments:
+        journal -- the journal of which the grade needs to be updated through lti.
+
+    returns the lti reponse.
+    """
+    Entry.objects.filter(grade__published=True, node__journal=journal, vle_coupling=Entry.SENT_SUBMISSION).update(vle_coupling=Entry.NEEDS_GRADE_PASSBACK)
+
+    response = {}
+    failed = False
+    authors = authors or journal.authors.all()
+    for author in authors:
+        response[author.id] = send_grade_to_LMS(journal, author)
+        if response[author.id]['code_mayor'] != 'success':
+            failed = True
+
+    if not failed:
+        Entry.objects.filter(grade__published=True, node__journal=journal, vle_coupling=Entry.NEEDS_GRADE_PASSBACK).update(vle_coupling=Entry.LINK_COMPLETE)
+
+    return response if response != {} else None
+
+
 def send_grade_to_LMS(journal, author=None, left_journal=False, send_score=True):
     """Send grade to LMS
 
