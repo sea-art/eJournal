@@ -239,9 +239,7 @@ class JournalView(viewsets.ViewSet):
     def join(self, request, pk):
         """Become a member of a journal"""
         journal = Journal.objects.get(pk=pk)
-        # TODO GROUPS: result data needs to be set to LTI passback when student joins.
-        # Only when entries need to be graded
-        # Check if user can have journal in assignment
+
         request.user.check_can_view(journal.assignment)
         request.user.check_permission('can_have_journal', journal.assignment)
 
