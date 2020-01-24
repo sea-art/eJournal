@@ -102,4 +102,9 @@ class Migration(migrations.Migration):
                 'unique_together': {('assignment', 'user')},
             },
         ),
+        migrations.AddField(
+            model_name='journal',
+            name='LMS_grade',
+            field=models.IntegerField(default=0),
+        ),
     ]
