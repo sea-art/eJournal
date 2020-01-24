@@ -183,4 +183,4 @@ class GradePassBackRequestXMLTest(TestCase):
             author.grade_url = None
             author.save()
 
-        assert grading.send_journal_status_to_LMS(self.journal) is None
+        assert not grading.send_journal_status_to_LMS(self.journal)['successful']

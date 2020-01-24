@@ -50,7 +50,10 @@ def send_journal_status_to_LMS(journal):
         journal.LMS_grade = journal.get_grade()
         journal.save()
 
-    return response if response != {} else None
+    return {
+        'successful': failed,
+        **response,
+    } if response != {} else None
 
 
 @shared_task
@@ -64,7 +67,7 @@ def send_author_status_to_LMS(journal, author, left_journal=False):
     # TODO GROUP: after cohort assignment PR is accepted, check if teacher journal does not get a response to the LMS
     if author not in journal.authors.all():
         return {
-            #TODO: check if this does not leak full_name and is only used for debugging
+            # TODO: check if this does not leak full_name and is only used for debugging
             'description': '{} not in journal {}'.format(author.full_name, journal.to_string()),
             'code_mayor': 'error',
             'successful': False,
@@ -102,7 +105,7 @@ def send_author_status_to_LMS(journal, author, left_journal=False):
     # Send student latest grade. But only send it when there are new entries OR grade changed
     response_student = None
     if journal.published_nodes.filter(entry__vle_coupling=Entry.NEEDS_SUBMISSION).exists() or \
-        journal.LMS_grade != grade:
+       journal.LMS_grade != grade:
         if journal.LMS_grade != grade:
             submitted_at = str(timezone.now())
         else:
@@ -129,6 +132,6 @@ def send_author_status_to_LMS(journal, author, left_journal=False):
         'to_teacher': response_teacher,
         'to_student': response_student,
         'successful':
-            (response_teacher is None or response_teacher['code_mayor'] == 'success') and \
+            (response_teacher is None or response_teacher['code_mayor'] == 'success') and
             (response_student is None or response_student['code_mayor'] == 'success')
     }

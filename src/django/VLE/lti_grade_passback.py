@@ -2,7 +2,6 @@ import xml.etree.cElementTree as ET
 
 import oauth2
 from django.conf import settings
-from django.db.models import F
 
 from VLE.models import Counter
 
@@ -36,9 +35,10 @@ class GradePassBackRequest(object):
     def get_message_id_and_increment(cls):
         """Get the current count for message_id and increment this count."""
         message_id_counter = Counter.objects.get_or_create(name='message_id')[0]
-        message_id_counter.count = F('count') + 1
+        count = message_id_counter.count
+        message_id_counter.count += 1
         message_id_counter.save()
-        return str(message_id_counter.count-1)
+        return str(count)
 
     def create_xml(self):
         """Create the xml used as the body of the lti communication."""

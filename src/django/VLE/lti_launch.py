@@ -5,6 +5,7 @@ from django.conf import settings
 
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
+import VLE.utils.grading as grading
 from VLE.models import Assignment, AssignmentParticipation, Course, Group, Journal, Participation, Role, User
 
 
@@ -197,6 +198,6 @@ def select_create_journal(request, user, assignment):
             author.sourcedid = request['lis_result_sourcedid']
             author.save()
         if passback_changed and journal:
-            send_author_status_to_LMS.delay(journal.pk, author)
+            grading.task_author_status_to_LMS.delay(journal.pk, author.pk)
 
     return journal

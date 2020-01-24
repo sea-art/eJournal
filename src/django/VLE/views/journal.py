@@ -6,7 +6,6 @@ In this file are all the journal api requests.
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-import VLE.tasks.lti as lti_tasks
 import VLE.utils.generic_utils as utils
 import VLE.utils.grading as grading
 import VLE.utils.responses as response
@@ -258,7 +257,7 @@ class JournalView(viewsets.ViewSet):
 
         author = AssignmentParticipation.objects.get(assignment=journal.assignment, user=request.user)
         journal.authors.add(author)
-        lti_tasks.join_journal_passback.delay(author.pk, journal.pk)
+        grading.task_author_status_to_LMS.delay(journal.pk, author.pk)
 
         serializer = JournalSerializer(journal, context={'user': request.user})
         return response.success({'journal': serializer.data})
@@ -300,7 +299,7 @@ class JournalView(viewsets.ViewSet):
         for user in users:
             author = AssignmentParticipation.objects.get(assignment=journal.assignment, user=user)
             journal.authors.add(author)
-            lti_tasks.join_journal_passback.delay(author.pk, journal.pk)
+            grading.task_author_status_to_LMS.delay(journal.pk, author.pk)
 
         serializer = JournalSerializer(journal, context={'user': request.user})
         return response.success({'journal': serializer.data})
@@ -325,7 +324,7 @@ class JournalView(viewsets.ViewSet):
         if journal.authors.count() == 0:
             journal.reset()
 
-        lti_tasks.left_journal_passback.delay(author.pk, journal.pk)
+        grading.task_author_status_to_LMS.delay(journal.pk, author.pk, left_journal=True)
         return response.success(description='Successfully removed from the journal.')
 
     @action(['patch'], detail=True)
@@ -354,8 +353,7 @@ class JournalView(viewsets.ViewSet):
         if journal.authors.count() == 0:
             journal.reset()
 
-        lti_tasks.left_journal_passback.delay(author.pk, journal.pk)
-
+        grading.task_author_status_to_LMS.delay(journal.pk, author.pk, left_journal=True)
         return response.success(description='Successfully removed {} from the journal.'.format(author.user.full_name))
 
     @action(['patch'], detail=True)

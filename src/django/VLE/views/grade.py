@@ -7,13 +7,11 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.factory as factory
-import VLE.tasks.grading as grading_tasks
 import VLE.utils.generic_utils as utils
 import VLE.utils.grading as grading
 import VLE.utils.responses as response
-from VLE.models import Assignment, Comment, Entry, Grade
+from VLE.models import Assignment, Comment, Entry, Grade, Journal
 from VLE.serializers import EntrySerializer, GradeHistorySerializer
-from VLE.utils import grading as grading
 
 
 class GradeView(viewsets.ViewSet):
@@ -101,7 +99,7 @@ class GradeView(viewsets.ViewSet):
 
         request.user.check_permission('can_publish_grades', assignment)
 
-        for journal in Journal.objects.filter(assignment=assignment_pk).distinct():
+        for journal in Journal.objects.filter(assignment=assignment).distinct():
             grading.publish_all_journal_grades(journal, request.user)
             grading.task_journal_status_to_LMS.delay(journal.pk)
 
