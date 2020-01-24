@@ -11,6 +11,7 @@ from django.test import TestCase
 import VLE.lti_grade_passback as lti_grade
 import VLE.tasks.beats.lti as lti_beats
 from VLE.models import Entry
+from VLE.utils import grading
 
 
 class GradePassBackRequestXMLTest(TestCase):
@@ -172,16 +173,6 @@ class GradePassBackRequestXMLTest(TestCase):
         factory.Entry(node__journal=self.journal)
         lti_beats.check_if_need_VLE_publish()
 
-    def test_update_journal_entries_vle_state(self):
-        """Hopefully doesnt crash."""
-        entry = factory.Entry(node__journal=self.journal)
-        api.create(self, 'grades', params={'entry_id': entry.id, 'grade': 0, 'published': True},
-                   user=self.teacher)
-        lti_grade.change_entry_vle_coupling(self.journal, Entry.NEEDS_GRADE_PASSBACK)
-
-        entry = Entry.objects.get(pk=entry.pk)
-        assert entry.vle_coupling == Entry.NEEDS_GRADE_PASSBACK, 'Check if change_entry_vle_coupling works'
-
     def test_replace_result_no_url(self):
         """Hopefully doesnt crash."""
         entry = factory.Entry(node__journal=self.journal)
@@ -192,4 +183,4 @@ class GradePassBackRequestXMLTest(TestCase):
             author.grade_url = None
             author.save()
 
-        assert lti_grade.replace_result(self.journal) is None
+        assert grading.send_journal_status_to_LMS(self.journal) is None

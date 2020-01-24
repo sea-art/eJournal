@@ -6,12 +6,11 @@ In this file are all the journal api requests.
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-import VLE.lti_grade_passback as lti_grade
 import VLE.tasks.lti as lti_tasks
 import VLE.utils.generic_utils as utils
 import VLE.utils.grading as grading
 import VLE.utils.responses as response
-from VLE.models import Assignment, AssignmentParticipation, Course, Entry, Journal, User
+from VLE.models import Assignment, AssignmentParticipation, Course, Journal, User
 from VLE.serializers import JournalSerializer
 
 
@@ -182,7 +181,7 @@ class JournalView(viewsets.ViewSet):
             req_data.pop('bonus_points', None)
             journal.bonus_points = bonus_points
             journal.save()
-            lti_grade.replace_result(journal)
+            grading.task_journal_status_to_LMS.delay(journal.pk)
             return response.success({'journal': JournalSerializer(journal, context={'user': request.user}).data})
 
         name, author_limit, image = utils.optional_typed_params(request.data, (str, 'name'), (int, 'author_limit'),
@@ -395,17 +394,7 @@ class JournalView(viewsets.ViewSet):
 
     def publish(self, request, journal):
         grading.publish_all_journal_grades(journal, request.user)
-        if journal.authors.filter(sourcedid__isnull=False).exists():
-            payload = grading.replace_result(journal)
-            if payload and 'code_mayor' in payload and payload['code_mayor'] == 'success':
-                return response.success({
-                    'journal': JournalSerializer(journal, context={'user': request.user}).data
-                })
-            else:
-                return response.bad_request({
-                    'journal': JournalSerializer(journal, context={'user': request.user}).data
-                })
-        else:
-            return response.success({
-                'journal': JournalSerializer(journal, context={'user': request.user}).data
-            })
+        grading.task_journal_status_to_LMS.delay(journal.pk)
+        return response.success({
+            'journal': JournalSerializer(journal, context={'user': request.user}).data
+        })

@@ -2,22 +2,12 @@ from __future__ import absolute_import, unicode_literals
 
 from celery import shared_task
 
-import VLE.lti_grade_passback as lti_grade
 from VLE.models import Entry, Journal, Node
-from VLE.tasks.lti import needs_grading as needs_grading_task
+from VLE.utils import grading
 
 
 @shared_task
 def check_if_need_VLE_publish():
-    for node in Node.objects.filter(
-        entry__vle_coupling=Entry.NEEDS_SUBMISSION,
-        journal__authors__sourcedid__isnull=False,
-        journal__authors__user__participation__role__can_have_journal=True
-    ):
-        needs_grading_task(node.pk)
-    for journal in Entry.objects.filter(
-        vle_coupling=Entry.NEEDS_GRADE_PASSBACK,
-        grade__published=True,
-        node__journal__authors__user__participation__role__can_have_journal=True
-    ).values('node__journal').distinct():
-        lti_grade.replace_result(Journal.objects.get(pk=journal['node__journal']))
+    # TODO GROUP: after cohort assignment PR is accepted, check if teacher journal does not get a response to the LMS
+    for journal in Journal.objects.all():
+        grading.send_journal_status_to_LMS(Journal.objects.get(pk=journal['node__journal']))

@@ -4,7 +4,7 @@ import oauth2
 from django.conf import settings
 from django.db.models import F
 
-from VLE.models import Counter, Entry
+from VLE.models import Counter
 
 
 class GradePassBackRequest(object):

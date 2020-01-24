@@ -7,7 +7,7 @@ from rest_framework import viewsets
 
 import VLE.factory as factory
 import VLE.serializers as serialize
-import VLE.tasks.lti as lti_tasks
+from VLE.utils import grading
 import VLE.timeline as timeline
 import VLE.utils.entry_utils as entry_utils
 import VLE.utils.file_handling as file_handling
@@ -87,9 +87,7 @@ class EntryView(viewsets.ViewSet):
                     file_handling.make_permanent_file_content(user_file, created_content, node)
 
         # Notify teacher on new entry
-        if node.journal.authors.filter(sourcedid__isnull=False).exists() and \
-           node.entry.vle_coupling == Entry.NEEDS_SUBMISSION:
-            lti_tasks.needs_grading.delay(node.pk)
+        grading.task_journal_status_to_LMS.delay(journal.pk)
 
         # Delete old user files
         file_handling.remove_temp_user_files(request.user)
@@ -163,9 +161,7 @@ class EntryView(viewsets.ViewSet):
                 factory.make_content(entry, data, field)
 
         # Notify teacher on updated entry
-        if entry.node.journal.authors.filter(sourcedid__isnull=False).exists() and \
-           entry.node.entry.vle_coupling == Entry.NEEDS_SUBMISSION:
-            lti_tasks.needs_grading.delay(entry.node.pk)
+        grading.task_journal_status_to_LMS.delay(journal.pk)
 
         file_handling.remove_temp_user_files(request.user)
         entry.last_edited_by = request.user

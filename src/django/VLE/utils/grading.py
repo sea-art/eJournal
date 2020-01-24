@@ -1,30 +1,33 @@
 
+from celery import shared_task
 from django.conf import settings
+from django.utils import timezone
 
 from VLE import factory
 from VLE.lti_grade_passback import GradePassBackRequest
-from VLE.models import Comment, Entry
+from VLE.models import AssignmentParticipation, Comment, Entry, Journal
 
 
-def publish_all_journal_grades(journal, author):
+def publish_all_journal_grades(journal, publisher):
     """publish all grades that are not None for a journal.
 
     - journal: the journal in question
-    - author: the author of the grade
+    - publisher: the publisher of the grade
     """
     entries = Entry.objects.filter(node__journal=journal).exclude(grade=None)
 
     for entry in entries:
-        factory.make_grade(entry, author.pk, entry.grade.grade, True)
+        factory.make_grade(entry, publisher.pk, entry.grade.grade, True)
 
     Comment.objects.filter(entry__node__journal=journal).exclude(entry__grade=None).update(published=True)
 
 
-def change_entry_vle_coupling(journal, status):
-    Entry.objects.filter(grade__published=True, node__journal=journal, vle_coupling=Entry.SENT_SUBMISSION).update(vle_coupling=status)
+@shared_task
+def task_journal_status_to_LMS(journal_pk):
+    return send_journal_status_to_LMS(Journal.objects.get(pk=journal_pk))
 
 
-def replace_result(journal, authors=None):
+def send_journal_status_to_LMS(journal):
     """Replace a grade on the LTI instance based on the request.
 
     Arguments:
@@ -32,36 +35,52 @@ def replace_result(journal, authors=None):
 
     returns the lti reponse.
     """
-    Entry.objects.filter(grade__published=True, node__journal=journal, vle_coupling=Entry.SENT_SUBMISSION).update(vle_coupling=Entry.NEEDS_GRADE_PASSBACK)
+    Entry.objects.filter(node__in=journal.published_nodes).update(vle_coupling=Entry.NEEDS_GRADE_PASSBACK)
 
     response = {}
     failed = False
-    authors = authors or journal.authors.all()
-    for author in authors:
-        response[author.id] = send_grade_to_LMS(journal, author)
-        if response[author.id]['code_mayor'] != 'success':
+    for author in journal.authors.all():
+        response[author.id] = send_author_status_to_LMS(journal, author)
+        if not response[author.id]['successful']:
             failed = True
 
     if not failed:
-        Entry.objects.filter(grade__published=True, node__journal=journal, vle_coupling=Entry.NEEDS_GRADE_PASSBACK).update(vle_coupling=Entry.LINK_COMPLETE)
+        Entry.objects.filter(node__in=journal.published_nodes).update(vle_coupling=Entry.LINK_COMPLETE)
+        Entry.objects.filter(node__in=journal.unpublished_nodes).update(vle_coupling=Entry.SENT_SUBMISSION)
+        journal.LMS_grade = journal.get_grade()
+        journal.save()
 
     return response if response != {} else None
 
 
-def send_grade_to_LMS(journal, author=None, left_journal=False, send_score=True):
-    """Send grade to LMS
+@shared_task
+def task_author_status_to_LMS(journal_pk, author_pk, left_journal=False):
+    return send_journal_status_to_LMS(
+        Journal.objects.get(pk=journal_pk), AssignmentParticipation.objects.get(pk=author_pk), left_journal)
 
-    If author is set, it is only for a specific author and thus the entries dont need to be updated
-    """
+
+def send_author_status_to_LMS(journal, author, left_journal=False):
+    """Send the status of about the author of the journal to both the teacher and the author"""
+    # TODO GROUP: after cohort assignment PR is accepted, check if teacher journal does not get a response to the LMS
+    if author not in journal.authors.all():
+        return {
+            #TODO: check if this does not leak full_name and is only used for debugging
+            'description': '{} not in journal {}'.format(author.full_name, journal.to_string()),
+            'code_mayor': 'error',
+            'successful': False,
+        }
+
     if author.sourcedid is None:
         return {
             'description': '{} has no sourcedid'.format(author.to_string(user=author.user)),
             'code_mayor': 'error',
+            'successful': False,
         }
     if author.grade_url is None:
         return {
             'description': '{} has no grade_url'.format(author.to_string(user=author.user)),
             'code_mayor': 'error',
+            'successful': False,
         }
 
     course = journal.assignment.get_active_course(author.user)
@@ -77,14 +96,39 @@ def send_grade_to_LMS(journal, author=None, left_journal=False, send_score=True)
                 settings.BASELINK, course.pk, journal.assignment.pk, journal.pk)
         }
         grade = journal.get_grade() if not journal.assignment.remove_grade_upon_leaving_group else 0
-    last_graded_node = journal.node_set.filter(entry__grade__published=True).order_by('entry__grade__creation_date')
-    if last_graded_node.exists():
-        submitted_at = str(last_graded_node.last().entry.grade.grade)
-    else:
-        submitted_at = None
-    grade_request = GradePassBackRequest(
-        author, grade, result_data=result_data, send_score=send_score,
-        submitted_at=submitted_at)
-    response = grade_request.send_post_request()
 
-    return response
+    submitted_at = None
+
+    # Send student latest grade. But only send it when there are new entries OR grade changed
+    response_student = None
+    if journal.published_nodes.filter(entry__vle_coupling=Entry.NEEDS_SUBMISSION).exists() or \
+        journal.LMS_grade != grade:
+        if journal.LMS_grade != grade:
+            submitted_at = str(timezone.now())
+        else:
+            submitted_at = str(journal.published_nodes.last().entry.last_edited)
+        grade_request = GradePassBackRequest(
+            author, grade, result_data=result_data, send_score=True, submitted_at=submitted_at)
+        response_student = grade_request.send_post_request()
+
+    response_teacher = None
+    if not left_journal:
+        # Notify teacher about last ungraded submission
+        if journal.unpublished_nodes.exists():
+            result_data = {
+                'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}?nID={4}'.format(
+                    settings.BASELINK, course.pk, journal.assignment.pk, journal.pk,
+                    journal.unpublished_nodes.first().pk)
+            }
+            submitted_at = str(journal.unpublished_nodes.first().entry.last_edited)
+            grade_request = GradePassBackRequest(
+                author, grade, result_data=result_data, send_score=False, submitted_at=submitted_at)
+            response_teacher = grade_request.send_post_request()
+
+    return {
+        'to_teacher': response_teacher,
+        'to_student': response_student,
+        'successful':
+            (response_teacher is None or response_teacher['code_mayor'] == 'success') and \
+            (response_student is None or response_student['code_mayor'] == 'success')
+    }

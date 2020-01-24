@@ -10,7 +10,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField, CIEmailField, CITextField
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.timezone import now
@@ -913,6 +913,10 @@ class Journal(models.Model):
         default=False,
     )
 
+    LMS_grade = models.IntegerField(
+        default=0,
+    )
+
     # NOTE: Any suggestions for a clear warning msg for all cases?
     outdated_link_warning_msg = 'This journal has an outdated LMS uplink and can no longer be edited. Visit  ' \
         + 'eJournal from an updated LMS connection.'
@@ -965,6 +969,16 @@ class Journal(models.Model):
             preset_nodes = self.assignment.format.presetnode_set.all()
             for preset_node in preset_nodes:
                 Node.objects.create(type=preset_node.type, journal=self, preset=preset_node)
+
+    @property
+    def published_nodes(self):
+        return self.node_set.filter(entry__grade__published=True).order_by('entry__grade__creation_date')
+
+    @property
+    def unpublished_nodes(self):
+        return self.node_set.filter(
+            Q(entry__grade__isnull=True) | Q(entry__grade__published=False),
+            entry__isnull=False).order_by('entry__last_edited')
 
     def to_string(self, user=None):
         if user is None:

@@ -6,7 +6,6 @@ from django.conf import settings
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
 from VLE.models import Assignment, AssignmentParticipation, Course, Group, Journal, Participation, Role, User
-from VLE.tasks.grading import send_journal_grade_to_LMS
 
 
 class OAuthRequestValidater(object):
@@ -198,6 +197,6 @@ def select_create_journal(request, user, assignment):
             author.sourcedid = request['lis_result_sourcedid']
             author.save()
         if passback_changed and journal:
-            send_journal_grade_to_LMS.delay(journal.pk)
+            send_author_status_to_LMS.delay(journal.pk, author)
 
     return journal

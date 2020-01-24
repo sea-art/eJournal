@@ -7,12 +7,13 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.factory as factory
-import VLE.lti_grade_passback as lti_grade
 import VLE.tasks.grading as grading_tasks
 import VLE.utils.generic_utils as utils
+import VLE.utils.grading as grading
 import VLE.utils.responses as response
 from VLE.models import Assignment, Comment, Entry, Grade
 from VLE.serializers import EntrySerializer, GradeHistorySerializer
+from VLE.utils import grading as grading
 
 
 class GradeView(viewsets.ViewSet):
@@ -86,11 +87,10 @@ class GradeView(viewsets.ViewSet):
 
         if published:
             Comment.objects.filter(entry=entry).update(published=True)
+            grading.task_journal_status_to_LMS.delay(journal.pk)
 
-        # TODO: Is the lti flag ever used? Else move replace_result to celery
         return response.created({
             'entry': EntrySerializer(entry, context={'user': request.user}).data,
-            'lti': lti_grade.replace_result(journal)
         })
 
     @action(methods=['patch'], detail=False)
@@ -100,6 +100,9 @@ class GradeView(viewsets.ViewSet):
         assignment = Assignment.objects.get(pk=assignment_id)
 
         request.user.check_permission('can_publish_grades', assignment)
-        grading_tasks.publish_all_assignment_grades(request.user, assignment.pk)
+
+        for journal in Journal.objects.filter(assignment=assignment_pk).distinct():
+            grading.publish_all_journal_grades(journal, request.user)
+            grading.task_journal_status_to_LMS.delay(journal.pk)
 
         return response.success()

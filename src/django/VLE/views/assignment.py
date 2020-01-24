@@ -10,7 +10,6 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.factory as factory
-import VLE.lti_grade_passback as lti_grade
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
@@ -360,7 +359,7 @@ class AssignmentView(viewsets.ViewSet):
                 username, bonus = decoded_line[:-1].split(',')[:2]
                 bonus = float(bonus)
                 user = User.objects.get(username=str(username))
-                journal = Journal.objects.get(assignment=assignment, user=user)
+                journal = Journal.objects.get(assignment=assignment, authors__user=user)
                 if journal in bonuses:
                     duplicates[line_nr] = line.decode().split(',')[0]
                 else:
@@ -391,7 +390,7 @@ class AssignmentView(viewsets.ViewSet):
         for j, b in bonuses.items():
             j.bonus_points = b
             j.save()
-            grading.replace_result(journal)
+            grading.task_journal_status_to_LMS.delay(journal.pk)
 
         return response.success()
 
