@@ -54,6 +54,10 @@ class CourseView(viewsets.ViewSet):
 
         name, abbr = utils.required_params(request.data, 'name', 'abbreviation')
         startdate, enddate, active_lti_id = utils.optional_params(request.data, 'startdate', 'enddate', 'lti_id')
+        if startdate == 'NaN':
+            startdate = None
+        if enddate == 'NaN':
+            enddate = None
 
         course = factory.make_course(name, abbr, startdate, enddate, request.user, active_lti_id=active_lti_id)
 
