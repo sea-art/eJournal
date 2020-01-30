@@ -6,7 +6,7 @@ A library with useful functions.
 from django.db.models import Case, When
 
 import VLE.factory as factory
-from VLE.models import Entry, Node, PresetNode, Template
+from VLE.models import Entry, Journal, Node, PresetNode, Template
 from VLE.utils.error_handling import VLEBadRequest, VLEMissingRequiredKey, VLEParamWrongType
 
 
@@ -270,7 +270,7 @@ def update_presets(assignment, presets, new_ids):
                 preset_node.forced_template = Template.objects.get(pk=template['id'])
         preset_node.save()
         if id < 0:
-            update_journals(assignment.journal_set.distinct(), preset_node)
+            update_journals(Journal.all_objects.filter(assignment=assignment), preset_node)
 
 
 def delete_presets(presets):

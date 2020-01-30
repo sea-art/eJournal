@@ -1,6 +1,6 @@
 <template>
     <content-single-column>
-        <h1><span>Welcome to {{ name ? name : 'eJournal' }}!</span></h1><br/>
+        <h1><span>Welcome to {{ name ? name : 'eJournal' }}</span></h1><br/>
         <h4 class="multi-form">
             <span>Let's get started</span>
         </h4>

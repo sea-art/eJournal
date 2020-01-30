@@ -42,7 +42,7 @@ class JournalAPITest(TestCase):
             'author_limit': 3,
             'amount': 2
         }
-        before_count = Journal.objects.filter(assignment=self.group_assignment).count()
+        before_count = Journal.all_objects.filter(assignment=self.group_assignment).count()
 
         # Check invalid users
         api.create(self, 'journals', params=payload, user=self.g_student, status=403)
@@ -55,7 +55,7 @@ class JournalAPITest(TestCase):
         payload['amount'] = 0
         api.create(self, 'journals', params=payload, user=self.g_teacher, status=400)
 
-        after_count = Journal.objects.filter(assignment=self.group_assignment).count()
+        after_count = Journal.all_objects.filter(assignment=self.group_assignment).count()
 
         assert before_count + 2 == after_count, '2 new journals should be added'
         assert Journal.objects.filter(assignment=self.group_assignment).last().author_limit == 3, \
@@ -77,10 +77,10 @@ class JournalAPITest(TestCase):
         self.assertRaises(VLEBadRequest, VLE.factory.make_journal, self.assignment, author_limit=4)
         other_student = factory.Student()
         VLE.factory.make_journal(self.assignment, author=other_student)
-        assert Journal.objects.filter(assignment=self.assignment, authors__user=other_student).exists(), \
+        assert Journal.all_objects.filter(assignment=self.assignment, authors__user=other_student).exists(), \
             'make_journal should create a journal and AP if they do not exist yet'
         VLE.factory.make_journal(self.assignment, author=other_student)
-        assert Journal.objects.filter(assignment=self.assignment, authors__user=other_student).count() == 1, \
+        assert Journal.all_objects.filter(assignment=self.assignment, authors__user=other_student).count() == 1, \
             'make_journal should not create a journal and AP if they already exist'
 
     def test_update_journal(self):

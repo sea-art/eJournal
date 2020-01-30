@@ -80,7 +80,7 @@ class EntryAPITest(TestCase):
         )
         teacher_params = self.valid_create_params.copy()
         teacher_params['journal_id'] = self.journal_teacher.pk
-        api.create(self, 'entries', params=teacher_params, user=self.teacher, status=403)
+        api.create(self, 'entries', params=teacher_params, user=self.teacher, status=404)
 
         # Entries can no longer be created if the LTI link is outdated (new active uplink)
         assignment_old_lti_id = self.journal.assignment.active_lti_id

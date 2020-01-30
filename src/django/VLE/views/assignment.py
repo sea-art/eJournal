@@ -466,7 +466,7 @@ class AssignmentView(viewsets.ViewSet):
                 field.template = template
                 field.save()
 
-        journals = Journal.objects.filter(assignment=assignment)
+        journals = Journal.all_objects.filter(assignment=assignment)
         for preset in PresetNode.objects.filter(format=source_format_id):
             preset.pk = None
             preset.format = format

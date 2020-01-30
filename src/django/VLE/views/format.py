@@ -7,7 +7,7 @@ from rest_framework import viewsets
 
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
-from VLE.models import Assignment
+from VLE.models import Assignment, Group
 from VLE.serializers import AssignmentDetailsSerializer, FormatSerializer
 
 
@@ -84,6 +84,12 @@ class FormatView(viewsets.ViewSet):
                 req_data[key] = None
 
         # Update the assignment details
+        assigned_groups = req_data.get('assigned_groups', [])
+        if len(assigned_groups) > 0:
+            for group in assigned_groups:
+                assignment.assigned_groups.add(Group.objects.get(pk=group['id']))
+        else:
+            assignment.assigned_groups.set([])
         serializer = AssignmentDetailsSerializer(assignment, data=req_data, context={'user': request.user},
                                                  partial=True)
         if not serializer.is_valid():

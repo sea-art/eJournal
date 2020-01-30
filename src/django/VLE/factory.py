@@ -241,13 +241,13 @@ def make_journal(assignment, author=None, author_limit=None):
     else:
         if author_limit is not None:
             raise VLEBadRequest('Non group-journals should not be initialized with an author_limit')
-        if Journal.objects.filter(assignment=assignment, authors__user=author).exists():
-            return Journal.objects.get(assignment=assignment, authors__user=author)
+        if Journal.all_objects.filter(assignment=assignment, authors__user=author).exists():
+            return Journal.all_objects.get(assignment=assignment, authors__user=author)
 
         ap = AssignmentParticipation.objects.filter(assignment=assignment, user=author).first()
         if ap is None:
             ap = AssignmentParticipation.objects.create(assignment=assignment, user=author)
-            journal = Journal.objects.get(assignment=assignment, authors__in=[ap])
+            journal = Journal.all_objects.get(assignment=assignment, authors__in=[ap])
         else:
             journal = Journal.objects.create(assignment=assignment)
             journal.authors.add(ap)

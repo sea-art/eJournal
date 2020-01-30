@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('VLE', '0036_mail_username_to_lower_case'),
+        ('VLE', '0037_assignment_assigned_groups'),
     ]
 
     operations = [

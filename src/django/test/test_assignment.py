@@ -104,6 +104,17 @@ class AssignmentAPITest(TestCase):
         student = factory.AssignmentParticipation(assignment=group_assignment).user
         api.get(self, 'assignments', params={'pk': group_assignment.pk}, user=student)
 
+    def test_assigned_assignment(self):
+        assignment = factory.Assignment()
+        group = factory.Group(course=assignment.courses.first())
+        assignment.assigned_groups.add(group)
+        journal = factory.Journal(assignment=assignment)
+        journal_not_viewable = factory.Journal(assignment=assignment)
+        p = Participation.objects.get(user=journal.user, course=assignment.courses.first())
+        p.groups.add(group)
+        assert not journal_not_viewable.user.can_view(assignment)
+        assert journal.user.can_view(assignment)
+
     def test_list(self):
         course2 = factory.Course(author=self.teacher)
         factory.Assignment(courses=[self.course])
@@ -255,6 +266,9 @@ class AssignmentAPITest(TestCase):
         factory.Participation(user=student, course=course, role=Role.objects.get(course=course, name='Student'))
         assert Participation.objects.filter(course=course).count() == 2
         source_student_journal = Journal.objects.get(authors__user=student, assignment=source_assignment)
+        VLE.factory.make_journal(user=teacher, assignment=source_assignment)
+        assert Journal.objects.filter(assignment=source_assignment).count() == 1, \
+            'Teacher assignment should not show up in count'
         source_entries = []
         number_of_source_student_journal_entries = 4
         for _ in range(number_of_source_student_journal_entries):
@@ -266,7 +280,7 @@ class AssignmentAPITest(TestCase):
         assert Entry.objects.filter(
             node__journal=source_student_journal).count() == number_of_source_student_journal_entries, \
             'Only the entries explicitly created above exist for the source journal'
-        assert Journal.objects.filter(assignment=source_assignment).count() == 3, \
+        assert Journal.objects.filter(assignment=source_assignment).count() == 1, \
             'The source assignment only holds the journals explicitly created above'
 
         before_source_preset_nodes = PresetNode.objects.filter(format=source_assignment.format)

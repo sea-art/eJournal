@@ -165,17 +165,25 @@ class AssignmentDetailsSerializer(serializers.ModelSerializer):
     lti_count = serializers.SerializerMethodField()
     active_lti_course = serializers.SerializerMethodField()
     can_change_type = serializers.SerializerMethodField()
+    assigned_groups = serializers.SerializerMethodField()
+    all_groups = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
         fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date',
                   'is_published', 'course_count', 'lti_count', 'active_lti_course', 'is_group_assignment',
                   'can_set_journal_name', 'can_set_journal_image', 'can_lock_journal', 'can_change_type',
-                  'remove_grade_upon_leaving_group', )
+                  'remove_grade_upon_leaving_group', 'assigned_groups', 'all_groups', )
         read_only_fields = ('id', )
 
     def get_course_count(self, assignment):
         return assignment.courses.count()
+
+    def get_assigned_groups(self, assignment):
+        return GroupSerializer(assignment.assigned_groups, many=True).data
+
+    def get_all_groups(self, assignment):
+        return GroupSerializer(Group.objects.filter(course__in=assignment.courses.all()), many=True).data
 
     def get_lti_count(self, assignment):
         if 'user' in self.context and self.context['user'] and \
@@ -234,7 +242,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
             }
 
     def _get_teacher_deadline(self, assignment):
-        return assignment.journal_set \
+        return Journal.objects.filter(assignment=assignment) \
             .filter(
                 Q(node__entry__grade__grade__isnull=True) | Q(node__entry__grade__published=False),
                 node__entry__isnull=False) \
@@ -290,7 +298,10 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if not self.context['user'].has_permission('can_have_journal', assignment):
             return None
         try:
-            return Journal.objects.get(assignment=assignment, authors__user=self.context['user']).pk
+            journal = Journal.objects.get(assignment=assignment, authors__user=self.context['user']).pk
+            if not self.context['user'].can_view(journal):
+                return None
+            return journal
         except Journal.DoesNotExist:
             return None
 
@@ -307,9 +318,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
                 )
             # Normal assignments should only get the journals of users that should have a journal
             else:
-                course = self.context['course']
-                users = course.participation_set.filter(role__can_have_journal=True).values('user')
-                journals = Journal.objects.filter(assignment=assignment, authors__user__in=users)
+                journals = Journal.objects.filter(assignment=assignment)
             return JournalSerializer(journals.distinct(), many=True, context=self.context).data
         else:
             return None
@@ -332,7 +341,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
                 users = users.filter(participation__groups=participation.groups.first())
 
         stats = {}
-        journal_set = assignment.journal_set.filter(authors__user__in=users).distinct()
+        journal_set = Journal.objects.filter(assignment=assignment).filter(authors__user__in=users)
 
         # Grader stats
         if self.context['user'].has_permission('can_grade', assignment):
