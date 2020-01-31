@@ -298,10 +298,10 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if not self.context['user'].has_permission('can_have_journal', assignment):
             return None
         try:
-            journal = Journal.objects.get(assignment=assignment, authors__user=self.context['user']).pk
+            journal = Journal.objects.get(assignment=assignment, authors__user=self.context['user'])
             if not self.context['user'].can_view(journal):
                 return None
-            return journal
+            return journal.pk
         except Journal.DoesNotExist:
             return None
 

@@ -117,10 +117,9 @@ class EntryView(viewsets.ViewSet):
             success -- with the new entry data
 
         """
-        content_list, = utils.required_typed_params(request.data, (list, 'content'))
+        content_list, = utils.required_params(request.data, 'content')
         entry_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         entry = Entry.objects.get(pk=entry_id)
-        graded = entry.is_graded()
         journal = entry.node.journal
         assignment = journal.assignment
 
@@ -129,7 +128,7 @@ class EntryView(viewsets.ViewSet):
         request.user.check_permission('can_have_journal', assignment)
         if not (journal.authors.filter(user=request.user).exists() or request.user.is_superuser):
             return response.forbidden('You are not allowed to edit someone else\'s entry.')
-        if graded:
+        if entry.is_graded():
             return response.bad_request('You are not allowed to edit graded entries.')
         if entry.is_locked():
             return response.bad_request('You are not allowed to edit locked entries.')

@@ -35,6 +35,9 @@ def send_journal_status_to_LMS(journal):
 
     returns the lti reponse.
     """
+    if not journal.authors.exists():
+        return None
+
     Entry.objects.filter(node__in=journal.published_nodes).update(vle_coupling=Entry.NEEDS_GRADE_PASSBACK)
 
     response = {}
@@ -51,9 +54,9 @@ def send_journal_status_to_LMS(journal):
         journal.save()
 
     return {
-        'successful': failed,
+        'successful': not failed,
         **response,
-    } if response != {} else None
+    }
 
 
 @shared_task
