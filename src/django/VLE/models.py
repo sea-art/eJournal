@@ -886,21 +886,21 @@ class JournalManager(models.Manager):
     def get_queryset(self):
         """Filter on only journals with can_have_journal and that are in the assigned to groups"""
         query = super(JournalManager, self).get_queryset()
-        q1 = query.annotate(
+        return query.annotate(
             p_user=F('assignment__courses__participation__user'),
             p_group=F('assignment__courses__participation__groups'),
             can_have_journal=F('assignment__courses__participation__role__can_have_journal')
         ).filter(
             # Filter on only can_have_journal
-            p_user__in=F('authors__user'), can_have_journal=True,
+            Q(assignment__is_group_assignment=True) | Q(p_user__in=F('authors__user'), can_have_journal=True),
         ).filter(
             # Filter on only assigned groups
-            Q(p_group__in=F('assignment__assigned_groups')) | Q(assignment__assigned_groups=None),
+            Q(assignment__is_group_assignment=True) | Q(p_group__in=F('assignment__assigned_groups')) |
+            Q(assignment__assigned_groups=None),
         ).annotate(
             # Reset group, as that could lead to distinct not working
-            p_group=F('pk'), p_user=F('pk')
+            p_group=F('pk'), p_user=F('pk'), can_have_journal=F('pk'),
         ).distinct().order_by('pk')
-        return q1
 
 
 class Journal(models.Model):

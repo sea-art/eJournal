@@ -61,7 +61,7 @@ def send_journal_status_to_LMS(journal):
 
 @shared_task
 def task_author_status_to_LMS(journal_pk, author_pk, left_journal=False):
-    return send_journal_status_to_LMS(
+    return send_author_status_to_LMS(
         Journal.objects.get(pk=journal_pk), AssignmentParticipation.objects.get(pk=author_pk), left_journal)
 
 

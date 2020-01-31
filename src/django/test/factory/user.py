@@ -9,7 +9,7 @@ class UserFactory(factory.django.DjangoModelFactory):
         model = 'VLE.User'
 
     username = factory.Sequence(lambda x: "user{}".format(x))
-    full_name = factory.Sequence(lambda x: "Full name {}".format(x))
+    full_name = factory.Sequence(lambda x: "Normal user {}".format(x))
     email = factory.Sequence(lambda x: 'email{}@example.com'.format(x))
     password = factory.PostGenerationMethodCall('set_password', DEFAULT_PASSWORD)
     verified_email = True
@@ -35,6 +35,7 @@ class TestUserFactory(LtiStudentFactory):
 
 class TeacherFactory(UserFactory):
     username = factory.Sequence(lambda x: "teacher{}".format(x))
+    full_name = factory.Sequence(lambda x: "Teacher user {}".format(x))
     is_teacher = True
 
 
@@ -44,4 +45,5 @@ class LtiTeacherFactory(TeacherFactory):
 
 class AdminFactory(UserFactory):
     username = factory.Sequence(lambda x: "admin{}".format(x))
+    full_name = factory.Sequence(lambda x: "Admin user {}".format(x))
     is_superuser = True
