@@ -1,7 +1,7 @@
 <template>
     <footer>
         <hr/>
-        &copy; 2019 - eJournal.app -
+        &copy; 2020 - eJournal.app -
         <a
             href="/eJournal-privacy-notice.pdf"
             class="text-grey"

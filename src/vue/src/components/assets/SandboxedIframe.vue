@@ -7,7 +7,7 @@
         marginwidth="0"
         marginheight="0"
         scrolling="no"
-        class="w-100 theme-iframe"
+        class="w-100"
         @load="loadedIframe"
     />
 </template>
@@ -29,6 +29,7 @@ export default {
     watch: {
         content () {
             this.setContent()
+            this.fitContent()
         },
     },
     methods: {
@@ -56,10 +57,15 @@ export default {
 body {
     font-family: 'Roboto', sans-serif;
     color: #252C39;
+    word-wrap: break-word;
 }
 
-p {
-    margin: 0px
+body *:first-child{
+    margin-top: 0px !important
+}
+
+body *:last-child{
+    margin-bottom: 0px !important
 }
 
 p a {

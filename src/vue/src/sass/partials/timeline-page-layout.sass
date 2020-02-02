@@ -6,7 +6,7 @@
     @include lg-max
         padding: 30px 10px 10px 10px !important
     @include xl
-        height: 100%
+        height: calc(100vh - 70px)
         overflow: hidden
     @include lg-max
         padding-top: 30px
@@ -14,32 +14,31 @@
 .main-content-timeline-page
     padding: 30px 10px 10px 10px !important
     flex-grow: 1
-    @include xl
-        height: 100%
+    @include lg
+        height: calc(100vh - 70px)
         overflow-y: auto
         overflow-x: hidden
     @include md-max
         margin-bottom: 30px
 
 .right-content-timeline-page
-    @include xl
-        height: 100%
+    @include lg
+        height: calc(100vh - 70px)
         overflow-y: auto
         overflow-x: hidden
-    @include lg
         padding: 30px 30px 0 30px !important
 
 .outer-container-timeline-page
-    @include xl
-        height: 100%
+    @include lg
+        height: calc(100vh - 70px)
         overflow: hidden
 
 .inner-container-timeline-page
     display: flex
     height: 100%
-    flex-direction: row
-    flex-wrap: wrap
+    flex-direction: column
     @include lg
-        flex-direction: column
+        overflow-y: auto
     @include xl
         flex-direction: row
+        flex-wrap: wrap

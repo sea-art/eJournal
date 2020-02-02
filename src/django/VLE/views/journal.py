@@ -49,10 +49,8 @@ class JournalView(viewsets.ViewSet):
         request.user.check_permission('can_view_all_journals', assignment)
         request.user.check_can_view(assignment)
 
-        users = course.participation_set.filter(role__can_have_journal=True).values('user')
-        queryset = assignment.journal_set.filter(user__in=users)
         journals = JournalSerializer(
-            queryset,
+            Journal.objects.filter(assignment=assignment),
             many=True,
             context={
                 'user': request.user,
@@ -77,7 +75,15 @@ class JournalView(viewsets.ViewSet):
             success -- with journals and stats about the journals
 
         """
-        journal = Journal.objects.get(pk=pk)
+        journal = Journal.all_objects.get(pk=pk)
+        if not Journal.objects.filter(pk=pk).exists():
+            if request.user == journal.user:
+                return response.forbidden(
+                    'You do not have the correct rights to have a journal in this assignment')
+            else:
+                return response.forbidden(
+                    'This user currently does not have the correct rights to have a journal in this assignment')
+
         request.user.check_can_view(journal)
 
         serializer = JournalSerializer(journal, context={
