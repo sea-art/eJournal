@@ -23,7 +23,7 @@
             :key="i"
         >
             <b-link
-                :to="assignmentRoute(d)"
+                :to="$root.assignmentRoute(d)"
                 tag="b-button"
             >
                 <todo-card
@@ -103,30 +103,6 @@ export default {
         ...mapMutations({
             setSortBy: 'preferences/SET_TODO_SORT_BY',
         }),
-        assignmentRoute (assignment) {
-            const route = {
-                params: {
-                    cID: assignment.course.id,
-                    aID: assignment.id,
-                },
-            }
-
-            if (this.$hasPermission('can_view_all_journals', 'assignment', assignment.id)) {
-                if (!assignment.is_published) { // Teacher not published route
-                    route.name = 'FormatEdit'
-                } else { // Teacher published route
-                    route.name = 'Assignment'
-                }
-            } else if (assignment.is_group_assignment && assignment.journal === null) {
-                // Student new group assignment route
-                route.name = 'JoinJournal'
-            } else { // Student with journal route
-                route.name = 'Journal'
-                route.params.jID = assignment.journal
-            }
-
-            return route
-        },
     },
 }
 </script>

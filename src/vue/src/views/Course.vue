@@ -14,7 +14,7 @@
                 :key="a.id"
             >
                 <b-link
-                    :to="assignmentRoute(a)"
+                    :to="$root.assignmentRoute(a)"
                     tag="b-button"
                 >
                     <assignment-card
@@ -157,30 +157,6 @@ export default {
         },
         showModal (ref) {
             this.$refs[ref].show()
-        },
-        assignmentRoute (assignment) {
-            const route = {
-                params: {
-                    cID: assignment.course.id,
-                    aID: assignment.id,
-                },
-            }
-
-            if (this.$hasPermission('can_view_all_journals', 'assignment', assignment.id)) {
-                if (!assignment.is_published) { // Teacher not published route
-                    route.name = 'FormatEdit'
-                } else { // Teacher published route
-                    route.name = 'Assignment'
-                }
-            } else if (assignment.is_group_assignment && assignment.journal === null) {
-                // Student new group assignment route
-                route.name = 'JoinJournal'
-            } else { // Student with journal route
-                route.name = 'Journal'
-                route.params.jID = assignment.journal
-            }
-
-            return route
         },
     },
 }

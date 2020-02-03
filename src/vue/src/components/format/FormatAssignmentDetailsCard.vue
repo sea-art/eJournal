@@ -41,7 +41,7 @@
                 Description
             </h2>
             <text-editor
-                :id="'text-editor-assignment-edit-description'"
+                id="text-editor-assignment-edit-description"
                 v-model="assignmentDetails.description"
                 :footer="false"
                 class="multi-form"
