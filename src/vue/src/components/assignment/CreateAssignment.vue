@@ -1,6 +1,7 @@
 <template>
     <b-card class="no-hover">
         <assignment-details
+            ref="assignmentDetails"
             :assignmentDetails="form"
         />
         <b-button
@@ -71,6 +72,9 @@ export default {
     },
     methods: {
         onSubmit () {
+            if (!this.$refs.assignmentDetails.validateDetails()) {
+                return
+            }
             assignmentAPI.create(this.form)
                 .then((assignment) => {
                     this.$emit('handleAction', assignment.id)

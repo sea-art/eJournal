@@ -65,9 +65,7 @@
                 <flat-pickr
                     v-model="assignmentDetails.unlock_date"
                     class="multi-form"
-                    :config="Object.assign({}, {
-                        maxDate: assignmentDetails.dueDate ? assignmentDetails.dueDate : assignmentDetails.lockDate
-                    }, $root.flatPickrTimeConfig)"
+                    :config="unlockDateConfig"
                 />
             </b-col>
             <b-col xl="4">
@@ -81,10 +79,7 @@
                 <flat-pickr
                     v-model="assignmentDetails.due_date"
                     class="multi-form"
-                    :config="Object.assign({}, {
-                        minDate: assignmentDetails.unlockDate,
-                        maxDate: assignmentDetails.lockDate,
-                    }, $root.flatPickrTimeConfig)"
+                    :config="dueDateConfig"
                 />
             </b-col>
             <b-col xl="4">
@@ -95,9 +90,7 @@
                 <flat-pickr
                     v-model="assignmentDetails.lock_date"
                     class="multi-form"
-                    :config="Object.assign({}, {
-                        minDate: assignmentDetails.dueDate ? assignmentDetails.dueDate : assignmentDetails.unlockDate
-                    }, $root.flatPickrTimeConfig)"
+                    :config="lockDateConfig"
                 />
             </b-col>
         </b-row>
@@ -260,6 +253,38 @@ export default {
             }
 
             return Object.assign({}, { minDate }, this.$root.flatPickrTimeConfig)
+        },
+    },
+    methods: {
+        validateDetails () {
+            if (!/\S/.test(this.assignmentDetails.name)) {
+                this.$toasted.error(
+                    'Assignment name is missing.')
+                return false
+            }
+
+            if (Number.isNaN(parseInt(this.assignmentDetails.points_possible, 10))) {
+                this.$toasted.error('Points possible is missing.')
+                return false
+            }
+
+            if (this.assignmentDetails.unlock_date && this.assignmentDetails.due_date
+                && Date.parse(this.assignmentDetails.unlock_date) > Date.parse(this.assignmentDetails.due_date)) {
+                this.$toasted.error('The assignment is due before the unlock date.')
+                return false
+            }
+            if (this.assignmentDetails.unlock_date && this.assignmentDetails.lock_date
+                && Date.parse(this.assignmentDetails.unlock_date) > Date.parse(this.assignmentDetails.lock_date)) {
+                this.$toasted.error('The assignment lock date is before the unlock date.')
+                return false
+            }
+            if (this.assignmentDetails.due_date && this.assignmentDetails.lock_date
+                && Date.parse(this.assignmentDetails.due_date) > Date.parse(this.assignmentDetails.lock_date)) {
+                this.$toasted.error('The assignment lock date is before the due date.')
+                return false
+            }
+
+            return true
         },
     },
 }

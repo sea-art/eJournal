@@ -89,6 +89,7 @@
                         class="no-hover"
                     >
                         <assignment-details
+                            ref="assignmentDetails"
                             :class="{ 'input-disabled' : saveRequestInFlight }"
                             :assignmentDetails="assignmentDetails"
                             :presetNodes="presets"
@@ -290,12 +291,6 @@ export default {
                 })
         },
         saveFormat () {
-            let missingAssignmentName = false
-            let missingPointMax = false
-            let unlockAfterDue = false
-            let unlockAfterLock = false
-            let dueAfterLock = false
-
             let presetUnlockBeforeUnlock = false
             let presetUnlockAfterDue = false
             let presetUnlockAfterLock = false
@@ -330,34 +325,8 @@ export default {
                 }
             })
 
-            if (!/\S/.test(this.assignmentDetails.name)) {
-                missingAssignmentName = true
-                this.$toasted.error('Assignment name is missing. Please check the assignment details and try again.')
-            }
-
-            if (!missingPointMax && Number.isNaN(parseInt(this.assignmentDetails.points_possible, 10))) {
-                missingPointMax = true
-                this.$toasted.error('Points possible is missing. Please check the assignment details and try again.')
-            }
-
-            if (!unlockAfterDue && this.assignmentDetails.unlock_date && this.assignmentDetails.due_date
-                && Date.parse(this.assignmentDetails.unlock_date) > Date.parse(this.assignmentDetails.due_date)) {
-                unlockAfterDue = true
-                this.$toasted.error(
-                    'The assignment is due before the unlock date. Please check the assignment details and try again.')
-            }
-            if (!unlockAfterLock && this.assignmentDetails.unlock_date && this.assignmentDetails.lock_date
-                && Date.parse(this.assignmentDetails.unlock_date) > Date.parse(this.assignmentDetails.lock_date)) {
-                unlockAfterLock = true
-                this.$toasted.error(
-                    'The assignment lock date is before the unlock date. Please check the assignment details and try'
-                    + ' again.')
-            }
-            if (!dueAfterLock && this.assignmentDetails.due_date && this.assignmentDetails.lock_date
-                && Date.parse(this.assignmentDetails.due_date) > Date.parse(this.assignmentDetails.lock_date)) {
-                dueAfterLock = true
-                this.$toasted.error(
-                    'The assignment lock date is before the due date. Please check the timeline and try again.')
+            if (!this.$refs.assignmentDetails.validateDetails()) {
+                return
             }
 
             this.presets.forEach((preset) => {
@@ -484,8 +453,7 @@ export default {
                 }
             })
 
-            if (missingAssignmentName || missingPointMax || unlockAfterDue || unlockAfterLock
-                || dueAfterLock || presetUnlockBeforeUnlock || presetUnlockAfterDue
+            if (presetUnlockBeforeUnlock || presetUnlockAfterDue
                 || presetUnlockAfterLock || presetDueBeforeUnlock || presetDueAfterDue
                 || presetDueAfterLock || presetLockBeforeUnlock || presetLockAfterDue
                 || presetUnlockAfterPresetDue || presetUnlockAfterPresetLock
