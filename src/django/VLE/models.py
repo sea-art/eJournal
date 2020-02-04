@@ -653,7 +653,7 @@ class Assignment(models.Model):
 
         if active_lti_id_modified:
             # Reset all sourcedid if the active lti id is updated.
-            Journal.objects.filter(assignment=self.pk).update(sourcedid=None, grade_url=None)
+            Journal.all_objects.filter(assignment=self.pk).update(sourcedid=None, grade_url=None)
 
             if self.active_lti_id is not None and self.active_lti_id not in self.lti_id_set:
                 self.lti_id_set.append(self.active_lti_id)
