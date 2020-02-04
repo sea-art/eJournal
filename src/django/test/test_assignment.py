@@ -3,6 +3,7 @@ import test.factory as factory
 from test.utils import api
 from test.utils.generic_utils import equal_models
 
+import pytest
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
@@ -12,6 +13,8 @@ from django.utils import timezone
 import VLE.factory
 import VLE.utils.generic_utils as utils
 from VLE.models import Assignment, Course, Entry, Format, Journal, Node, Participation, PresetNode, Role, Template
+from VLE.serializers import AssignmentSerializer
+from VLE.utils.error_handling import VLEParticipationError
 from VLE.views.assignment import day_neutral_datetime_increment, set_assignment_dates
 
 
@@ -59,6 +62,30 @@ class AssignmentAPITest(TestCase):
         resp = api.get(self, 'assignments', params={'pk': assignment.pk, 'course_id': self.course.pk},
                        user=self.teacher)['assignment']
         assert resp['journals'] is not None, 'Response should include teacher serializer'
+
+    def test_get_assignment_with_given_course(self):
+        assignment = factory.Assignment()
+        course1 = assignment.courses.first()
+        factory.Journal(assignment=assignment)
+        course2 = factory.Course()
+        assignment.courses.add(course2)
+        factory.Journal(assignment=assignment)
+        result = AssignmentSerializer(assignment, context={
+            'user': course2.author, 'course': course2, 'journals': True}).data
+        assert len(result['journals']) == 1, 'Course2 is supplied, only journals from that course should appear (1)'
+
+        result = AssignmentSerializer(assignment, context={
+            'user': course2.author, 'journals': True}).data
+        assert not result['journals'], 'No course supplied should also return no journals'
+
+        result = AssignmentSerializer(assignment, context={
+            'user': course1.author, 'course': course1, 'journals': True}).data
+        assert len(result['journals']) == 2, 'Course1 is supplied, only journals from that course should appear (2)'
+
+        # Should not work when user is not in supplied course
+        with pytest.raises(VLEParticipationError):
+            result = AssignmentSerializer(assignment, context={
+                'user': course2.author, 'course': course1, 'journals': True}).data
 
     def test_assigned_assignment(self):
         assignment = factory.Assignment()

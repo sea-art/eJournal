@@ -44,7 +44,7 @@ def validate_password(password):
         raise ValidationError("Password needs to contain at least 8 characters.")
     if password == password.lower():
         raise ValidationError("Password needs to contain at least 1 capital letter.")
-    if re.match(r'^\w+$', password):
+    if re.match(r'^[a-zA-Z0-9]+$', password):
         raise ValidationError("Password needs to contain a special character.")
 
 
