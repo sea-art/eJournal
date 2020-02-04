@@ -48,9 +48,11 @@ class JournalView(viewsets.ViewSet):
 
         request.user.check_permission('can_view_all_journals', assignment)
         request.user.check_can_view(assignment)
+        request.user.check_can_view(course)
 
+        users = course.participation_set.filter(role__can_have_journal=True).values('user')
         journals = JournalSerializer(
-            Journal.objects.filter(assignment=assignment),
+            Journal.objects.filter(assignment=assignment, user__in=users),
             many=True,
             context={
                 'user': request.user,
