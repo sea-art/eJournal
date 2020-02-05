@@ -325,7 +325,7 @@ export default {
                 }
             })
 
-            if (!this.$refs.assignmentDetails.validateDetails()) {
+            if (this.$refs.assignmentDetails && !this.$refs.assignmentDetails.validateDetails()) {
                 return
             }
 

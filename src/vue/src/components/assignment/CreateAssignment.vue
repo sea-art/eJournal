@@ -72,7 +72,7 @@ export default {
     },
     methods: {
         onSubmit () {
-            if (!this.$refs.assignmentDetails.validateDetails()) {
+            if (this.$refs.assignmentDetails && !this.$refs.assignmentDetails.validateDetails()) {
                 return
             }
             assignmentAPI.create(this.form)
