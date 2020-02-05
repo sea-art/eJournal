@@ -114,7 +114,8 @@ def make_course_group(name, course, lti_id=None):
 def make_assignment(name, description, author=None, format=None, active_lti_id=None,
                     points_possible=10, is_published=None, unlock_date=None, due_date=None,
                     lock_date=None, courses=[], is_group_assignment=False,
-                    can_set_journal_name=False, can_set_journal_image=False, can_lock_journal=False):
+                    can_set_journal_name=False, can_set_journal_image=False, can_lock_journal=False,
+                    remove_grade_upon_leaving_group=False):
     """Make a new assignment.
 
     Arguments:
@@ -138,7 +139,8 @@ def make_assignment(name, description, author=None, format=None, active_lti_id=N
     assign = Assignment(name=name, description=description, author=author, format=format,
                         is_group_assignment=is_group_assignment, active_lti_id=active_lti_id,
                         can_set_journal_name=can_set_journal_name, can_set_journal_image=can_set_journal_image,
-                        can_lock_journal=can_lock_journal)
+                        can_lock_journal=can_lock_journal,
+                        remove_grade_upon_leaving_group=remove_grade_upon_leaving_group)
     if points_possible is not None:
         assign.points_possible = points_possible
     if is_published is not None:

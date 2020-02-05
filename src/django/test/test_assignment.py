@@ -57,7 +57,7 @@ class AssignmentAPITest(TestCase):
                       create_status=403,
                       user=factory.Student())
 
-    def test_create(self):
+    def test_create_assignment(self):
         lti_params = {**self.create_params, **{'lti_id': 'new_lti_id'}}
         resp = api.create(self, 'assignments', params=lti_params, user=self.teacher)['assignment']
         assignment = Assignment.objects.get(pk=resp['id'])
@@ -82,10 +82,13 @@ class AssignmentAPITest(TestCase):
             'points_possible': 10,
             'course_id': self.course.pk,
             'is_group_assignment': True,
+            'remove_grade_upon_leaving_group': True,
         }
         assignment = api.create(self, 'assignments', params=params, user=self.teacher)['assignment']
         assert 'is_group_assignment' in assignment and assignment['is_group_assignment'], \
             'Assignment with group size should be a group assignment'
+        assert 'remove_grade_upon_leaving_group' in assignment and assignment['remove_grade_upon_leaving_group'], \
+            'Assignment should keep settings on creation'
 
     def test_get(self):
         student = factory.Student()
