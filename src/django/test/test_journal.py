@@ -83,6 +83,30 @@ class JournalAPITest(TestCase):
         assert Journal.all_objects.filter(assignment=self.assignment, authors__user=other_student).count() == 1, \
             'make_journal should not create a journal and AP if they already exist'
 
+    def test_list_journal(self):
+        assignment = factory.Assignment()
+        course1 = assignment.courses.first()
+        factory.Journal(assignment=assignment)
+        course2 = factory.Course()
+        assignment.courses.add(course2)
+        factory.Journal(assignment=assignment)
+
+        result = api.get(
+            self, 'journals', params={'assignment_id': assignment.pk, 'course_id': course2.pk}, user=course2.author)
+        assert len(result['journals']) == 1, 'Course2 is supplied, only journals from that course should appear (1)'
+
+        result = api.get(
+            self, 'journals', params={'assignment_id': assignment.pk}, user=self.teacher, status=400)
+
+        result = api.get(
+            self, 'journals', params={'assignment_id': assignment.pk, 'course_id': course1.pk}, user=course1.author)
+        assert len(result['journals']) == 2, 'Course1 is supplied, only journals from that course should appear (2)'
+
+        # Should not work when user is not in supplied course
+        result = api.get(
+            self, 'journals', params={'assignment_id': assignment.pk, 'course_id': course1.pk}, user=course2.author,
+            status=403)
+
     def test_update_journal(self):
         # Check if students need to specify a name to update journals
         api.update(self, 'journals', params={'pk': self.journal.pk}, user=self.student, status=400)

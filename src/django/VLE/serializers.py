@@ -33,9 +33,10 @@ class UserSerializer(serializers.ModelSerializer):
     def get_role(self, user):
         if 'course' not in self.context or not self.context['course']:
             return None
-
-        role = Participation.objects.get(user=user, course=self.context['course']).role
-
+        try:
+            role = Participation.objects.get(user=user, course=self.context['course']).role
+        except Participation.DoesNotExist:
+            return None
         if role:
             return role.name
         else:
@@ -319,7 +320,10 @@ class AssignmentSerializer(serializers.ModelSerializer):
             # Normal assignments should only get the journals of users that should have a journal
             else:
                 journals = Journal.objects.filter(assignment=assignment)
-            return JournalSerializer(journals.distinct(), many=True, context=self.context).data
+            course = self.context['course']
+            users = course.participation_set.filter(role__can_have_journal=True).values('user')
+            return JournalSerializer(
+                journals.filter(authors__user__in=users).distinct(), many=True, context=self.context).data
         else:
             return None
 
@@ -327,7 +331,9 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if 'user' not in self.context or not self.context['user']:
             return None
 
-        course = self._get_course(assignment)
+        course = self.context.get('course', None)
+        if course is None:
+            course = self._get_course(assignment)
         # Get the stats from only the course that its linked to, when no courses are supplied.
         users = User.objects.filter(
             participation__course=course, participation__role__can_have_journal=True

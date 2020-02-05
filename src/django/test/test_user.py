@@ -11,6 +11,7 @@ from rest_framework.settings import api_settings
 
 import VLE.factory as creation_factory
 import VLE.permissions as permissions
+import VLE.validators as validators
 from VLE.models import User
 
 
@@ -327,5 +328,12 @@ class UserAPITest(TestCase):
         with pytest.raises(ValidationError):
             test_student.is_test_student = False
             test_student.save()
+
+    def test_password_validation(self):
+        # We require a special character
+        with pytest.raises(ValidationError):
+            validators.validate_password('SomePassword')
+        # Underscore qualifies as special character
+        validators.validate_password('Some_Password')
 
     # TODO: Test download, upload and set_profile_picture

@@ -171,6 +171,9 @@ export default {
     @include lg-max
         height: 50vh
 
+#timeline-toggle
+    display: none
+
 @include lg-max
     /* Handles changing of the button icon. */
     [aria-expanded="false"] .timeline-outer__icon--open
@@ -190,6 +193,7 @@ export default {
         text-align: center
 
     #timeline-toggle
+        display: block
         border: 0px
         padding: 10px 0px
         border-radius: 40px !important

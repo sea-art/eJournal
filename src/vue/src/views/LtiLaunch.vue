@@ -40,7 +40,6 @@ import ltiAPI from '@/api/lti.js'
 import router from '@/router'
 import courseAPI from '@/api/course.js'
 import assignmentAPI from '@/api/assignment.js'
-import genericUtils from '@/utils/generic_utils.js'
 
 export default {
     name: 'LtiLaunch',
@@ -184,8 +183,8 @@ export default {
             courseAPI.create({
                 name: this.lti.ltiCourseName,
                 abbreviation: this.lti.ltiCourseAbbr,
-                startdate: this.lti.ltiCourseStart.split(' ')[0],
-                enddate: genericUtils.yearOffset(this.lti.ltiCourseStart.split(' ')[0]),
+                startdate: this.lti.ltiCourseStart.split(' ')[0] || '',
+                enddate: '',
                 lti_id: this.lti.ltiCourseID,
             }).then((course) => {
                 this.page.cID = course.id
