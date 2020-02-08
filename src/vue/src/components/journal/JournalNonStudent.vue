@@ -34,10 +34,25 @@
                     v-if="journal && journal.needs_lti_link && assignment && assignment.active_lti_course"
                     show
                 >
-                    <!-- TODO GROUPS: add the names of the users that need to setup a connection through LTI -->
-                    <b>Warning:</b> This student has not visited the assignment in the active LMS (Canvas) course
-                    '{{ assignment.active_lti_course.name }}' yet. They cannot update this journal and grades cannot
-                    be passed back until they visit the assignment at least once.
+                    <span v-if="assignment.is_group_assignment">
+                        <b>Warning:</b> The following journal members have not visited the assignment in the active LMS
+                        (Canvas) course '{{ assignment.active_lti_course.name }}' yet:
+                        <ul>
+                            <li
+                                v-for="author in journal.authors.filter(author => author.needs_lti_link)"
+                                :key="`lti-author-${author.user.username}`"
+                            >
+                                {{ author.user.full_name }}
+                            </li>
+                        </ul>
+                        This journal cannot be updated and grades cannot be passed back until each member visits the
+                        assignment at least once.
+                    </span>
+                    <span v-else>
+                        <b>Warning:</b> This student has not visited the assignment in the active LMS (Canvas) course
+                        '{{ assignment.active_lti_course.name }}' yet. They cannot update this journal and grades cannot
+                        be passed back until they visit the assignment at least once.
+                    </span>
                 </b-alert>
                 <load-wrapper :loading="loadingNodes">
                     <div v-if="nodes.length > currentNode && currentNode !== -1">
