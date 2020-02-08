@@ -36,7 +36,7 @@
                     @click.stop
                     @click="togglePresetOnly"
                 >
-                    <icon name="times"/>
+                    <icon name="lock"/>
                     Preset-only
                 </b-button>
                 <icon name="info-circle"/>
@@ -51,7 +51,7 @@
                     @click.stop
                     @click="togglePresetOnly"
                 >
-                    <icon name="check"/>
+                    <icon name="unlock"/>
                     Unlimited
                 </b-button>
                 <icon name="info-circle"/>

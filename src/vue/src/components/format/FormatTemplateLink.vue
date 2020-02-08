@@ -10,7 +10,7 @@
         <icon
             v-if="template.preset_only"
             v-b-tooltip.hover
-            name="times"
+            name="lock"
             class="fill-red float-right ml-2"
             title="This template can only be used for preset entries you add to the timeline"
             @click.native.stop="togglePresetOnly"
@@ -18,7 +18,7 @@
         <icon
             v-else
             v-b-tooltip.hover
-            name="check"
+            name="unlock"
             class="fill-green float-right ml-2"
             title="This template can be freely used by students as often as they want"
             @click.native.stop="togglePresetOnly"
