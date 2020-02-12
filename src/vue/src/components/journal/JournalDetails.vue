@@ -25,6 +25,7 @@
             v-if="assignment.is_group_assignment"
             :journal="journal"
             :assignment="assignment"
+            class="mt-2"
         />
         <b-modal
             v-if="canManageJournal"

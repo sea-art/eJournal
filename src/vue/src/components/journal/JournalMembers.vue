@@ -1,10 +1,6 @@
 <template>
-    <div
-        class="members"
-    >
-        <div
-            @click="lockJournal"
-        >
+    <div class="members">
+        <div @click="lockJournal">
             <icon
                 v-b-tooltip.hover
                 class="lock-members-icon fill-grey"
@@ -52,15 +48,20 @@
                     class="background-red"
                     title="This user has not yet visited the assignment in the LMS (Canvas) yet"
                 >
+                    LTI
                     <icon
                         name="link"
-                        class="fill-white"
+                        class="fill-white shift-up-2"
                         scale="0.65"
                     />
                 </b-badge>
                 {{ author.user.full_name }}
             </b>
-            <span class="max-one-line">
+            <!-- TODO GROUPS: ENSURE THAT NO USERNAMES ARE LEAKED TO OTHER JOURNAL MEMBERS (BACKEND) -->
+            <span
+                v-if="author.user.username"
+                class="max-one-line"
+            >
                 {{ author.user.username }}
             </span>
         </div>
@@ -72,8 +73,9 @@
         </div>
         <div
             v-if="$hasPermission('can_manage_journals') && journal.authors.length < journal.author_limit"
-            class="d-flex mt-3 flex-wrap"
+            class="d-flex mt-3 full-width"
         >
+            <!-- TODO GROUPS: PREVENT SELECT OVERFLOW -->
             <theme-select
                 v-model="participantsToAdd"
                 label="full_name"
@@ -83,11 +85,11 @@
                 :searchable="true"
                 :multiSelectText="`user${participantsToAdd &&
                     participantsToAdd.length === 1 ? '' : 's'} selected`"
-                placeholder="Select users to add"
-                class="multi-form flex-shrink-1"
+                placeholder="Select users"
+                class="no-right-radius"
             />
             <b-button
-                class="add-button multi-form flex-grow-1"
+                class="add-button no-left-radius"
                 @click="addMembers"
             >
                 <icon name="user-plus"/>
@@ -221,6 +223,8 @@ export default {
         float: right
         margin-top: 3px
         margin-right: 9px
+        &.unlocked-icon
+            margin-right: 4px
         svg
             fill: red
 </style>

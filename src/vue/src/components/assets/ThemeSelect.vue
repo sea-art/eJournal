@@ -171,6 +171,10 @@ export default {
             display: none
         span
             display: none
+    &.no-right-radius
+        .multiselect__tags
+            border-top-right-radius: 0 !important
+            border-bottom-right-radius: 0 !important
     &.show-limit .multiselect__tags span
         display: inline-block
     &.show-search .multiselect__tags

@@ -6,13 +6,13 @@
             @edit-click="handleEdit()"
         />
         <b-alert
-            v-if="$route.query.left"
+            v-if="$route.query.left_journal"
             slot="main-content-column"
             show
             dismissible
         >
-            <b>Warning:</b> The student whose submission you viewed in the LMS (Canvas) is no longer a
-            member of any journal.
+            <b>Warning:</b> The author of the submission you viewed in the LMS (Canvas) is no longer a member of any
+            journal for this assignment.
         </b-alert>
 
         <div slot="main-content-column">

@@ -67,11 +67,11 @@ def task_author_status_to_LMS(journal_pk, author_pk, left_journal=False):
 
 def send_author_status_to_LMS(journal, author, left_journal=False):
     """Send the status of about the author of the journal to both the teacher and the author"""
-    # TODO GROUP: after cohort assignment PR is accepted, check if teacher journal does not get a response to the LMS
-    if author not in journal.authors.all():
+    # TODO GROUPS: after cohort assignment PR is accepted, check if teacher journal does not get a response to the LMS
+    if author not in journal.authors.all() and not left_journal:
         return {
-            # TODO: check if this does not leak full_name and is only used for debugging
-            'description': '{} not in journal {}'.format(author.full_name, journal.to_string()),
+            # TODO GROUPS: check if this does not leak full_name and is only used for debugging
+            'description': '{} not in journal {}'.format(author.user.full_name, journal.to_string()),
             'code_mayor': 'error',
             'successful': False,
         }
@@ -98,8 +98,8 @@ def send_author_status_to_LMS(journal, author, left_journal=False):
         grade = journal.get_grade()
     else:
         result_data = {
-            'url': '{0}/Home/Course/{1}/Assignment/{2}?left_journal={3}'.format(
-                settings.BASELINK, course.pk, journal.assignment.pk, journal.pk)
+            'url': '{0}/Home/Course/{1}/Assignment/{2}?left_journal=true'.format(
+                settings.BASELINK, course.pk, journal.assignment.pk)
         }
         grade = journal.get_grade() if not journal.assignment.remove_grade_upon_leaving_group else 0
 
