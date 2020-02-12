@@ -121,7 +121,7 @@ export default {
                 return 'fill-green'
             }
 
-            return 'fill-red'
+            return 'fill-orange'
         },
     },
     methods: {
