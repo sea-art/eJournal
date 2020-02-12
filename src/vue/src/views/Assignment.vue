@@ -6,7 +6,7 @@
             @edit-click="handleEdit()"
         />
         <b-alert
-            v-if="$route.query.left_journal"
+            v-if="LTILeftJournal"
             slot="main-content-column"
             show
             dismissible
@@ -363,6 +363,7 @@ export default {
             repeatCreateJournal: false,
             newJournalCount: null,
             newJournalRequestInFlight: false,
+            LTILeftJournal: false,
         }
     },
     computed: {
@@ -417,6 +418,15 @@ export default {
                 this.$router.push({ name: 'Home' })
             }
             return
+        }
+
+        /* Check query to see if the LTI submission corresponds to a left journal. Remove query param to prevent
+         * showing an alert on subsequent page visits / refreshes. */
+        if (this.$route.query.left_journal) {
+            const query = Object.assign({}, this.$route.query)
+            delete query.left_journal
+            this.$router.replace({ query })
+            this.LTILeftJournal = true
         }
 
         this.init()
