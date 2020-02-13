@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import { detect as detectBrowser } from 'detect-browser'
 import store from '@/store'
 import routerConstraints from '@/utils/constants/router_constraints.js'
 import Home from '@/views/Home.vue'
@@ -129,6 +130,17 @@ router.beforeEach((to, from, next) => {
 
     if (from.name) {
         router.app.previousPage = from
+    }
+
+    const browser = detectBrowser();
+
+    // TODO: Choose to display message depending on version (update browser)?
+    switch (browser && browser.name) {
+    case 'chrome':
+    case 'firefox':
+        router.app.$toasted.success('supported browser')
+        break;
+    default:
     }
 
     if (loggedIn && routerConstraints.UNAVAILABLE_WHEN_LOGGED_IN.has(to.name)) {
