@@ -38,7 +38,8 @@ def send_journal_status_to_LMS(journal):
     if not journal.authors.exists():
         return None
 
-    Entry.objects.filter(node__in=journal.published_nodes).update(vle_coupling=Entry.NEEDS_GRADE_PASSBACK)
+    Entry.objects.filter(node__in=journal.published_nodes).exclude(vle_coupling=Entry.LINK_COMPLETE)\
+        .update(vle_coupling=Entry.NEEDS_GRADE_PASSBACK)
 
     response = {}
     failed = False
@@ -107,7 +108,7 @@ def send_author_status_to_LMS(journal, author, left_journal=False):
 
     # Send student latest grade. But only send it when there are new entries OR grade changed
     response_student = None
-    if journal.published_nodes.filter(entry__vle_coupling=Entry.NEEDS_SUBMISSION).exists() or \
+    if journal.published_nodes.filter(entry__vle_coupling=Entry.NEEDS_GRADE_PASSBACK).exists() or \
        journal.LMS_grade != grade:
         if journal.LMS_grade != grade:
             submitted_at = str(timezone.now())
