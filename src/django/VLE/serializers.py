@@ -23,12 +23,14 @@ class InstanceSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     role = serializers.SerializerMethodField()
     groups = serializers.SerializerMethodField()
+    username = serializers.SerializerMethodField()
+    profile_picture = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('username', 'full_name', 'profile_picture', 'is_teacher', 'lti_id', 'id',
+        fields = ('username', 'full_name', 'profile_picture', 'is_teacher', 'id',
                   'role', 'groups', 'is_test_student')
-        read_only_fields = ('id', 'lti_id', 'is_teacher', 'username', 'is_test_student')
+        read_only_fields = ('id', 'is_teacher', 'is_test_student')
 
     def get_role(self, user):
         if 'course' not in self.context or not self.context['course']:
@@ -41,6 +43,24 @@ class UserSerializer(serializers.ModelSerializer):
             return role.name
         else:
             return None
+
+    def get_username(self, user):
+        if 'user' not in self.context or not self.context['user']:
+            return None
+
+        if not self.context['user'].can_view(user):
+            return None
+
+        return user.username
+
+    def get_profile_picture(self, user):
+        if 'user' not in self.context or not self.context['user']:
+            return None
+
+        if not self.context['user'].can_view(user):
+            return None
+
+        return user.profile_picture
 
     def get_groups(self, user):
         if 'course' not in self.context or not self.context['course']:

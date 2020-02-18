@@ -232,6 +232,14 @@ class User(AbstractUser):
                 return True
             return self.has_permission('can_grade', obj.entry.node.journal.assignment)
 
+        elif isinstance(obj, User):
+            if self == obj:
+                return True
+            if permissions.is_user_supervisor_of(self, obj):
+                return True
+            if Journal.objects.filter(authors__user__in=[self]).filter(authors__user__in=[obj]).exists():
+                return True
+
         return False
 
     def check_can_edit(self, obj):
@@ -241,8 +249,9 @@ class User(AbstractUser):
     def to_string(self, user=None):
         if user is None:
             return "User"
-        if not (self.is_superuser or self == user or permissions.is_user_supervisor_of(user, self)):
+        if not user.can_view(self):
             return "User"
+
         return self.username + " (" + str(self.pk) + ")"
 
     def save(self, *args, **kwargs):

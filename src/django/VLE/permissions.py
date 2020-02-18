@@ -105,7 +105,7 @@ def is_user_supervisor_of(supervisor, user):
         if supervisor.has_permission('can_view_course_users', course):
             if course.participation_set.filter(user=user).exists():
                 return True
-            for assignment in course.assignment_set.filter(journal__authors__user=user):
+            for assignment in course.assignment_set.filter(journal__authors__user__in=user):
                 if supervisor.has_permission('can_view_all_journals', assignment):
                     return True
 
