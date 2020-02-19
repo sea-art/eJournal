@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 
 from VLE.settings.base import *
-import logging
+
 ENVIRONMENT = 'STAGE'
 
 MEDIA_ROOT = os.environ['MEDIA_ROOT']
@@ -97,4 +97,3 @@ LOGGING = {
         },
     },
 }
-logger = logging.getLogger(__name__)

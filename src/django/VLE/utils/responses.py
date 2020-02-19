@@ -10,7 +10,6 @@ from django.http import FileResponse, HttpResponse, JsonResponse
 from sentry_sdk import capture_exception, capture_message
 
 import VLE.models
-import logging
 
 
 def sentry_log(description='No description given', exception=None):
@@ -201,8 +200,5 @@ def file(file_path, filename):
         response['Content-Type'] = 'text/html; charset=utf-8'
         response['X-Accel-Redirect'] = '/{}'.format(file_path[file_path.find('media'):])
         response['X-Accel-Charset'] = 'utf-8'
-    settings.logger.warning(response.__dict__)
-    settings.logger.warning(file_path)
-    settings.logger.warning(file_path[file_path.find('media'):])
 
     return response
