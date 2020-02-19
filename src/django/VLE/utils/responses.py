@@ -13,8 +13,6 @@ import VLE.models
 import logging
 
 
-logger = logging.getLogger(__name__)
-
 def sentry_log(description='No description given', exception=None):
     if exception:
         capture_exception(exception)
@@ -200,6 +198,7 @@ def file(file_path, filename):
         # Note that the following headers are not modified by nginx:
         # Content-Type, Content-Disposition, Accept-Ranges, Set-Cookie, Cache-Control, Expires
         response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
+        response['Content-Type'] = 'text/html; charset=utf-8'
         response['X-Accel-Redirect'] = '/{}'.format(file_path[file_path.find('media'):])
         response['X-Accel-Charset'] = 'utf-8'
     logger.warning(response.__dict__)

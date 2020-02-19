@@ -101,4 +101,7 @@ LOGGING = {
     },
 }
 
+logger = logging.getLogger(__name__)
+
+
 DEBUG = True
