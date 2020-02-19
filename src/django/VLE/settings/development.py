@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 
 from VLE.settings.base import *
-
+import logging
 ENVIRONMENT = 'DEVELOPMENT'
 
 MEDIA_ROOT = os.environ['MEDIA_ROOT']
