@@ -86,13 +86,16 @@ a
 .info
     background-color: $theme-blue !important
 
-.error, .success, .warning
-    font-family: 'Roboto Condensed', sans-serif !important
-    font-size: 1.1em !important
-    color: white
-
 .badge, .toasted
     border-radius: 5px !important
+
+.toasted, .toasted.toasted-primary
+    padding: 10px 15px
+    font-family: 'Roboto Condensed', sans-serif
+    font-size: 1em
+    color: white
+    .action
+        color: rgba(0, 0, 0, 0.45)
 
 .fade-enter-active, .fade-leave-active
   transition: opacity .5s

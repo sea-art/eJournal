@@ -125,6 +125,11 @@ const router = new Router({
     }],
 })
 
+/* Obtain browser user agent data. */
+const browser = detectBrowser()
+let browserUpdateNeeded = (browser && browser.name && browser.version && SupportedBrowsers[browser.name]
+    && parseInt(browser.version.split('.')[0], 10) < SupportedBrowsers[browser.name])
+
 router.beforeEach((to, from, next) => {
     const loggedIn = store.getters['user/loggedIn']
 
@@ -132,15 +137,32 @@ router.beforeEach((to, from, next) => {
         router.app.previousPage = from
     }
 
-    const browser = detectBrowser();
-
-    // TODO: Choose to display message depending on version (update browser)?
-    switch (browser && browser.name) {
-    case 'chrome':
-    case 'firefox':
-        router.app.$toasted.success('supported browser')
-        break;
-    default:
+    /* Show warning when user visits the website with an outdated browser (to ensure correct functionality).
+     * In case the browser is not in our whitelist, no message will be shown. */
+    if (browserUpdateNeeded) {
+        router.app.$toasted.clear() // Clear existing toasts.
+        setTimeout(() => { // Allow a cooldown for smoother transitions.
+            router.app.$toasted.error('Your current browser version is not up to date. For an optimal experience, '
+                + 'please update your browser before using eJournal.', {
+                action: [
+                    {
+                        text: 'Info',
+                        onClick: (e, toastObject) => {
+                            window.open('https://browsehappy.com', '_blank')
+                            toastObject.goAway(0)
+                        },
+                    },
+                    {
+                        text: 'Dismiss',
+                        onClick: (e, toastObject) => {
+                            browserUpdateNeeded = false
+                            toastObject.goAway(0)
+                        },
+                    },
+                ],
+                duration: null,
+            })
+        }, 1000)
     }
 
     if (loggedIn && routerConstraints.UNAVAILABLE_WHEN_LOGGED_IN.has(to.name)) {
