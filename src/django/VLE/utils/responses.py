@@ -201,8 +201,8 @@ def file(file_path, filename):
         response['Content-Type'] = 'text/html; charset=utf-8'
         response['X-Accel-Redirect'] = '/{}'.format(file_path[file_path.find('media'):])
         response['X-Accel-Charset'] = 'utf-8'
-    logger.warning(response.__dict__)
-    logger.warning(file_path)
-    logger.warning(file_path[file_path.find('media'):])
+    settings.logger.warning(response.__dict__)
+    settings.logger.warning(file_path)
+    settings.logger.warning(file_path[file_path.find('media'):])
 
     return response
