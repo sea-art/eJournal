@@ -10,7 +10,10 @@ from django.http import FileResponse, HttpResponse, JsonResponse
 from sentry_sdk import capture_exception, capture_message
 
 import VLE.models
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 def sentry_log(description='No description given', exception=None):
     if exception:
@@ -183,6 +186,7 @@ def validation_error(err, exception=None):
 
 def file(file_path, filename):
     """Return a file as bytestring if found, otherwise returns a not found response."""
+
     if isinstance(file_path, VLE.models.UserFile):
         file_path = file_path.file.path
 
@@ -197,5 +201,9 @@ def file(file_path, filename):
         # Content-Type, Content-Disposition, Accept-Ranges, Set-Cookie, Cache-Control, Expires
         response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
         response['X-Accel-Redirect'] = '/{}'.format(file_path[file_path.find('media'):])
+        response['X-Accel-Charset'] = 'utf-8'
+    logger.warning(response.__dict__)
+    logger.warning(file_path)
+    logger.warning(file_path[file_path.find('media'):])
 
     return response

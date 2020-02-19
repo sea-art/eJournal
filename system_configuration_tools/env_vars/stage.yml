@@ -2,7 +2,7 @@
 
 # Git settings.
 setup_git_repo: true
-git_branch: develop
+git_branch: bugfix/1514221566
 
 
 # Sentry settings
