@@ -1,26 +1,29 @@
 <template>
     <footer>
         <hr/>
-        &copy; 2020 - eJournal.app -
+        &copy; 2020 - eJournal (
+        <a
+            href="https://www.eJournal.app/changelog"
+            class="text-grey underline"
+        >
+            {{ version }}
+        </a>
+        ) -
         <a
             href="/eJournal-privacy-notice.pdf"
-            class="text-grey"
+            class="text-grey underline"
         >
             Privacy notice
         </a>
-        <tooltip
-            tip="We reserve the right to change this privacy policy as we may deem necessary from time to time or as
-            may be required by law. Any changes will be immediately posted on the website and you are deemed to have
-            accepted the terms of the privacy policy on your first use of the website following the alterations."
-        />
     </footer>
 </template>
-<script>
-import tooltip from '@/components/assets/Tooltip.vue'
 
+<script>
 export default {
-    components: {
-        tooltip,
+    data () {
+        return {
+            version: CurrentRelease.version,
+        }
     },
 }
 
@@ -32,4 +35,6 @@ footer
     text-align: center
     width: 100%
     margin: 10px 0px
+    a.underline
+        text-decoration: underline !important
 </style>
