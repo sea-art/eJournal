@@ -1,7 +1,7 @@
 {
     "name": "ejournal",
-    "version": "1.0.0",
-    "description": "Incremental Long-Term Assignments",
+    "version": "v1.2.2.3",
+    "description": "A blended learning application that provides an easy to manage graded journal system focused on education.",
     "author": "eJournal",
     "private": true,
     "licence": "AGPL-3.0",

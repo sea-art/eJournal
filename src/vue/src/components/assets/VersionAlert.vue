@@ -22,8 +22,6 @@ export default {
     data () {
         return {
             version: CurrentRelease.version,
-            message: CurrentRelease.message,
-            date: CurrentRelease.date,
         }
     },
     computed: {
