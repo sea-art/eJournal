@@ -32,7 +32,7 @@
                 @click.stop
                 @click="setOrder(!order)"
             >
-                <icon name="long-arrow-down"/>
+                <icon name="long-arrow-alt-down"/>
                 Ascending
             </b-button>
             <b-button
@@ -41,7 +41,7 @@
                 @click.stop
                 @click="setOrder(!order)"
             >
-                <icon name="long-arrow-up"/>
+                <icon name="long-arrow-alt-up"/>
                 Descending
             </b-button>
         </div>

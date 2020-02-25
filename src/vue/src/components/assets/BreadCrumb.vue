@@ -38,7 +38,7 @@
                                 tag="b-button"
                             >
                                 <icon
-                                    name="level-up"
+                                    name="level-up-alt"
                                     class="shift-up-2 action-icon"
                                 />
                             </b-link>

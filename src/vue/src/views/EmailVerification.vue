@@ -7,7 +7,7 @@
                     Verifying
                 </h2><br/>
                 <icon
-                    name="circle-o-notch"
+                    name="circle-notch"
                     pulse
                     scale="1.5"
                 />
