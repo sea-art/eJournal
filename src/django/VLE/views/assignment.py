@@ -4,8 +4,8 @@ assignment.py.
 In this file are all the assignment api requests.
 """
 import csv
-import chardet
 
+import chardet
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 from django.utils import timezone
