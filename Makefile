@@ -53,7 +53,7 @@ setup-no-input:
 
 	sudo apt install npm -y
 	sudo npm install npm@latest -g
-	sudo apt install nodejs python3 python3-pip pep8 libpq-dev python3-dev postgresql postgresql-contrib rabbitmq-server -y
+	sudo apt install nodejs python3 python3-pip pep8 libpq-dev python3-dev postgresql postgresql-contrib rabbitmq-server python3-setuptools -y
 
 	make setup-venv requirements_file=local.txt
 
@@ -68,7 +68,7 @@ setup-no-input:
 setup-travis:
 	(sudo apt-cache show python3.6 | grep "Package: python3.6") || (sudo add-apt-repository ppa:deadsnakes/ppa -y; sudo apt update) || echo "0"
 	sudo apt install npm -y
-	sudo apt install nodejs python3 python3-pip pep8 -y
+	sudo apt install nodejs python3 python3-pip pep8 python3-setuptools -y
 
 	sudo pip3 install virtualenv
 	virtualenv -p python3 venv
