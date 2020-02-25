@@ -26,9 +26,7 @@ export default {
     },
     computed: {
         showVersionAlert () {
-            return this.message !== ''
-                && this.$store.getters['preferences/hideVersionAlert'] !== this.version
-                && this.$moment().diff(this.$moment(this.date), 'days') < 7
+            return this.$store.getters['preferences/hideVersionAlert'] !== this.version
         },
     },
     methods: {
