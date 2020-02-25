@@ -17,8 +17,8 @@
             Learn more
         </b-button>
         <b-button
-            href="mailto:contact@ejourn.al?subject=I%20would%20like%20to%20know%20more%20about%20eJournal!"
-            class="white-button ml-2"
+            href="mailto:contact@ejournal.app?subject=I%20would%20like%20to%20know%20more%20about%20eJournal!"
+            class="change-button ml-2"
         >
             <icon name="desktop"/>
             Request a demo
