@@ -202,6 +202,14 @@ class Command(BaseCommand):
                 "fields": [
                     {"title": "Text", "location": 0, "type": Field.TEXT},
                 ]
+            },
+            {
+                "name": "Files",
+                "fields": [
+                    {"title": "IMG", "location": 0, "type": Field.IMG, "required": False},
+                    {"title": "FILE", "location": 1, "type": Field.FILE, "required": False},
+                    {"title": "PDF", "location": 2, "type": Field.PDF, "required": False},
+                ]
             }
         ]
 
@@ -210,7 +218,7 @@ class Command(BaseCommand):
             template = factory.make_entry_template(t["name"], format)
             templates.append(template)
             for f in t["fields"]:
-                factory.make_field(template, f["title"], f["location"], f["type"])
+                factory.make_field(template, f["title"], f["location"], f["type"], required=f.get('required', True))
 
         return templates
 
