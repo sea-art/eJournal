@@ -2,12 +2,12 @@
     <b-modal
         :id="modalID"
         size="lg"
-        title="Copy assignment"
+        title="Import assignment"
         hideFooter
     >
         <b-card class="no-hover">
             <h2 class="multi-form">
-                Select an assignment to copy
+                Select an assignment to import
             </h2>
             <p>
                 This action will create a new assignment that is identical to the assignment of your choice.
@@ -15,23 +15,23 @@
             </p>
 
             <div
-                v-for="copyable in copyableFormats"
-                :key="`copyable-${copyable.course.id}`"
+                v-for="importable in importableFormats"
+                :key="`importable-${importable.course.id}`"
             >
                 <main-card
-                    :key="`course-${copyable.course.id}-copy`"
-                    :line1="copyable.course.name"
-                    :line2="copyable.course.startdate ? (copyable.course.startdate.substring(0, 4) +
-                        (copyable.course.enddate ? ` - ${copyable.course.enddate.substring(0, 4)}` : '')) : ''"
-                    @click.native="selectedCourse = copyable.course.id"
+                    :key="`course-${importable.course.id}-import`"
+                    :line1="importable.course.name"
+                    :line2="importable.course.startdate ? (importable.course.startdate.substring(0, 4) +
+                        (importable.course.enddate ? ` - ${importable.course.enddate.substring(0, 4)}` : '')) : ''"
+                    @click.native="selectedCourse = importable.course.id"
                 />
                 <div
-                    v-if="selectedCourse === copyable.course.id"
+                    v-if="selectedCourse === importable.course.id"
                     class="pl-5"
                 >
                     <assignment-card
-                        v-for="assignment in copyable.assignments"
-                        :key="`course-${copyable.course.id}-assignment-${assignment.id}-copy`"
+                        v-for="assignment in importable.assignments"
+                        :key="`course-${importable.course.id}-assignment-${assignment.id}-import`"
                         :assignment="assignment"
                         :class="{
                             active: selectedAssignment === assignment.id,
@@ -42,22 +42,22 @@
                     />
                 </div>
             </div>
-            <div v-if="!copyableFormats">
+            <div v-if="!importableFormats">
                 <h4>No existing assignments available</h4>
                 <hr class="m-0 mb-1"/>
-                Only assignments where you have permission to edit are available for copy.
+                Only assignments where you have permission to edit are available for import.
             </div>
 
             <div v-if="selectedAssignment !== null">
                 <hr/>
                 <b-form
                     class="full-width"
-                    @submit="copyAssignment"
+                    @submit="importAssignment"
                 >
                     <b-button
-                        v-if="!shiftCopyDates"
+                        v-if="!shiftImportDates"
                         class="multi-form mr-3"
-                        @click="shiftCopyDates = true"
+                        @click="shiftImportDates = true"
                     >
                         <icon name="calendar"/>
                         Shift Deadlines
@@ -65,14 +65,14 @@
                     <b-button
                         v-else
                         class="multi-form mr-3"
-                        @click="shiftCopyDates = false"
+                        @click="shiftImportDates = false"
                     >
                         <icon name="calendar"/>
                         Keep existing deadlines
                     </b-button>
 
                     <div
-                        v-if="shiftCopyDates"
+                        v-if="shiftImportDates"
                         class="shift-deadlines-input"
                     >
                         <icon
@@ -94,7 +94,7 @@
                         type="submit"
                     >
                         <icon name="file"/>
-                        Copy
+                        Import
                     </b-button>
                 </b-form>
             </div>
@@ -129,34 +129,34 @@ export default {
         return {
             selectedCourse: null,
             selectedAssignment: null,
-            copyableFormats: [],
-            assignmentCopyInFlight: false,
-            shiftCopyDates: true,
+            importableFormats: [],
+            assignmentImportInFlight: false,
+            shiftImportDates: true,
             months: 0,
         }
     },
     created () {
-        assignmentAPI.getCopyable()
+        assignmentAPI.getImportable()
             .then((data) => {
-                this.copyableFormats = data
+                this.importableFormats = data
             })
     },
     methods: {
-        copyAssignment (e) {
+        importAssignment (e) {
             e.preventDefault()
 
-            if (!this.assignmentCopyInFlight && this.selectedAssignment) {
-                this.assignmentCopyInFlight = true
-                assignmentAPI.copy(this.selectedAssignment, {
+            if (!this.assignmentImportInFlight && this.selectedAssignment) {
+                this.assignmentImportInFlight = true
+                assignmentAPI.import(this.selectedAssignment, {
                     course_id: this.cID,
-                    months_offset: (!this.shiftCopyDates || this.months === '') ? 0 : this.months,
+                    months_offset: (!this.shiftImportDates || this.months === '') ? 0 : this.months,
                     lti_id: this.lti.ltiAssignID,
                 }, { customSuccessToast: 'Assignment succesfully copied!' }).then((response) => {
-                    this.assignmentCopyInFlight = false
+                    this.assignmentImportInFlight = false
 
-                    this.$store.commit('user/COPY_ASSIGNMENT_PERMISSIONS', {
+                    this.$store.commit('user/IMPORT_ASSIGNMENT_PERMISSIONS', {
                         sourceAssignmentID: this.selectedAssignment,
-                        copyAssignmentID: response.assignment_id,
+                        importAssignmentID: response.assignment_id,
                     })
 
                     this.$router.push({
@@ -167,7 +167,7 @@ export default {
                         },
                     })
                 }).catch((error) => {
-                    this.assignmentCopyInFlight = false
+                    this.assignmentImportInFlight = false
                     throw error
                 })
             }

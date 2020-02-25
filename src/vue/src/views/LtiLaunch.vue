@@ -247,7 +247,7 @@ export default {
                 this.handleCourseChoice = true
                 break
             case this.states.new_assign:
-                assignmentAPI.getCopyable().then((assignments) => {
+                assignmentAPI.getImportable().then((assignments) => {
                     this.assignments = assignments
                     this.linkableAssignments = assignments.slice()
                     for (let i = 0; i < this.linkableAssignments.length; i++) {
