@@ -3,6 +3,9 @@ assignment.py.
 
 In this file are all the assignment api requests.
 """
+import csv
+import chardet
+
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 from django.utils import timezone
@@ -348,30 +351,35 @@ class AssignmentView(viewsets.ViewSet):
         duplicates = dict()
         non_participants = dict()
 
-        for line_nr, line in enumerate(request.FILES['file'], 1):
-            try:
-                decoded_line = line.decode()
+        # Guess which encoding is used.
+        encoding = chardet.detect(request.FILES['file'].read())['encoding']
+        # Go back to first line of the file, then read and decode lines.
+        csv_file = request.FILES['file'].open().read().decode(encoding).splitlines()
+        # Initialize csv reader to parse file.
+        csv_reader = csv.reader(csv_file, delimiter=',')
 
+        for line_nr, row in enumerate(csv_reader, 1):
+            try:
                 # Ignore empty lines.
-                if not decoded_line.strip():
+                if len(row) == 0:
                     continue
 
-                username, bonus = decoded_line[:-1].split(',')[:2]
+                username, bonus = row
                 bonus = float(bonus)
                 user = User.objects.get(username=str(username))
                 journal = Journal.objects.get(assignment=assignment, user=user)
                 if journal in bonuses:
-                    duplicates[line_nr] = line.decode().split(',')[0]
+                    duplicates[line_nr] = username
                 else:
                     bonuses[journal] = bonus
             except UnicodeDecodeError:
                 return response.bad_request({'general': 'Not a valid csv file.'})
             except ValueError:
-                incorrect_format_lines[line_nr] = line.decode()
+                incorrect_format_lines[line_nr] = ','.join(row)
             except User.DoesNotExist:
-                unknown_users[line_nr] = line.decode().split(',')[0]
+                unknown_users[line_nr] = username
             except Journal.DoesNotExist:
-                non_participants[line_nr] = line.decode().split(',')[0]
+                non_participants[line_nr] = username
 
         if unknown_users or incorrect_format_lines or duplicates:
             errors = dict()
