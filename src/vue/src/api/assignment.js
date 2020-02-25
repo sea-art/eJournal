@@ -41,7 +41,7 @@ export default {
     },
 
     import (id, data, connArgs = auth.DEFAULT_CONN_ARGS) {
-        return auth.post(`assignments/${id}/import/`, data, connArgs)
+        return auth.post(`assignments/${id}/copy/`, data, connArgs)
             .then(response => response.data)
     },
 }

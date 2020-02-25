@@ -414,7 +414,7 @@ class AssignmentView(viewsets.ViewSet):
         return response.success({'data': importable})
 
     @action(methods=['post'], detail=True)
-    def import(self, request, pk):
+    def copy(self, request, pk):
         """Import an assignment format.
         Users should have edit rights for the assignment import source.
 

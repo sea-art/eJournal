@@ -277,7 +277,7 @@ class AssignmentAPITest(TestCase):
         pre_import_entry_count = Entry.objects.count()
         pre_import_node_count = Node.objects.count()
         pre_import_preset_node_count = PresetNode.objects.count()
-        resp = api.post(self, 'assignments/{}/import'.format(source_assignment.pk), params={
+        resp = api.post(self, 'assignments/{}/copy'.format(source_assignment.pk), params={
                 'course_id': course.pk,
                 'months_offset': 0,
             }, user=teacher)
@@ -300,7 +300,7 @@ class AssignmentAPITest(TestCase):
         assert created_assignment.courses.count() == 1 and course in created_assignment.courses.all(), \
             'Only the course where we call import from should be part of the created assignment course set'
 
-        resp = api.post(self, 'assignments/{}/import'.format(source_assignment.pk), params={
+        resp = api.post(self, 'assignments/{}/copy'.format(source_assignment.pk), params={
                 'course_id': course.pk,
                 'months_offset': 0,
                 'lti_id': 'test'
@@ -359,7 +359,7 @@ class AssignmentAPITest(TestCase):
                 'Import target templates should be equal'
 
         # Import again, but now update all dates
-        resp = api.post(self, 'assignments/{}/import'.format(source_assignment.pk), params={
+        resp = api.post(self, 'assignments/{}/copy'.format(source_assignment.pk), params={
                 'course_id': course.pk,
                 'months_offset': 12,
             }, user=teacher)
