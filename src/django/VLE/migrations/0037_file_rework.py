@@ -206,6 +206,7 @@ class Migration(migrations.Migration):
                 ('content', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='VLE.Content')),
                 ('course', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='VLE.Course')),
                 ('journal', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='VLE.Journal')),
+                ('access_id', models.CharField(default=VLE.models.access_gen, max_length=64)),
             ],
         ),
         migrations.RunPython(convertUserFiles),

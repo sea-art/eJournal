@@ -4,6 +4,8 @@ models.py.
 Database file
 """
 import os
+import random
+import string
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
@@ -113,6 +115,11 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
             os.remove(instance.file.path)
 
 
+# https://stackoverflow.com/a/2257449
+def access_gen(size=64, chars=string.ascii_lowercase + string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
+
+
 class FileContext(models.Model):
     """FileContext.
 
@@ -131,6 +138,11 @@ class FileContext(models.Model):
     file = models.FileField(
         null=False,
         upload_to=file_handling.get_file_path
+    )
+    access_id = models.CharField(
+        null=False,
+        default=access_gen,
+        max_length=64,
     )
     file_name = models.TextField(
         null=False
@@ -160,7 +172,6 @@ class FileContext(models.Model):
         on_delete=models.CASCADE,
         null=True
     )
-
     is_temp = models.BooleanField(
         default=True
     )
@@ -168,7 +179,9 @@ class FileContext(models.Model):
     creation_date = models.DateTimeField(editable=False)
     last_edited = models.DateTimeField()
 
-    def download_url(self):
+    def download_url(self, access_id=False):
+        if access_id:
+            return '{}/files/{}/access_id/'.format(settings.API_URL, self.access_id)
         return '{}/files/{}/'.format(settings.API_URL, self.pk)
 
     def cascade_from_user(self, user):
