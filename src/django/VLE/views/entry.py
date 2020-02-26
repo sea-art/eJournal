@@ -153,6 +153,7 @@ class EntryView(viewsets.ViewSet):
                     return response.bad_request('The given content does not match the accompanying field type.')
                 if not data:
                     old_content.data = None
+                    old_content.save()
                     continue
 
                 entry_utils.patch_entry_content(request.user, entry, old_content, field, data, assignment)

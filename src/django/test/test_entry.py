@@ -149,15 +149,19 @@ class EntryAPITest(TestCase):
 
         # Student should be able to update only the required fields, leaving the optinal fields empty
         fields = Field.objects.filter(template=self.format.template_set.first())
-        params = {
-            'pk': entry['id'],
-            'content': [{
-                'id': field.pk,
-                'data': 'filled' if field.required else ''
-            } for field in fields]
-        }
-        resp = api.update(self, 'entries', params=params.copy(), user=self.student)['entry']
-        assert len(resp['content']) == 2, 'Response should have emptied the optional fields'
+        for empty_value in [None, '']:
+            params = {
+                'pk': entry['id'],
+                'content': [{
+                    'id': field.pk,
+                    'data': 'filled' if field.required else empty_value
+                } for field in fields]
+            }
+            resp = api.update(self, 'entries', params=params.copy(), user=self.student)['entry']
+            assert len(resp['content']) == 3, 'Response should have emptied the optional fields, not deleted'
+            assert any([c['data'] is None for c in resp['content']]), \
+                'Response should have emptied the optional fields, not deleted'
+
         # Student should be able to edit an optinal field
         params = {
             'pk': entry['id'],
