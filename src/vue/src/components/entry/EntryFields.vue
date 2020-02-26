@@ -43,7 +43,9 @@
                 :autoUpload="true"
                 :aID="$route.params.aID"
                 :contentID="completeContent[i].contentID"
-                @fileUploadSuccess="completeContent[i].data = $event"
+                @uploadingFile="$emit('uploadingFile')"
+                @fileUploadFailed="$emit('finishedUploadingFile')"
+                @fileUploadSuccess="completeContent[i].data = $event; $emit('finishedUploadingFile')"
             />
             <file-upload-input
                 v-else-if="field.type == 'f'"
@@ -53,7 +55,9 @@
                 :autoUpload="true"
                 :aID="$route.params.aID"
                 :contentID="completeContent[i].contentID"
-                @fileUploadSuccess="completeContent[i].data = $event"
+                @uploadingFile="$emit('uploadingFile')"
+                @fileUploadFailed="$emit('finishedUploadingFile')"
+                @fileUploadSuccess="completeContent[i].data = $event; $emit('finishedUploadingFile')"
             />
             <b-input
                 v-else-if="field.type == 'v'"
@@ -69,7 +73,9 @@
                 :autoUpload="true"
                 :aID="$route.params.aID"
                 :contentID="completeContent[i].contentID"
-                @fileUploadSuccess="completeContent[i].data = $event"
+                @uploadingFile="$emit('uploadingFile')"
+                @fileUploadFailed="$emit('finishedUploadingFile')"
+                @fileUploadSuccess="completeContent[i].data = $event; $emit('finishedUploadingFile')"
             />
             <text-editor
                 v-else-if="field.type == 'rt'"
