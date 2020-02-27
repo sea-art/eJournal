@@ -150,7 +150,6 @@ export default {
             this.instance = editorInstance
         },
         test () {
-            console.log(Array.from(this.instance.ui.componentFactory.names()))
             this.editorData = ''
         },
         /* NOTE: Called from parent. */

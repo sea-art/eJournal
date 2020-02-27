@@ -103,7 +103,8 @@ new Vue({
         store.dispatch('connection/setupConnectionInterceptors', { connection: connection.conn })
         store.dispatch('connection/setupConnectionInterceptors',
             { connection: connection.connRefresh, isRefresh: true })
-        store.dispatch('connection/setupConnectionInterceptors', { connection: connection.connFile })
+        store.dispatch('connection/setupConnectionInterceptors', { connection: connection.connUpFile })
+        store.dispatch('connection/setupConnectionInterceptors', { connection: connection.connDownFile })
         store.dispatch('connection/setupConnectionInterceptors', { connection: connection.connFileEmail })
 
         window.addEventListener('resize', () => {

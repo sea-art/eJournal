@@ -7,8 +7,14 @@ const conn = axios.create()
 // An instance without refresh interceptor
 const connRefresh = axios.create()
 
-const connFile = axios.create({
-    responseType: 'arraybuffer', // TODO FILE: We no longer use base64 images -> this can be merged and removed
+const connUpFile = axios.create({
+    headers: {
+        'Content-Type': 'multipart/form-data',
+    },
+})
+
+const connDownFile = axios.create({
+    responseType: 'arraybuffer',
     headers: {
         'Content-Type': 'multipart/form-data',
     },
@@ -32,7 +38,8 @@ const connSentry = axios.create({
 export default {
     conn,
     connRefresh,
-    connFile,
+    connUpFile,
+    connDownFile,
     connFileEmail,
     connSentry,
 }

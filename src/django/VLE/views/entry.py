@@ -13,7 +13,7 @@ import VLE.utils.entry_utils as entry_utils
 import VLE.utils.file_handling as file_handling
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
-from VLE.models import Entry, Field, Journal, Node, Template
+from VLE.models import Entry, Field, FileContext, Journal, Node, Template
 
 
 class EntryView(viewsets.ViewSet):
@@ -76,15 +76,17 @@ class EntryView(viewsets.ViewSet):
             created_content = factory.make_content(node.entry, data, field)
 
             if field.type in field.FILE_TYPES:  # Image, file or PDF
-                user_file = file_handling.get_temp_user_file(request.user, assignment, content['data'])
-                if user_file is None and field.required:
-                    node.entry.delete()
-                    # If there is a newly created node, delete that as well
-                    if not node_id:
-                        node.delete()
-                    return response.bad_request('One of your files was not correctly uploaded, please try again.')
-                elif user_file:
-                    file_handling.make_permanent_file_content(user_file, created_content, node)
+                try:
+                    file_handling.establish_file(request.user, content['data'], content=created_content)
+                except FileContext.DoesNotExist:
+                    if field.required:
+                        # TODO: test why this is only done when file upload goes wrong, and not also when
+                        # required data is not set.
+                        node.entry.delete()
+                        # If there is a newly created node, delete that as well
+                        if not node_id:
+                            node.delete()
+                        return response.bad_request('One of your files was not correctly uploaded, please try again.')
 
         # Notify teacher on new entry
         if (node.journal.sourcedid and node.entry.vle_coupling == Entry.NEED_SUBMISSION):

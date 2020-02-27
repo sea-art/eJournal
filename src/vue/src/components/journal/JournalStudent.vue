@@ -237,7 +237,7 @@ export default {
     },
     methods: {
         adaptData (editedData) {
-            this.nodes[this.currentNode] = editedData
+            // this.nodes[this.currentNode] = editedData
             entryAPI.update(this.nodes[this.currentNode].entry.id, { content: editedData.entry.content })
                 .then((entry) => { this.nodes[this.currentNode].entry = entry })
         },

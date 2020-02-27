@@ -16,7 +16,7 @@ import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
-from VLE.models import Assignment, Content, Entry, Instance, Journal, Node, User, UserFile
+from VLE.models import Assignment, Content, Entry, Instance, Journal, Node, User, UserFile, FileContext
 from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
 from VLE.tasks import send_email_verification_link
 from VLE.utils import file_handling
@@ -345,16 +345,16 @@ class UserView(viewsets.ViewSet):
             request.query_params, (str, 'file_name'), (int, 'entry_id'), (int, 'node_id'), (int, 'content_id'))
 
         try:
-            user_file = UserFile.objects.get(author=pk, file_name=file_name, entry=entry_id, node=node_id,
-                                             content=content_id)
-
-            if user_file.author != request.user:
-                request.user.check_permission('can_view_all_journals', user_file.assignment)
+            # user_file = UserFile.objects.get(author=pk, file_name=file_name, entry=entry_id, node=node_id,
+            #                                  content=content_id)
+            file = FileContext.objects.get(file_name=file_name, content=content_id)
+            if file.author != request.user:
+                request.user.check_permission('can_view_all_journals', file.assignment)
 
         except (UserFile.DoesNotExist, ValueError):
             return response.bad_request(file_name + ' was not found.')
 
-        return response.file(user_file, user_file.file_name)
+        return response.file(file, file.file_name)
 
     @action(methods=['post'], detail=False)
     def upload(self, request):

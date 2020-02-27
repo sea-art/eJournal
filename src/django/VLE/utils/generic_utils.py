@@ -9,7 +9,7 @@ from django.conf import settings
 from django.db.models import Case, When
 
 import VLE.factory as factory
-from VLE.models import Entry, Journal, FileContext, Node, PresetNode, Template
+from VLE.models import Entry, FileContext, Journal, Node, PresetNode, Template
 from VLE.utils.error_handling import VLEBadRequest, VLEMissingRequiredKey, VLEParamWrongType
 
 

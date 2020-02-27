@@ -30,7 +30,7 @@ export default {
             Boolean,
         },
         endpoint: {
-            default: 'users/upload',
+            default: 'files',
         },
         placeholder: {
             default: 'No file chosen',
@@ -75,8 +75,8 @@ export default {
             formData.append('content_id', this.contentID)
 
             auth.uploadFile(this.endpoint, formData, { customSuccessToast: 'File upload success.' })
-                .then(() => {
-                    this.$emit('fileUploadSuccess', this.file.name)
+                .then((resp) => {
+                    this.$emit('fileUploadSuccess', resp.data.access_id)
                 })
                 .catch(() => {
                     this.$emit('fileUploadFailed', this.file.name)

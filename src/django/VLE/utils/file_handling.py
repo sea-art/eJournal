@@ -9,6 +9,9 @@ import shutil
 from django.conf import settings
 from django.db.models import Q
 
+import VLE.models
+from VLE.utils.error_handling import VLEBadRequest, VLEPermissionError
+
 
 def get_path(instance, filename):
     """Upload user files into their respective directories. Following MEDIA_ROOT/uID/aID/<file>
@@ -70,6 +73,33 @@ def make_permanent_file_content(user_file, content, node):
     user_file.save()
 
 
+def establish_file(author, access_id, course=None, assignment=None, journal=None, content=None):
+    """establish files, after this they won't be removed."""
+    file = VLE.models.FileContext.objects.get(access_id=access_id)
+
+    if file.author != author:
+        raise VLEPermissionError('You are not allowed to update files of other users')
+    if not file.is_temp:
+        raise VLEBadRequest('You are not allowed to update established files')
+
+    if content:
+        content.data = file.file_name
+        content.save()
+        journal = content.entry.node.journal
+    if journal:
+        assignment = journal.assignment
+    if assignment and not course:
+        course = assignment.get_active_course(author)
+
+    file.assignment = assignment
+    file.content = content
+    file.course = course
+    file.journal = journal
+    file.is_temp = False
+    file.save()
+
+    return file
+
 def get_temp_user_file(user, assignment, file_name, entry=None, node=None, content=None):
     """Retrieves the most recently added tempfile specified by assignment and name.
 
@@ -80,4 +110,4 @@ def get_temp_user_file(user, assignment, file_name, entry=None, node=None, conte
 
 def remove_temp_user_files(user):
     """Deletes floating user files."""
-    user.userfile_set.filter(Q(node=None) | Q(entry=None) | Q(content=None)).delete()
+    VLE.models.FileContext.objects.filter(author=user, is_temp=True).delete()

@@ -14,7 +14,7 @@ class FileView(viewsets.ViewSet):
     def retrieve(self, request, pk):
         """Get a FileContext file by ID"""
         # TODO FILE implement
-        file = FileContext.objects.get(pk=pk)
+        file = FileContext.objects.get(file_name=pk)
         return response.file(file, file.file_name)
 
     def create(self, request):
@@ -32,32 +32,22 @@ class FileView(viewsets.ViewSet):
 
         return response.created(
             description='Successfully uploaded {:s}.'.format(request.FILES['file'].name),
-            payload={'download_url': file.download_url(access_id=True)}
+            payload={
+                'download_url': file.download_url(access_id=True),
+                'access_id': file.access_id,
+            }
         )
-
-    @action(['patch'], detail=False)
-    def esteblish(self, request):
-        """esteblish files, after this they won't be removed."""
-        for file_data in request.data['file_data']:
-            name, assignment_id, content_id, course_id, journal_id, = utils.optional_params(
-                file_data, 'name', 'assignment_id', 'content_id', 'course_id', 'journal_id')
-            file = FileContext.objects.get(file_name=name)
-            if file.author != request.user:
-                return response.forbidden('You are not allowed to update files of other users')
-            if not file.is_temp:
-                return response.forbidden('You are not allowed to update established files')
-            file.assignment = Assignment.objects.get(pk=assignment_id) if assignment_id else None
-            file.content = Content.objects.get(pk=content_id) if content_id else None
-            file.course = Course.objects.get(pk=course_id) if course_id else None
-            file.journal = Journal.objects.get(pk=journal_id) if journal_id else None
-            file.is_temp = False
-            file.save()
 
     @action(['get'], detail=True)
     def access_id(self, request, pk):
-        """Get a FileContext file by pk"""
-        # TODO FILE implement
+        """Get a FileContext file by access_id"""
         file = FileContext.objects.get(access_id=pk)
+        return response.file(file, file.file_name)
+
+    @action(['get'], detail=True)
+    def file_name(self, request, pk):
+        """Get a FileContext file by filename"""
+        file = FileContext.objects.get(file_name=pk)
         return response.file(file, file.file_name)
 
     # TODO FILE Remove

@@ -184,13 +184,13 @@ export default {
         return initRequest(connection.conn.delete, improveUrl(url, data), null, connArgs)
     },
     uploadFile (url, data, connArgs) {
-        return initRequest(connection.connFile.post, improveUrl(url), data, connArgs)
+        return initRequest(connection.connUpFile.post, improveUrl(url), data, connArgs)
     },
     uploadFileEmail (url, data, connArgs) {
         return initRequest(connection.connFileEmail.post, improveUrl(url), data, connArgs)
     },
     downloadFile (url, data, connArgs) {
-        return initRequest(connection.connFile.get, improveUrl(url, data), null, connArgs)
+        return initRequest(connection.connDownFile.get, improveUrl(url, data), null, connArgs)
     },
     create (url, data, connArgs) { return this.post(url, data, connArgs) },
     update (url, data, connArgs) { return this.patch(url, data, connArgs) },
