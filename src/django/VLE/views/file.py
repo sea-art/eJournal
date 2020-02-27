@@ -35,21 +35,21 @@ class FileView(viewsets.ViewSet):
             payload={'download_url': file.download_url(access_id=True)}
         )
 
-    @action(['patch'])
+    @action(['patch'], detail=False)
     def esteblish(self, request):
         """esteblish files, after this they won't be removed."""
         for file_data in request.data['file_data']:
-            name, assignment_id, content_id, course_id, journal_id, = utils.required_params(
+            name, assignment_id, content_id, course_id, journal_id, = utils.optional_params(
                 file_data, 'name', 'assignment_id', 'content_id', 'course_id', 'journal_id')
             file = FileContext.objects.get(file_name=name)
             if file.author != request.user:
                 return response.forbidden('You are not allowed to update files of other users')
             if not file.is_temp:
                 return response.forbidden('You are not allowed to update established files')
-            file.assignment = Assignment.objects.get(pk=assignment_id)
-            file.content = Content.objects.get(pk=content_id)
-            file.course = Course.objects.get(pk=course_id)
-            file.journal = Journal.objects.get(pk=journal_id)
+            file.assignment = Assignment.objects.get(pk=assignment_id) if assignment_id else None
+            file.content = Content.objects.get(pk=content_id) if content_id else None
+            file.course = Course.objects.get(pk=course_id) if course_id else None
+            file.journal = Journal.objects.get(pk=journal_id) if journal_id else None
             file.is_temp = False
             file.save()
 

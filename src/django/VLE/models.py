@@ -12,7 +12,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField, CIEmailField, CITextField
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Sum
+from django.db.models import F, Q, Sum
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.timezone import now
@@ -295,7 +295,7 @@ class User(AbstractUser):
 
     def check_can_view(self, obj):
         if not self.can_view(obj):
-            raise VLEPermissionError(message='You are not allowed to view {}'.format(obj.to_string()))
+            raise VLEPermissionError(message='You are not allowed to view {}'.format(obj.to_string(user=self)))
 
     def can_view(self, obj):
         if self.is_superuser:
@@ -306,10 +306,13 @@ class User(AbstractUser):
 
         elif isinstance(obj, Assignment):
             if self.is_participant(obj):
+                if self.has_permission('can_have_journal', obj) and obj.assigned_groups.exists() and \
+                   not obj.assigned_groups.filter(participation__user=self).exists():
+                    return False
                 return obj.is_published or self.has_permission('can_view_unpublished_assignment', obj)
             return False
-        elif isinstance(obj, Journal):
 
+        elif isinstance(obj, Journal):
             if obj.user != self:
                 return self.has_permission('can_view_all_journals', obj.assignment)
             else:
@@ -708,6 +711,7 @@ class Assignment(models.Model):
         blank=True
     )
     courses = models.ManyToManyField(Course)
+    assigned_groups = models.ManyToManyField(Group)
 
     format = models.OneToOneField(
         'Format',
@@ -749,7 +753,7 @@ class Assignment(models.Model):
 
         if active_lti_id_modified:
             # Reset all sourcedid if the active lti id is updated.
-            Journal.objects.filter(assignment=self.pk).update(sourcedid=None, grade_url=None)
+            Journal.all_objects.filter(assignment=self.pk).update(sourcedid=None, grade_url=None)
 
             if self.active_lti_id is not None and self.active_lti_id not in self.lti_id_set:
                 self.lti_id_set.append(self.active_lti_id)
@@ -829,6 +833,27 @@ class Assignment(models.Model):
         return "{} ({})".format(self.name, self.pk)
 
 
+class JournalManager(models.Manager):
+    def get_queryset(self):
+        """Filter on only journals with can_have_journal and that are in the assigned to groups"""
+        query = super(JournalManager, self).get_queryset()
+        q1 = query.annotate(
+            p_user=F('assignment__courses__participation__user'),
+            p_group=F('assignment__courses__participation__groups'),
+            can_have_journal=F('assignment__courses__participation__role__can_have_journal')
+        ).filter(
+            # Filter on only can_have_journal
+            p_user=F('user'), can_have_journal=True,
+        ).filter(
+            # Filter on only assigned groups
+            Q(p_group__in=F('assignment__assigned_groups')) | Q(assignment__assigned_groups=None),
+        ).annotate(
+            # Reset group, as that could lead to distinct not working
+            p_group=F('pk')
+        ).distinct().order_by('pk')
+        return q1
+
+
 class Journal(models.Model):
     """Journal.
 
@@ -837,6 +862,8 @@ class Journal(models.Model):
     - assignment: a foreign key linked to an assignment.
     - user: a foreign key linked to a user.
     """
+    all_objects = models.Manager()
+    objects = JournalManager()
 
     assignment = models.ForeignKey(
         'Assignment',
@@ -860,6 +887,9 @@ class Journal(models.Model):
     bonus_points = models.FloatField(
         default=0,
     )
+
+    def get_queryset(self):
+        return super(Journal, self).get_queryset().filter(pk=1)
 
     def get_grade(self):
         return self.bonus_points + (self.node_set.filter(entry__grade__published=True)

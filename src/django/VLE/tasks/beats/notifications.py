@@ -9,7 +9,7 @@ from django.db.models import Q, Sum
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
-from VLE.models import Entry, Journal, Node, Participation, PresetNode
+from VLE.models import Entry, Journal, Node, PresetNode
 
 
 def _send_deadline_mail(deadline, journal):
@@ -56,11 +56,12 @@ def _send_deadline_mails(deadline_query):
     deadlines = deadline_query.filter(notifications_enabled & verified_email & no_submissions)\
                               .values('node', 'node__journal', 'due_date', 'type', 'target')
     for deadline in deadlines:
-        journal = Journal.objects.get(pk=deadline['node__journal'])
         # Only send to users who have a journal
-        if not Participation.objects.filter(user=journal.user, course__in=journal.assignment.courses.all(),
-                                            role__can_have_journal=True).exists():
+        try:
+            journal = Journal.objects.get(pk=deadline['node__journal'])
+        except Journal.DoesNotExist:
             continue
+
         # Dont send a mail when the target points is reached
         if deadline['type'] == Node.PROGRESS and \
            (Entry.objects.filter(node__journal=journal, creation_date__lt=deadline['due_date'],

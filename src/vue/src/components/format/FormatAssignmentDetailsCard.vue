@@ -60,6 +60,24 @@
                 placeholder="Points"
                 type="number"
             />
+            <h2 class="field-heading">
+                Assign to
+                <tooltip
+                    tip="Assign the assignment only to specific course groups"
+                />
+            </h2>
+            <theme-select
+                v-model="assignmentDetails.assigned_groups"
+                label="name"
+                trackBy="name"
+                :options="assignmentDetails.all_groups !== undefined ? assignmentDetails.all_groups : []"
+                :multiple="true"
+                :searchable="true"
+                :multiSelectText="`assigned to group${assignmentDetails.assigned_groups &&
+                    assignmentDetails.assigned_groups.length === 1 ? '' : 's'}`"
+                placeholder="Everyone"
+                class="multi-form mr-2"
+            />
             <b-row>
                 <b-col xl="4">
                     <h2 class="theme-h2 field-heading">

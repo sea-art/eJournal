@@ -33,9 +33,10 @@ class UserSerializer(serializers.ModelSerializer):
     def get_role(self, user):
         if 'course' not in self.context or not self.context['course']:
             return None
-
-        role = Participation.objects.get(user=user, course=self.context['course']).role
-
+        try:
+            role = Participation.objects.get(user=user, course=self.context['course']).role
+        except Participation.DoesNotExist:
+            return None
         if role:
             return role.name
         else:
@@ -148,15 +149,23 @@ class AssignmentDetailsSerializer(serializers.ModelSerializer):
     course_count = serializers.SerializerMethodField()
     lti_count = serializers.SerializerMethodField()
     active_lti_course = serializers.SerializerMethodField()
+    assigned_groups = serializers.SerializerMethodField()
+    all_groups = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
         fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date',
-                  'is_published', 'course_count', 'lti_count', 'active_lti_course')
+                  'is_published', 'course_count', 'lti_count', 'active_lti_course', 'assigned_groups', 'all_groups')
         read_only_fields = ('id', )
 
     def get_course_count(self, assignment):
         return assignment.courses.count()
+
+    def get_assigned_groups(self, assignment):
+        return GroupSerializer(assignment.assigned_groups, many=True).data
+
+    def get_all_groups(self, assignment):
+        return GroupSerializer(Group.objects.filter(course__in=assignment.courses.all()), many=True).data
 
     def get_lti_count(self, assignment):
         if 'user' in self.context and self.context['user'] and \
@@ -208,7 +217,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
             }
 
     def _get_teacher_deadline(self, assignment):
-        return assignment.journal_set \
+        return Journal.objects.filter(assignment=assignment) \
             .filter(
                 Q(node__entry__grade__grade__isnull=True) | Q(node__entry__grade__published=False),
                 node__entry__isnull=False) \
@@ -263,7 +272,10 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
         if not self.context['user'].has_permission('can_have_journal', assignment):
             return None
-        return Journal.objects.get(assignment=assignment, user=self.context['user']).pk
+        journal = Journal.objects.get(assignment=assignment, user=self.context['user'])
+        if not self.context['user'].can_view(journal):
+            return None
+        return journal.pk
 
     def get_journals(self, assignment):
         """Retrieves the journals of an assignment of the users who have the permission
@@ -273,7 +285,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
            and self.context['journals'] and self.context['course']:
             course = self.context['course']
             users = course.participation_set.filter(role__can_have_journal=True).values('user')
-            journals = Journal.objects.filter(assignment=assignment, user__in=users)
+            journals = Journal.objects.filter(assignment=assignment).filter(user__in=users)
             return JournalSerializer(journals, many=True, context=self.context).data
         else:
             return None
@@ -282,7 +294,9 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if 'user' not in self.context or not self.context['user']:
             return None
 
-        course = self._get_course(assignment)
+        course = self.context.get('course', None)
+        if course is None:
+            course = self._get_course(assignment)
         # Get the stats from only the course that its linked to, when no courses are supplied.
         users = User.objects.filter(
             participation__course=course, participation__role__can_have_journal=True
@@ -294,7 +308,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
                 users = users.filter(participation__groups=participation.groups.first())
 
         stats = {}
-        journal_set = assignment.journal_set.filter(user__in=users)
+        journal_set = Journal.objects.filter(assignment=assignment).filter(user__in=users)
 
         # Grader stats
         if self.context['user'].has_permission('can_grade', assignment):

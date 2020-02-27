@@ -7,7 +7,7 @@ core
 *.retry
 pass.txt
 *.dump
-
+celery*.log
 htmlcov/*
 .vscode/*
 

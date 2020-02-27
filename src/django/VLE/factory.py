@@ -241,8 +241,8 @@ def make_journal(assignment, user):
     as those in the format, so any changes should
     be reflected in the Nodes as well.
     """
-    if Journal.objects.filter(assignment=assignment, user=user).exists():
-        return Journal.objects.get(assignment=assignment, user=user)
+    if Journal.all_objects.filter(assignment=assignment, user=user).exists():
+        return Journal.all_objects.get(assignment=assignment, user=user)
     preset_nodes = assignment.format.presetnode_set.all()
     journal = Journal(assignment=assignment, user=user)
     journal.save()

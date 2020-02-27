@@ -123,7 +123,7 @@ export default {
             required: true,
         },
         lti: {
-            default: {},
+            default: () => ({}),
             required: false,
         },
     },
