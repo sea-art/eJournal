@@ -116,7 +116,7 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
 
 
 # https://stackoverflow.com/a/2257449
-def access_gen(size=64, chars=string.ascii_lowercase + string.ascii_uppercase + string.digits):
+def access_gen(size=128, chars=string.ascii_lowercase + string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
