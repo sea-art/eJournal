@@ -7,7 +7,7 @@ import re
 import shutil
 
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import F, Q
 
 import VLE.models
 from VLE.utils.error_handling import VLEBadRequest, VLEPermissionError
@@ -102,6 +102,7 @@ def establish_file(author, identifier, course=None, assignment=None, journal=Non
 
     return file
 
+
 def get_temp_user_file(user, assignment, file_name, entry=None, node=None, content=None):
     """Retrieves the most recently added tempfile specified by assignment and name.
 
@@ -112,5 +113,5 @@ def get_temp_user_file(user, assignment, file_name, entry=None, node=None, conte
 
 def remove_temp_user_files(user):
     """Deletes floating user files."""
-    print("\n\nEMOVING FILES:", VLE.models.FileContext.objects.filter(author=user, is_temp=True), "\n\n")
+    # Remove temp images
     VLE.models.FileContext.objects.filter(author=user, is_temp=True).delete()

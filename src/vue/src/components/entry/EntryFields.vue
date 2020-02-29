@@ -37,7 +37,7 @@
             />
             <file-upload-input
                 v-else-if="field.type == 'i'"
-                :placeholder="completeContent[i].data.file_name"
+                :placeholder="completeContent[i].data ? completeContent[i].data.file_name : null"
                 :acceptedFiletype="'image/*'"
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="true"
@@ -47,7 +47,7 @@
             />
             <file-upload-input
                 v-else-if="field.type == 'f'"
-                :placeholder="completeContent[i].data.file_name"
+                :placeholder="completeContent[i].data ? completeContent[i].data.file_name : null"
                 :acceptedFiletype="'*/*'"
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="true"
@@ -63,7 +63,7 @@
             />
             <file-upload-input
                 v-else-if="field.type == 'p'"
-                :placeholder="completeContent[i].data.file_name"
+                :placeholder="completeContent[i].data ? completeContent[i].data.file_name : null"
                 :acceptedFiletype="'application/pdf'"
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="true"

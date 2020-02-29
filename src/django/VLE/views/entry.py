@@ -170,7 +170,6 @@ class EntryView(viewsets.ViewSet):
             field = Field.objects.get(pk=field_id)
             if data is not None and field.type in field.FILE_TYPES:
                 data, = utils.required_typed_params(data, (str, 'id'))
-            print(data)
 
             old_content = entry.content_set.filter(field=field)
             changed = False
@@ -183,8 +182,9 @@ class EntryView(viewsets.ViewSet):
                     old_content.save()
                     continue
 
-                entry_utils.patch_entry_content(request.user, entry, old_content, field, data, assignment)
                 changed = old_content.data != data
+                if changed:
+                    entry_utils.patch_entry_content(request.user, entry, old_content, field, data, assignment)
             # If there was no content in this field before, create new content with the new data.
             # This can happen with non-required fields, or when the given data is deleted.
             else:
@@ -206,11 +206,9 @@ class EntryView(viewsets.ViewSet):
                         files_to_establish.append(
                             (FileContext.objects.get(access_id=access_id), old_content))
 
-        print(data)
         for (file, content) in files_to_establish:
             file_handling.establish_file(
                 request.user, file.access_id, content=content, in_rich_text=content.field.type == Field.RICH_TEXT)
-        print(content.data)
 
         file_handling.remove_temp_user_files(request.user)
 

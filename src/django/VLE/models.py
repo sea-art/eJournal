@@ -184,7 +184,7 @@ class FileContext(models.Model):
 
     def download_url(self, access_id=False):
         if access_id:
-            return '/files/{}/access_id/'.format(self.access_id)
+            return '{}/files/{}/access_id/'.format(settings.API_URL, self.access_id)
         return '/files/{}/'.format(self.pk)
 
     def cascade_from_user(self, user):
