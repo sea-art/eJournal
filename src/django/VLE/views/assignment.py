@@ -20,6 +20,7 @@ import VLE.validators as validators
 from VLE.models import Assignment, Course, Field, Journal, PresetNode, Template, User
 from VLE.serializers import AssignmentDetailsSerializer, AssignmentSerializer, CourseSerializer
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
+from VLE.utils import file_handling
 
 
 def day_neutral_datetime_increment(date, months=0):
@@ -131,7 +132,8 @@ class AssignmentView(viewsets.ViewSet):
 
         for user in course.users.all():
             factory.make_journal(assignment, user)
-
+        file_handling.establish_rich_text(request.user, assignment.description, assignment=assignment)
+        file_handling.remove_temp_user_files(request.user)
         serializer = AssignmentSerializer(
             assignment,
             context={'user': request.user, 'course': course,

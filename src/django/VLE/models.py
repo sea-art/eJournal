@@ -165,6 +165,11 @@ class FileContext(models.Model):
         on_delete=models.CASCADE,
         null=True
     )
+    comment = models.ForeignKey(
+        'Comment',
+        on_delete=models.CASCADE,
+        null=True
+    )
     course = models.ForeignKey(
         'Course',
         on_delete=models.CASCADE,

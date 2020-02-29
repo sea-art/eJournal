@@ -73,7 +73,8 @@ def make_permanent_file_content(user_file, content, node):
     user_file.save()
 
 
-def establish_file(author, identifier, course=None, assignment=None, journal=None, content=None, in_rich_text=False):
+def establish_file(author, identifier, course=None, assignment=None, journal=None, content=None, comment=None,
+                   in_rich_text=False):
     """establish files, after this they won't be removed."""
     if identifier.isdigit():
         file = VLE.models.FileContext.objects.get(pk=identifier)
@@ -84,23 +85,40 @@ def establish_file(author, identifier, course=None, assignment=None, journal=Non
         raise VLEPermissionError('You are not allowed to update files of other users')
     if not file.is_temp:
         raise VLEBadRequest('You are not allowed to update established files')
+
     if content and not in_rich_text:
         content.data = str(file.pk)
         content.save()
+    if comment:
+        journal = comment.entry.node.journal
+    if content:
         journal = content.entry.node.journal
     if journal:
         assignment = journal.assignment
     if assignment and not course:
         course = assignment.get_active_course(author)
-    file.assignment = assignment
+    file.comment = comment
     file.content = content
-    file.course = course
     file.journal = journal
+    file.assignment = assignment
+    file.course = course
     file.is_temp = False
     file.in_rich_text = in_rich_text
     file.save()
 
     return file
+
+
+def get_files_from_rich_text(rich_text, only_temp=True):
+    re_access_ids = re.compile(r'/files/([a-zA-Z0-9]+)/access_id/')
+    return [VLE.models.FileContext.objects.get(access_id=access_id)
+            for access_id in re.findall(re_access_ids, rich_text)]
+
+
+def establish_rich_text(author, rich_text, course=None, assignment=None, journal=None, comment=None, content=None):
+    for file in get_files_from_rich_text(rich_text):
+        if file.is_temp:
+            establish_file(author, file.access_id, course, assignment, journal, content, comment, in_rich_text=True)
 
 
 def get_temp_user_file(user, assignment, file_name, entry=None, node=None, content=None):

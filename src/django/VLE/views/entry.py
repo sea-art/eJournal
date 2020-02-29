@@ -90,10 +90,7 @@ class EntryView(viewsets.ViewSet):
 
                 # Establish all files in the rich text editor
                 if field.type == Field.RICH_TEXT:
-                    re_access_ids = re.compile(r'/files/([a-zA-Z0-9]+)/access_id/')
-                    for access_id in re.findall(re_access_ids, data):
-                        files_to_establish.append(
-                            (FileContext.objects.get(access_id=access_id), created_content))
+                    files_to_establish += [(f, created_content) for f in file_handling.get_files_from_rich_text(data)]
 
         except FileContext.DoesNotExist:
             # TODO: test why this is only done when file upload goes wrong, and not also when
@@ -201,10 +198,7 @@ class EntryView(viewsets.ViewSet):
 
                 # Establish all files in the rich text editor
                 if field.type == Field.RICH_TEXT:
-                    re_access_ids = re.compile(r'/files/([a-zA-Z0-9]+)/access_id/')
-                    for access_id in re.findall(re_access_ids, data):
-                        files_to_establish.append(
-                            (FileContext.objects.get(access_id=access_id), old_content))
+                    files_to_establish += [(f, old_content) for f in file_handling.get_files_from_rich_text(data)]
 
         for (file, content) in files_to_establish:
             file_handling.establish_file(

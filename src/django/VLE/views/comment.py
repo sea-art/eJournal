@@ -10,6 +10,7 @@ import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 from VLE.models import Comment, Entry
 from VLE.serializers import CommentSerializer
+from VLE.utils import file_handling
 
 
 class CommentView(viewsets.ViewSet):
@@ -87,6 +88,8 @@ class CommentView(viewsets.ViewSet):
         # By default a comment will be published, only users who can grade can delay publishing.
         published = published or not request.user.has_permission('can_grade', assignment)
         comment = factory.make_comment(entry, request.user, text, published)
+        file_handling.establish_rich_text(request.user, text, comment=comment)
+        file_handling.remove_temp_user_files(request.user)
         return response.created({'comment': CommentSerializer(comment).data})
 
     def retrieve(self, request, pk=None):
