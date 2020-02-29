@@ -7,7 +7,6 @@ import re
 import shutil
 
 from django.conf import settings
-from django.db.models import F, Q
 
 import VLE.models
 from VLE.utils.error_handling import VLEBadRequest, VLEPermissionError
@@ -20,18 +19,18 @@ def get_path(instance, filename):
     return str(instance.author.id) + '/' + str(instance.assignment.id) + '/' + filename
 
 
-def get_file_path(instance, filename):
+def get_file_path(file, filename):
     """Upload user files into their respective directories. Following MEDIA_ROOT/uID/<category>/?[id/]<filename>"""
-    if instance.is_temp:
-        return('{}/tempfiles/{}'.format(instance.author.id, filename))
-    elif instance.journal is not None:
-        return '{}/journalfiles/{}/{}'.format(instance.author.id, instance.journal.id, filename)
-    elif instance.assignment is not None:
-        return '{}/assignmentfiles/{}/{}'.format(instance.author.id, instance.assignment.id, filename)
-    elif instance.course is not None:
-        return '{}/coursefiles/coursefiles/{}/{}'.format(instance.author.id, instance.course.id, filename)
+    if file.is_temp:
+        return('{}/tempfiles/{}'.format(file.author.id, filename))
+    elif file.journal is not None:
+        return '{}/journalfiles/{}/{}'.format(file.author.id, file.journal.id, filename)
+    elif file.assignment is not None:
+        return '{}/assignmentfiles/{}/{}'.format(file.author.id, file.assignment.id, filename)
+    elif file.course is not None:
+        return '{}/coursefiles/coursefiles/{}/{}'.format(file.author.id, file.course.id, filename)
     else:
-        return '{}/userfiles/{}'.format(instance.author.id, filename)
+        return '{}/userfiles/{}'.format(file.author.id, filename)
 
 
 def get_feedback_file_path(instance, filename):
@@ -65,18 +64,10 @@ def compress_all_user_data(user, extra_data_dict=None, archive_extension='zip'):
     return archive_ouput_path, '{}.{}'.format(archive_name, archive_extension)
 
 
-def make_permanent_file_content(user_file, content, node):
-    """Upates a UserFile content, node and enty. Removing temp status."""
-    user_file.content = content
-    user_file.node = node
-    user_file.entry = content.entry
-    user_file.save()
-
-
 def establish_file(author, identifier, course=None, assignment=None, journal=None, content=None, comment=None,
                    in_rich_text=False):
     """establish files, after this they won't be removed."""
-    if identifier.isdigit():
+    if str(identifier).isdigit():
         file = VLE.models.FileContext.objects.get(pk=identifier)
     else:
         file = VLE.models.FileContext.objects.get(access_id=identifier)
@@ -86,17 +77,16 @@ def establish_file(author, identifier, course=None, assignment=None, journal=Non
     if not file.is_temp:
         raise VLEBadRequest('You are not allowed to update established files')
 
-    if content and not in_rich_text:
-        content.data = str(file.pk)
-        content.save()
     if comment:
         journal = comment.entry.node.journal
     if content:
         journal = content.entry.node.journal
     if journal:
         assignment = journal.assignment
-    if assignment and not course:
-        course = assignment.get_active_course(author)
+    if assignment:
+        if not course:
+            course = assignment.get_active_course(author)
+
     file.comment = comment
     file.content = content
     file.journal = journal
@@ -105,6 +95,9 @@ def establish_file(author, identifier, course=None, assignment=None, journal=Non
     file.is_temp = False
     file.in_rich_text = in_rich_text
     file.save()
+    if content and not in_rich_text:
+        content.data = str(file.pk)
+        content.save()
 
     return file
 
@@ -116,6 +109,8 @@ def get_files_from_rich_text(rich_text, only_temp=True):
 
 
 def establish_rich_text(author, rich_text, course=None, assignment=None, journal=None, comment=None, content=None):
+    if rich_text is None or len(rich_text) < 128:
+        return
     for file in get_files_from_rich_text(rich_text):
         if file.is_temp:
             establish_file(author, file.access_id, course, assignment, journal, content, comment, in_rich_text=True)
@@ -136,14 +131,12 @@ def remove_unused_user_files(user):
     for file in VLE.models.FileContext.objects.filter(author=user, comment__isnull=False):
         if str(file.access_id) not in file.comment.text:
             file.delete()
-    for file in VLE.models.FileContext.objects.filter(
-        author=user, assignment__isnull=False, journal__isnull=True):
+    for file in VLE.models.FileContext.objects.filter(author=user, assignment__isnull=False, journal__isnull=True):
         if str(file.access_id) not in file.assignment.description:
             found = False
-            for field in Field.objects.filter(template__assignment=file.assignment):
+            for field in VLE.models.Field.objects.filter(template__format__assignment=file.assignment):
                 if str(file.access_id) in field.description:
                     found = True
                     break
             if not found:
                 file.delete()
-            # print(f"{file.pk}, {file.content.data}")

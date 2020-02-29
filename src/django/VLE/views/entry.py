@@ -3,8 +3,6 @@ entry.py.
 
 In this file are all the entry api requests.
 """
-import re
-
 from rest_framework import viewsets
 
 import VLE.factory as factory

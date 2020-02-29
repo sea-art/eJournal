@@ -7,9 +7,10 @@ from rest_framework import viewsets
 
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
-from VLE.models import Assignment, Group, Field
+from VLE.models import Assignment, Field, Group
 from VLE.serializers import AssignmentDetailsSerializer, FormatSerializer
 from VLE.utils import file_handling
+
 
 class FormatView(viewsets.ViewSet):
     """Format view.

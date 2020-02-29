@@ -6,8 +6,7 @@ A library with utilities related to entries.
 import VLE.timeline as timeline
 import VLE.validators as validators
 from VLE import factory
-from VLE.models import Field, FileContext, Node
-from VLE.utils import file_handling
+from VLE.models import Field, Node
 from VLE.utils import generic_utils as utils
 from VLE.utils.error_handling import VLEBadRequest, VLEMissingRequiredField
 

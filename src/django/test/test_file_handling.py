@@ -5,12 +5,10 @@ from test.utils import api
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
-from django.urls import reverse
 
-# from VLE.views import UserView
-from VLE.factory import make_user_file
-from VLE.models import UserFile, Field, FileContext
-from VLE.utils.file_handling import get_path
+from VLE.models import Field, FileContext
+from VLE.utils import file_handling
+from VLE.utils.error_handling import VLEBadRequest, VLEPermissionError
 
 BOUNDARY = 'BoUnDaRyStRiNg'
 MULTIPART_CONTENT = 'multipart/form-data; boundary=%s' % BOUNDARY
@@ -40,34 +38,43 @@ class FileHandlingTest(TestCase):
     def tearDown(self):
         """Cleans any remaining user_files on the file system (remnants from failed tests) assumes user_file instance
         infact deletes corresponding files"""
-        UserFile.objects.filter(author=self.student).delete()
-        UserFile.objects.filter(author=self.teacher).delete()
+        FileContext.objects.all().delete()
 
-    def test_user_file_model(self):
-        user_file = UserFile.objects.filter(author=self.student.pk, file_name=self.video.name)
-        assert not user_file.exists(), "Assumes the student has no apriori user files."
+    def test_file_context_model(self):
+        file = FileContext.objects.filter(author=self.student.pk, file_name=self.video.name)
+        assert not file.exists(), "Assumes the student has no apriori user files."
 
-        user_file = make_user_file(self.video, self.student, self.journal.assignment)
+        file = FileContext.objects.create(file=self.video, author=self.student, file_name=self.video.name)
 
-        user_file_get = UserFile.objects.get(author=self.student.pk, file_name=self.video.name)
-        assert user_file, "The student should have succesfully created a temp user file."
-        assert user_file == user_file_get, "The created user file should be equal to the gotten user file from db."
-        user_file_file_path = user_file.file.path
-        actual_file_name = Path(user_file_file_path).name
+        file_get = FileContext.objects.filter(author=self.student.pk, file_name=self.video.name).first()
+        assert file, "The student should have succesfully created a temp user file."
+        assert file == file_get, "The created user file should be equal to the gotten user file from db."
+        path = file.file.path
+        actual_file_name = Path(path).name
 
-        assert os.path.exists(user_file_file_path) and os.path.isfile(user_file_file_path), \
+        assert os.path.exists(path) and os.path.isfile(path), \
             "The file should be created on file styem as an actual file."
 
-        assert actual_file_name == user_file.file_name, "The user file name field should match the actual file name."
+        assert actual_file_name == file.file_name, "The user file name field should match the actual file name."
 
-        assert get_path(user_file, user_file.file_name) in user_file.file.path, \
+        assert file_handling.get_file_path(file, file.file_name) in file.file.path, \
             "The user file's file path should follow the get_path logic"
 
-        user_file.delete()
-        assert not UserFile.objects.filter(author=self.student.pk, file_name=self.video.name).exists(), \
+        file.delete()
+        assert not FileContext.objects.filter(author=self.student.pk, file_name=self.video.name).exists(), \
             "User file should be deleted from DB."
-        assert not os.path.exists(user_file_file_path), \
+        assert not os.path.exists(path), \
             "Deleting a user file instance should delete the corresponding file as well."
+
+        # Check if path moves after establishing
+        # file = FileContext.objects.create(file=self.video, author=self.student, file_name=self.video.name)
+        # file_handling.establish_file(self.student, file.pk, assignment=self.assignment)
+        # file = FileContext.objects.get(author=self.student, file_name=self.video.name)
+        #
+        # assert file_handling.get_file_path(file, file.file_name) in file.file.path, \
+        #     "The user file's file path should follow the get_path logic"
+        # assert os.path.exists(file.file.path), \
+        #     "Deleting a user file instance should delete the corresponding file as well."
 
     def test_remove_unused_files(self):
         # Test uploading two files, then post entry, 1 gets removed
@@ -77,7 +84,7 @@ class FileHandlingTest(TestCase):
             self, 'files', params={'file': self.image}, user=self.student, content_type=MULTIPART_CONTENT, status=201)
         post = self.create_params
         post['content'] = [{'data': content_real, 'id': self.img_field.pk}]
-        entry = api.post(self, 'entries', params=post, user=self.student, status=201)
+        api.post(self, 'entries', params=post, user=self.student, status=201)
         assert self.student.filecontext_set.filter(pk=content_real['id']).exists(), 'real file should stay'
         assert not self.student.filecontext_set.filter(pk=content_fake['id']).exists(), 'fake file should be removed'
 
@@ -124,69 +131,65 @@ class FileHandlingTest(TestCase):
         assert self.student.filecontext_set.filter(pk=content_new_rt2['id']).exists(), 'new file should exist'
         assert not self.student.filecontext_set.filter(pk=content_old_rt['id']).exists(), 'old file should be removed'
 
-    def test_temp_file_upload_student(self):
+    def test_remove_unused_files_assignment(self):
+        # Remove old images in rich text of assignment description / template fields
+        needs_removal = api.post(
+            self, 'files', params={'file': self.image}, user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
+        description = api.post(
+            self, 'files', params={'file': self.image}, user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
+        field_description = api.post(
+            self, 'files', params={'file': self.image}, user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
+        self.assignment.description = '<p> <img src="{}" /> </p>'.format(description['download_url'])
+        self.assignment.save()
+        update_params = {
+            'pk': self.assignment.pk,
+            'assignment_details': {},
+            'templates': [{
+                'field_set': [{
+                    'type': 't',
+                    'title': '',
+                    'description': '<p><img src="{}" /></p>'.format(field_description['download_url']),
+                    'options': None,
+                    'location': 0,
+                    'required': True
+                }],
+                'name': 'Entry',
+                'id': -1,
+                'preset_only': False
+            }],
+            'presets': [], 'removed_presets': [], 'removed_templates': []
+        }
+        api.update(self, 'formats', params=update_params, user=self.teacher)
+        assert self.teacher.filecontext_set.filter(pk=description['id']).exists(), 'new file should exist'
+        assert self.teacher.filecontext_set.filter(pk=field_description['id']).exists(), 'new file should exist'
+        assert not self.teacher.filecontext_set.filter(pk=needs_removal['id']).exists(), 'old file should be removed'
+
+    def test_file_upload(self):
         api.post(
-            self,
-            'user/download',
-            params={
-                'file': self.video,
-                'assignment_id': self.journal.assignment.pk,
-                'content_id': 'null'
-            },
-            user=self.student,
-            status=200,
-            content_type=MULTIPART_CONTENT,
-        )
-        user_file = UserFile.objects.get(author=self.student.pk, file_name=self.video.name)
-        assert user_file, "The student should have succesfully created a temp user file."
+            self, 'files', params={'file': self.image}, user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
+        file = FileContext.objects.get(author=self.teacher.pk, file_name=self.image.name)
+        assert file, 'The student should have succesfully created a temp user file.'
 
-        # Cleanup
-        user_file.delete()
+    def test_establish(self):
+        to_establish = api.post(
+            self, 'files', params={'file': self.image}, user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
 
-    def test_temp_file_upload_teacher(self):
-        api.post(
-            self,
-            self.upload_url,
-            params={
-                'file': self.video,
-                'assignment_id': self.journal.assignment.pk,
-                'content_id': 'null'
-            },
-            user=self.teacher,
-            status=200,
-            content_type=MULTIPART_CONTENT,
-        )
-        user_file = UserFile.objects.get(author=self.teacher.pk, file_name=self.video.name)
-        assert user_file, "The teacher should have succesfully created a temp user file."
+        self.assertRaises(VLEPermissionError, file_handling.establish_file, self.student, to_establish['id'])
 
-        # Cleanup
-        user_file.delete()
-
-    def test_student_cant_upload_temp_file_to_unrelated_assignment(self):
-        api.post(
-            self,
-            self.upload_url,
-            params={
-                'file': self.video,
-                'assignment_id': self.unrelated_assignment.pk,
-                'content_id': 'null'
-            },
-            user=self.student,
-            status=403,
-            content_type=MULTIPART_CONTENT,
-        )
+        file_handling.establish_file(self.teacher, to_establish['id'], assignment=self.assignment)
+        # Cannot establish twice
+        self.assertRaises(
+            VLEBadRequest, file_handling.establish_file, self.teacher, to_establish['id'])
 
     def test_file_upload_needs_actual_file(self):
         response = api.post(
             self,
-            self.upload_url,
+            'files',
             params={
-                'file': 'not an actual file',
-                'assignment_id': self.journal.assignment.pk,
-                'content_id': 'null'
+                'file': 'not an actual file'
             },
             user=self.student,
             status=400,
             content_type=MULTIPART_CONTENT,
         )
-        assert "No accompanying file found in the request." in response['description']
+        assert 'No accompanying file found in the request.' in response['description']

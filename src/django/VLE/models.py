@@ -37,84 +37,6 @@ class Instance(models.Model):
         return self.name
 
 
-class UserFile(models.Model):
-    """UserFile.
-
-    UserFile is a file uploaded by the user stored in MEDIA_ROOT/uID/aID/<file>
-    - author: The user who uploaded the file.
-    - file_name: The name of the file (no parts of the path to the file included).
-    - creation_date: The time and date the file was uploaded.
-    - content_type: The content type supplied by the user (unvalidated).
-    - assignment: The assignment that the UserFile is linked to.
-    - node: The node that the UserFile is linked to.
-    - entry: The entry that the UserFile is linked to.
-    - content: The content that UserFile is linked to.
-
-    Note that deleting the assignment, node or content will also delete the UserFile.
-    UserFiles uploaded initially have no node or content set, and are considered temporary until the journal post
-    is made and the corresponding node and content are set.
-    """
-    file = models.FileField(
-        null=False,
-        upload_to=file_handling.get_path
-    )
-    file_name = models.TextField(
-        null=False
-    )
-    author = models.ForeignKey(
-        'User',
-        on_delete=models.CASCADE,
-        null=False
-    )
-    content_type = models.TextField(
-        null=False
-    )
-    assignment = models.ForeignKey(
-        'Assignment',
-        on_delete=models.CASCADE,
-        null=False
-    )
-    node = models.ForeignKey(
-        'Node',
-        on_delete=models.CASCADE,
-        null=True
-    )
-    entry = models.ForeignKey(
-        'Entry',
-        on_delete=models.CASCADE,
-        null=True
-    )
-    content = models.ForeignKey(
-        'Content',
-        on_delete=models.CASCADE,
-        null=True
-    )
-    creation_date = models.DateTimeField(editable=False)
-    last_edited = models.DateTimeField()
-
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.creation_date = timezone.now()
-        self.last_edited = timezone.now()
-
-        return super(UserFile, self).save(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        self.file.delete()
-        super(UserFile, self).delete(*args, **kwargs)
-
-    def to_string(self, user=None):
-        return "UserFile"
-
-
-@receiver(models.signals.post_delete, sender=UserFile)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """Deletes file from filesystem when corresponding `UserFile` object is deleted."""
-    if instance.file:
-        if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
-
-
 # https://stackoverflow.com/a/2257449
 def access_gen(size=128, chars=string.ascii_lowercase + string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -211,6 +133,14 @@ class FileContext(models.Model):
 
     def to_string(self, user=None):
         return "FileContext"
+
+
+@receiver(models.signals.post_delete, sender=FileContext)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """Deletes file from filesystem when corresponding `FileContext` object is deleted."""
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
 
 
 class User(AbstractUser):

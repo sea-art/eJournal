@@ -19,8 +19,8 @@ import VLE.utils.responses as response
 import VLE.validators as validators
 from VLE.models import Assignment, Course, Field, Journal, PresetNode, Template, User
 from VLE.serializers import AssignmentDetailsSerializer, AssignmentSerializer, CourseSerializer
-from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 from VLE.utils import file_handling
+from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
 
 def day_neutral_datetime_increment(date, months=0):

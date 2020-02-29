@@ -15,6 +15,83 @@ logger = logging.getLogger(__name__)
 base64ImgEmbedded = re.compile(r'<img\s+src=\"(data:image\/[^;]+;base64[^\"]+)\"\s*/>')
 
 
+def get_path(instance, filename):
+    """Upload user files into their respective directories. Following MEDIA_ROOT/uID/aID/<file>
+
+    Uploaded files not part of an entry yet, and are treated as temporary untill linked to an entry."""
+    return str(instance.author.id) + '/' + str(instance.assignment.id) + '/' + filename
+
+
+class UserFile(models.Model):
+    """UserFile.
+
+    UserFile is a file uploaded by the user stored in MEDIA_ROOT/uID/aID/<file>
+    - author: The user who uploaded the file.
+    - file_name: The name of the file (no parts of the path to the file included).
+    - creation_date: The time and date the file was uploaded.
+    - content_type: The content type supplied by the user (unvalidated).
+    - assignment: The assignment that the UserFile is linked to.
+    - node: The node that the UserFile is linked to.
+    - entry: The entry that the UserFile is linked to.
+    - content: The content that UserFile is linked to.
+
+    Note that deleting the assignment, node or content will also delete the UserFile.
+    UserFiles uploaded initially have no node or content set, and are considered temporary until the journal post
+    is made and the corresponding node and content are set.
+    """
+    file = models.FileField(
+        null=False,
+        upload_to=get_path
+    )
+    file_name = models.TextField(
+        null=False
+    )
+    author = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        null=False
+    )
+    content_type = models.TextField(
+        null=False
+    )
+    assignment = models.ForeignKey(
+        'Assignment',
+        on_delete=models.CASCADE,
+        null=False
+    )
+    node = models.ForeignKey(
+        'Node',
+        on_delete=models.CASCADE,
+        null=True
+    )
+    entry = models.ForeignKey(
+        'Entry',
+        on_delete=models.CASCADE,
+        null=True
+    )
+    content = models.ForeignKey(
+        'Content',
+        on_delete=models.CASCADE,
+        null=True
+    )
+    creation_date = models.DateTimeField(editable=False)
+    last_edited = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.creation_date = timezone.now()
+        self.last_edited = timezone.now()
+
+        return super(UserFile, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.file.delete()
+        super(UserFile, self).delete(*args, **kwargs)
+
+    def to_string(self, user=None):
+        return "UserFile"
+
+
 # Expects a string containing a single base64 file
 def base64ToContentFile(string, filename):
     matches = re.findall(r'data:(.*);base64,(.*)', string)[0]
@@ -28,7 +105,6 @@ def fileToEmbdeddedImageLink(file):
 
 
 def convertUserFiles(apps, schema_editor):
-    UserFile = apps.get_model('VLE', 'UserFile')
     FileContext = apps.get_model('VLE', 'FileContext')
 
     # Delete temp files
