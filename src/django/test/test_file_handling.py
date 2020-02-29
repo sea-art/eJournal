@@ -9,7 +9,7 @@ from django.urls import reverse
 
 # from VLE.views import UserView
 from VLE.factory import make_user_file
-from VLE.models import UserFile
+from VLE.models import UserFile, Field, FileContext
 from VLE.utils.file_handling import get_path
 
 BOUNDARY = 'BoUnDaRyStRiNg'
@@ -20,11 +20,22 @@ class FileHandlingTest(TestCase):
     def setUp(self):
         self.student = factory.Student()
         self.journal = factory.Journal(user=self.student)
+        self.assignment = self.journal.assignment
+        self.format = self.journal.assignment.format
         self.teacher = self.journal.assignment.courses.first().author
         self.unrelated_assignment = factory.Assignment()
         self.video = SimpleUploadedFile('file.mp4', b'file_content', content_type='video/mp4')
-        self.student_download_url = reverse('VLE:user-download', kwargs={'pk': self.student.pk})
-        self.upload_url = reverse('VLE:user-upload')
+        self.image = SimpleUploadedFile('file.png', b'image_content', content_type='image/png')
+        self.template = factory.TemplateAllTypes(format=self.format)
+        self.img_field = Field.objects.get(type=Field.IMG)
+        self.rt_field = Field.objects.get(type=Field.RICH_TEXT)
+        self.file_field = Field.objects.get(type=Field.FILE)
+
+        self.create_params = {
+            'journal_id': self.journal.pk,
+            'template_id': self.template.pk,
+            'content': []
+        }
 
     def tearDown(self):
         """Cleans any remaining user_files on the file system (remnants from failed tests) assumes user_file instance
@@ -58,10 +69,65 @@ class FileHandlingTest(TestCase):
         assert not os.path.exists(user_file_file_path), \
             "Deleting a user file instance should delete the corresponding file as well."
 
+    def test_remove_unused_files(self):
+        # Test uploading two files, then post entry, 1 gets removed
+        content_fake = api.post(
+            self, 'files', params={'file': self.image}, user=self.student, content_type=MULTIPART_CONTENT, status=201)
+        content_real = api.post(
+            self, 'files', params={'file': self.image}, user=self.student, content_type=MULTIPART_CONTENT, status=201)
+        post = self.create_params
+        post['content'] = [{'data': content_real, 'id': self.img_field.pk}]
+        entry = api.post(self, 'entries', params=post, user=self.student, status=201)
+        assert self.student.filecontext_set.filter(pk=content_real['id']).exists(), 'real file should stay'
+        assert not self.student.filecontext_set.filter(pk=content_fake['id']).exists(), 'fake file should be removed'
+
+        # Rich text fields also need to be checked to not be deleted
+        content_fake = api.post(
+            self, 'files', params={'file': self.image}, user=self.student, content_type=MULTIPART_CONTENT, status=201)
+        content_real = api.post(
+            self, 'files', params={'file': self.image}, user=self.student, content_type=MULTIPART_CONTENT, status=201)
+        content_rt = api.post(
+            self, 'files', params={'file': self.image}, user=self.student, content_type=MULTIPART_CONTENT, status=201)
+        post = self.create_params
+        post['content'] = [
+            {'data': content_real, 'id': self.img_field.pk},
+            {'data': "<p>hello!<img src='{}' /></p>".format(content_rt['download_url']), 'id': self.rt_field.pk}
+        ]
+        entry_with_rt = api.post(self, 'entries', params=post, user=self.student, status=201)['entry']
+        assert self.student.filecontext_set.filter(pk=content_real['id']).exists(), 'real file should stay'
+        assert self.student.filecontext_set.filter(pk=content_rt['id']).exists(), 'rich text shoud stay'
+        assert not self.student.filecontext_set.filter(pk=content_fake['id']).exists(), 'fake file should be removed'
+
+        # When file in entry updates, old file needs to be removed
+        content_old = content_real
+        content_new = api.post(
+            self, 'files', params={'file': self.image}, user=self.student, content_type=MULTIPART_CONTENT, status=201)
+        patch = {
+            'pk': entry_with_rt['id'],
+            'content': post['content']
+        }
+        patch['content'][0]['data'] = content_new
+        api.update(self, 'entries', params=patch, user=self.student)
+        assert self.student.filecontext_set.filter(pk=content_new['id']).exists(), 'new file should exist'
+        assert not self.student.filecontext_set.filter(pk=content_old['id']).exists(), 'old file should be removed'
+
+        # When file in rich text updates, old file needs to be removed
+        content_old_rt = content_rt
+        content_new_rt = api.post(
+            self, 'files', params={'file': self.image}, user=self.student, content_type=MULTIPART_CONTENT, status=201)
+        content_new_rt2 = api.post(
+            self, 'files', params={'file': self.image}, user=self.student, content_type=MULTIPART_CONTENT, status=201)
+        patch['content'][1]['data'] = "<p>hello!<img src='{}' /><img src='{}' /></p>".format(
+            content_new_rt['download_url'], content_new_rt2['download_url'])
+        api.update(self, 'entries', params=patch, user=self.student)
+        assert self.student.filecontext_set.filter(pk=content_new_rt['id']).exists(), 'new file should exist'
+        assert self.student.filecontext_set.filter(pk=content_new_rt2['id']).exists(), 'new file should exist'
+        assert not self.student.filecontext_set.filter(pk=content_old_rt['id']).exists(), 'old file should be removed'
+
     def test_temp_file_upload_student(self):
         api.post(
             self,
-            self.upload_url,
+            'user/download',
             params={
                 'file': self.video,
                 'assignment_id': self.journal.assignment.pk,

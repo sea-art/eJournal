@@ -110,7 +110,7 @@ class EntryView(viewsets.ViewSet):
             lti_tasks.needs_grading.delay(node.pk)
 
         # Delete old user files
-        file_handling.remove_temp_user_files(request.user)
+        file_handling.remove_unused_user_files(request.user)
 
         return response.created({
             'added': entry_utils.get_node_index(journal, node, request.user),
@@ -204,7 +204,7 @@ class EntryView(viewsets.ViewSet):
             file_handling.establish_file(
                 request.user, file.access_id, content=content, in_rich_text=content.field.type == Field.RICH_TEXT)
 
-        file_handling.remove_temp_user_files(request.user)
+        file_handling.remove_unused_user_files(request.user)
 
         return response.success({'entry': serialize.EntrySerializer(entry, context={'user': request.user}).data})
 

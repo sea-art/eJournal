@@ -121,15 +121,29 @@ def establish_rich_text(author, rich_text, course=None, assignment=None, journal
             establish_file(author, file.access_id, course, assignment, journal, content, comment, in_rich_text=True)
 
 
-def get_temp_user_file(user, assignment, file_name, entry=None, node=None, content=None):
-    """Retrieves the most recently added tempfile specified by assignment and name.
-
-    Returns None if no file was found."""
-    return user.userfile_set.filter(author=user, assignment=assignment, node=node, entry=entry,
-                                    content=content, file_name=file_name).order_by('-creation_date').first()
-
-
-def remove_temp_user_files(user):
+def remove_unused_user_files(user):
     """Deletes floating user files."""
     # Remove temp images
     VLE.models.FileContext.objects.filter(author=user, is_temp=True).delete()
+    # Remove rich_text files
+    for file in VLE.models.FileContext.objects.filter(author=user, content__isnull=False):
+        if file.content.field.type in VLE.models.Field.FILE_TYPES:  # Check if file is replaced
+            if str(file.pk) != file.content.data:
+                file.delete()
+        elif file.content.field.type == VLE.models.Field.RICH_TEXT:  # Check if file is replaced
+            if str(file.access_id) not in file.content.data:
+                file.delete()
+    for file in VLE.models.FileContext.objects.filter(author=user, comment__isnull=False):
+        if str(file.access_id) not in file.comment.text:
+            file.delete()
+    for file in VLE.models.FileContext.objects.filter(
+        author=user, assignment__isnull=False, journal__isnull=True):
+        if str(file.access_id) not in file.assignment.description:
+            found = False
+            for field in Field.objects.filter(template__assignment=file.assignment):
+                if str(file.access_id) in field.description:
+                    found = True
+                    break
+            if not found:
+                file.delete()
+            # print(f"{file.pk}, {file.content.data}")

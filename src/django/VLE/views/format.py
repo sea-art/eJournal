@@ -106,7 +106,7 @@ class FormatView(viewsets.ViewSet):
         file_handling.establish_rich_text(request.user, assignment.description, assignment=assignment)
         for field in Field.objects.filter(template__format=format):
             file_handling.establish_rich_text(request.user, field.description, assignment=assignment)
-        file_handling.remove_temp_user_files(request.user)
+        file_handling.remove_unused_user_files(request.user)
         serializer = FormatSerializer(format)
         assignment_details = AssignmentDetailsSerializer(assignment, context={'user': request.user})
 
