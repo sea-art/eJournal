@@ -198,7 +198,7 @@ export default {
             this.setContent()
         },
         setContent () {
-            console.log("setting content")
+            console.log('setting content')
             let matchFound
             /* Loads in the data of an entry in the right order by matching
              * the different data-fields with the corresponding template-IDs. */
@@ -207,7 +207,7 @@ export default {
 
                 matchFound = this.entryNode.entry.content.some((content) => {
                     if (content.field === templateField.id) {
-                        console.log("PUSGIN content")
+                        console.log('PUSGIN content')
                         this.completeContent.push({
                             data: content.data,
                             id: content.field,
@@ -220,7 +220,7 @@ export default {
                 })
 
                 if (!matchFound) {
-                    console.log("NOT FOUND PUSGIN content")
+                    console.log('NOT FOUND PUSGIN content')
                     this.completeContent.push({
                         data: null,
                         id: templateField.id,

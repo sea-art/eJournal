@@ -4,18 +4,17 @@
         @click="fileDownload"
     >
         <icon name="download"/>
-        <i><span>{{ fileName }}</span></i>
+        <i><span>{{ file.file_name }}</span></i>
     </div>
 </template>
 
 <script>
-import userAPI from '@/api/user.js'
+import auth from '@/api/auth.js'
 
 export default {
     props: {
-        fileName: {
+        file: {
             required: true,
-            String,
         },
         authorUID: {
             required: true,
@@ -36,13 +35,13 @@ export default {
     },
     methods: {
         fileDownload () {
-            userAPI.download(this.authorUID, this.fileName, this.entryID, this.nodeID, this.contentID)
+            auth.downloadFile(this.file.download_url)
                 .then((response) => {
                     try {
                         const blob = new Blob([response.data], { type: response.headers['content-type'] })
                         const link = document.createElement('a')
                         link.href = window.URL.createObjectURL(blob)
-                        link.download = this.fileName
+                        link.download = this.file.file_name
                         document.body.appendChild(link)
                         link.click()
                         link.remove()

@@ -73,29 +73,31 @@ def make_permanent_file_content(user_file, content, node):
     user_file.save()
 
 
-def establish_file(author, access_id, course=None, assignment=None, journal=None, content=None):
+def establish_file(author, identifier, course=None, assignment=None, journal=None, content=None, in_rich_text=False):
     """establish files, after this they won't be removed."""
-    file = VLE.models.FileContext.objects.get(access_id=access_id)
+    if identifier.isdigit():
+        file = VLE.models.FileContext.objects.get(pk=identifier)
+    else:
+        file = VLE.models.FileContext.objects.get(access_id=identifier)
 
     if file.author != author:
         raise VLEPermissionError('You are not allowed to update files of other users')
     if not file.is_temp:
         raise VLEBadRequest('You are not allowed to update established files')
-
-    if content:
-        content.data = file.file_name
+    if content and not in_rich_text:
+        content.data = str(file.pk)
         content.save()
         journal = content.entry.node.journal
     if journal:
         assignment = journal.assignment
     if assignment and not course:
         course = assignment.get_active_course(author)
-
     file.assignment = assignment
     file.content = content
     file.course = course
     file.journal = journal
     file.is_temp = False
+    file.in_rich_text = in_rich_text
     file.save()
 
     return file
@@ -110,4 +112,5 @@ def get_temp_user_file(user, assignment, file_name, entry=None, node=None, conte
 
 def remove_temp_user_files(user):
     """Deletes floating user files."""
+    print("\n\nEMOVING FILES:", VLE.models.FileContext.objects.filter(author=user, is_temp=True), "\n\n")
     VLE.models.FileContext.objects.filter(author=user, is_temp=True).delete()

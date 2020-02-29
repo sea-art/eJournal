@@ -64,7 +64,7 @@ export default {
 
             this.file = files[0]
 
-            this.$emit('fileSelect', this.file.name)
+            this.$emit('fileSelect', this.file.file_name)
 
             if (this.autoUpload) { this.uploadFile() }
         },
@@ -76,10 +76,10 @@ export default {
 
             auth.uploadFile(this.endpoint, formData, { customSuccessToast: 'File upload success.' })
                 .then((resp) => {
-                    this.$emit('fileUploadSuccess', resp.data.access_id)
+                    this.$emit('fileUploadSuccess', resp.data)
                 })
                 .catch(() => {
-                    this.$emit('fileUploadFailed', this.file.name)
+                    this.$emit('fileUploadFailed', this.file.file_name)
                     this.file = null
                 })
         },

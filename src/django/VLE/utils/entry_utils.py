@@ -19,14 +19,6 @@ def patch_entry_content(user, entry, old_content, field, data, assignment):
     old_content.data = data
     old_content.save()
 
-    if field.type in field.FILE_TYPES:
-        try:
-            new_file = file_handling.establish_file(user, data, content=old_content)
-            # Delete any old files
-            FileContext.objects.filter(content=old_content).exclude(pk=new_file.pk).delete()
-        except (VLEBadRequest, FileContext.DoesNotExist):
-            pass  # This happends when file is not updated
-
 
 def get_node_index(journal, node, user):
     for i, result_node in enumerate(timeline.get_nodes(journal, user)):

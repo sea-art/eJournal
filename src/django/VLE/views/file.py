@@ -8,13 +8,14 @@ from rest_framework.permissions import AllowAny
 import VLE.utils.responses as response
 import VLE.validators as validators
 from VLE.models import FileContext
+from VLE.serializers import FileSerializer
 
 
 class FileView(viewsets.ViewSet):
     def retrieve(self, request, pk):
         """Get a FileContext file by ID"""
         # TODO FILE implement
-        file = FileContext.objects.get(file_name=pk)
+        file = FileContext.objects.get(pk=pk)
         return response.file(file, file.file_name)
 
     def create(self, request):
@@ -30,24 +31,12 @@ class FileView(viewsets.ViewSet):
             is_temp=True,
         )
 
-        return response.created(
-            description='Successfully uploaded {:s}.'.format(request.FILES['file'].name),
-            payload={
-                'download_url': file.download_url(access_id=True),
-                'access_id': file.access_id,
-            }
-        )
+        return response.created(FileSerializer(file).data)
 
     @action(['get'], detail=True)
     def access_id(self, request, pk):
         """Get a FileContext file by access_id"""
         file = FileContext.objects.get(access_id=pk)
-        return response.file(file, file.file_name)
-
-    @action(['get'], detail=True)
-    def file_name(self, request, pk):
-        """Get a FileContext file by filename"""
-        file = FileContext.objects.get(file_name=pk)
         return response.file(file, file.file_name)
 
     # TODO FILE Remove

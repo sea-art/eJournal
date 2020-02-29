@@ -16,7 +16,7 @@ import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
-from VLE.models import Assignment, Content, Entry, Instance, Journal, Node, User, UserFile, FileContext
+from VLE.models import Assignment, Content, Entry, FileContext, Instance, Journal, Node, User, UserFile
 from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
 from VLE.tasks import send_email_verification_link
 from VLE.utils import file_handling

@@ -5,7 +5,7 @@
             @click="handleDownload"
         >
             <icon name="align-left"/>
-            <i><span>{{ fileName }}</span></i>
+            <i><span>{{ file.file_name }}</span></i>
         </div>
 
         <div
@@ -78,7 +78,7 @@
 
 <script>
 import pdf from 'vue-pdf'
-import userAPI from '@/api/user.js'
+import auth from '@/api/auth.js'
 import sanitization from '@/utils/sanitization.js'
 
 export default {
@@ -86,9 +86,8 @@ export default {
         pdf,
     },
     props: {
-        fileName: {
+        file: {
             required: true,
-            String,
         },
         authorUID: {
             required: true,
@@ -161,7 +160,7 @@ export default {
             this.$refs.pdf.print()
         },
         fileDownload () {
-            userAPI.download(this.authorUID, this.fileName, this.entryID, this.nodeID, this.contentID)
+            auth.downloadFile(this.file.download_url)
                 .then((response) => {
                     try {
                         const blob = new Blob([response.data], { type: response.headers['content-type'] })
@@ -169,7 +168,7 @@ export default {
 
                         this.downloadLink = document.createElement('a')
                         this.downloadLink.href = this.fileURL
-                        this.downloadLink.download = this.fileName
+                        this.downloadLink.download = this.file.file_name
                         document.body.appendChild(this.downloadLink)
                     } catch (_) {
                         this.$toasted.error('Error creating file.')

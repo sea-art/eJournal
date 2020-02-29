@@ -139,10 +139,13 @@ class FileContext(models.Model):
         null=False,
         upload_to=file_handling.get_file_path
     )
+    in_rich_text = models.BooleanField(
+        default=False
+    )
     access_id = models.CharField(
         null=False,
         default=access_gen,
-        max_length=64,
+        max_length=128,
     )
     file_name = models.TextField(
         null=False
@@ -181,8 +184,8 @@ class FileContext(models.Model):
 
     def download_url(self, access_id=False):
         if access_id:
-            return '{}/files/{}/access_id/'.format(settings.API_URL, self.access_id)
-        return '{}/files/{}/'.format(settings.API_URL, self.pk)
+            return '/files/{}/access_id/'.format(self.access_id)
+        return '/files/{}/'.format(self.pk)
 
     def cascade_from_user(self, user):
         return self.author is user and self.assignment is None and self.course is None and self.journal is None

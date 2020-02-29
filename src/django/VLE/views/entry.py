@@ -3,6 +3,8 @@ entry.py.
 
 In this file are all the entry api requests.
 """
+import re
+
 from rest_framework import viewsets
 
 import VLE.factory as factory
@@ -68,25 +70,43 @@ class EntryView(viewsets.ViewSet):
             entry = factory.make_entry(template)
             node = factory.make_node(journal, entry)
 
-        for content in content_list:
-            field_id, = utils.required_typed_params(content, (int, 'id'))
-            data, = utils.required_params(content, 'data')
-            field = Field.objects.get(pk=field_id)
+        try:
+            files_to_establish = []
+            for content in content_list:
+                field_id, = utils.required_typed_params(content, (int, 'id'))
+                field = Field.objects.get(pk=field_id)
+                data, = utils.required_params(content, 'data')
+                if data is not None and field.type in field.FILE_TYPES:
+                    data, = utils.required_typed_params(data, (str, 'id'))
 
-            created_content = factory.make_content(node.entry, data, field)
+                created_content = factory.make_content(node.entry, data, field)
 
-            if field.type in field.FILE_TYPES:  # Image, file or PDF
-                try:
-                    file_handling.establish_file(request.user, content['data'], content=created_content)
-                except FileContext.DoesNotExist:
-                    if field.required:
-                        # TODO: test why this is only done when file upload goes wrong, and not also when
-                        # required data is not set.
-                        node.entry.delete()
-                        # If there is a newly created node, delete that as well
-                        if not node_id:
-                            node.delete()
-                        return response.bad_request('One of your files was not correctly uploaded, please try again.')
+                if field.type in field.FILE_TYPES:  # Image, file or PDF
+                    if field.required and not data:
+                        raise FileContext.DoesNotExist
+                    if data:
+                        files_to_establish.append(
+                            (FileContext.objects.get(pk=int(data)), created_content))
+
+                # Establish all files in the rich text editor
+                if field.type == Field.RICH_TEXT:
+                    re_access_ids = re.compile(r'/files/([a-zA-Z0-9]+)/access_id/')
+                    for access_id in re.findall(re_access_ids, data):
+                        files_to_establish.append(
+                            (FileContext.objects.get(access_id=access_id), created_content))
+
+        except FileContext.DoesNotExist:
+            # TODO: test why this is only done when file upload goes wrong, and not also when
+            # required data is not set.
+            node.entry.delete()
+            # If there is a newly created node, delete that as well
+            if not node_id:
+                node.delete()
+            return response.bad_request('One of your files was not correctly uploaded, please try again.')
+
+        for (file, content) in files_to_establish:
+            file_handling.establish_file(
+                request.user, file.access_id, content=content, in_rich_text=content.field.type == Field.RICH_TEXT)
 
         # Notify teacher on new entry
         if (node.journal.sourcedid and node.entry.vle_coupling == Entry.NEED_SUBMISSION):
@@ -143,12 +163,17 @@ class EntryView(viewsets.ViewSet):
         entry_utils.check_fields(entry.template, content_list)
 
         # Attempt to edit the entries content.
+        files_to_establish = []
         for content in content_list:
             field_id, = utils.required_typed_params(content, (int, 'id'))
             data, = utils.required_params(content, 'data')
             field = Field.objects.get(pk=field_id)
+            if data is not None and field.type in field.FILE_TYPES:
+                data, = utils.required_typed_params(data, (str, 'id'))
+            print(data)
 
             old_content = entry.content_set.filter(field=field)
+            changed = False
             if old_content.exists():
                 old_content = old_content.first()
                 if old_content.field.pk != field_id:
@@ -158,10 +183,33 @@ class EntryView(viewsets.ViewSet):
                     continue
 
                 entry_utils.patch_entry_content(request.user, entry, old_content, field, data, assignment)
+                changed = old_content.data != data
             # If there was no content in this field before, create new content with the new data.
             # This can happen with non-required fields, or when the given data is deleted.
             else:
-                factory.make_content(entry, data, field)
+                old_content = factory.make_content(entry, data, field)
+                changed = True
+
+            if changed:
+                if field.type in field.FILE_TYPES:  # Image, file or PDF
+                    if field.required and not data:
+                        raise FileContext.DoesNotExist
+                    if data:
+                        files_to_establish.append(
+                            (FileContext.objects.get(pk=int(data)), old_content))
+
+                # Establish all files in the rich text editor
+                if field.type == Field.RICH_TEXT:
+                    re_access_ids = re.compile(r'/files/([a-zA-Z0-9]+)/access_id/')
+                    for access_id in re.findall(re_access_ids, data):
+                        files_to_establish.append(
+                            (FileContext.objects.get(access_id=access_id), old_content))
+
+        print(data)
+        for (file, content) in files_to_establish:
+            file_handling.establish_file(
+                request.user, file.access_id, content=content, in_rich_text=content.field.type == Field.RICH_TEXT)
+        print(content.data)
 
         file_handling.remove_temp_user_files(request.user)
 
