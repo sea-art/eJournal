@@ -158,8 +158,8 @@ export default {
 
     /* Forgot password.
      * Checks if a user is known by the given email or username. Sends an email with a link to reset the password. */
-    forgotPassword (username, email, connArgs = DEFAULT_CONN_ARGS) {
-        return initRequest(connection.conn.post, improveUrl('forgot_password'), { username, email }, connArgs)
+    forgotPassword (identifier, connArgs = DEFAULT_CONN_ARGS) {
+        return initRequest(connection.conn.post, improveUrl('forgot_password'), { identifier }, connArgs)
     },
 
     /* Recover password */

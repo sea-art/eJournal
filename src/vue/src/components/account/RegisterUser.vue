@@ -74,6 +74,7 @@
             </b-button>
             <b-button
                 class="float-right multi-form"
+                :class="{ 'input-disabled': saveRequestInFlight }"
                 type="submit"
             >
                 <icon name="user-plus"/>
@@ -101,10 +102,12 @@ export default {
                 email: '',
                 ltiJWT: '',
             },
+            saveRequestInFlight: false,
         }
     },
     methods: {
         onSubmit () {
+            this.saveRequestInFlight = true
             if (this.lti) {
                 this.form.username = this.lti.username
                 this.form.ltiJWT = this.lti.ltiJWT
@@ -127,13 +130,18 @@ export default {
                             'user/login',
                             { username: this.form.username, password: this.form.password },
                         )
-                            .then(() => { this.$emit('handleAction') })
+                            .then(() => {
+                                this.$emit('handleAction')
+                                this.saveRequestInFlight = false
+                            })
                             .catch(() => {
+                                this.saveRequestInFlight = false
                                 this.$toasted.error('Error logging in with your newly created account, please contact '
                                 + 'a system administrator or try registering again.')
                             })
                     })
                     .catch((error) => {
+                        this.saveRequestInFlight = false
                         if (error.response.status === statuses.FORBIDDEN) {
                             this.$router.push({
                                 name: 'ErrorPage',
@@ -145,6 +153,8 @@ export default {
                             })
                         }
                     })
+            } else {
+                this.saveRequestInFlight = false
             }
         },
         onReset () {
