@@ -67,14 +67,12 @@ class FileHandlingTest(TestCase):
             "Deleting a user file instance should delete the corresponding file as well."
 
         # Check if path moves after establishing
-        # file = FileContext.objects.create(file=self.video, author=self.student, file_name=self.video.name)
-        # file_handling.establish_file(self.student, file.pk, assignment=self.assignment)
-        # file = FileContext.objects.get(author=self.student, file_name=self.video.name)
-        #
-        # assert file_handling.get_file_path(file, file.file_name) in file.file.path, \
-        #     "The user file's file path should follow the get_path logic"
-        # assert os.path.exists(file.file.path), \
-        #     "Deleting a user file instance should delete the corresponding file as well."
+        file = FileContext.objects.create(file=self.video, author=self.student, file_name=self.video.name)
+        file_handling.establish_file(self.student, file.pk, assignment=self.assignment)
+        file = FileContext.objects.get(author=self.student, file_name=self.video.name)
+
+        assert file_handling.get_file_path(file, file.file_name) in file.file.path, \
+            "The user file's file path should follow the get_path logic once made a permanent file"
 
     def test_remove_unused_files(self):
         # Test uploading two files, then post entry, 1 gets removed

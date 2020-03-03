@@ -3,8 +3,10 @@ File handling related utilites.
 """
 import json
 import os
+import pathlib
 import re
 import shutil
+import uuid
 
 from django.conf import settings
 
@@ -28,7 +30,7 @@ def get_file_path(file, filename):
     elif file.assignment is not None:
         return '{}/assignmentfiles/{}/{}'.format(file.author.id, file.assignment.id, filename)
     elif file.course is not None:
-        return '{}/coursefiles/coursefiles/{}/{}'.format(file.author.id, file.course.id, filename)
+        return '{}/coursefiles/{}/{}'.format(file.author.id, file.course.id, filename)
     else:
         return '{}/userfiles/{}'.format(file.author.id, filename)
 
@@ -68,13 +70,13 @@ def establish_file(author, identifier, course=None, assignment=None, journal=Non
                    in_rich_text=False):
     """establish files, after this they won't be removed."""
     if str(identifier).isdigit():
-        file = VLE.models.FileContext.objects.get(pk=identifier)
+        file_context = VLE.models.FileContext.objects.get(pk=identifier)
     else:
-        file = VLE.models.FileContext.objects.get(access_id=identifier)
+        file_context = VLE.models.FileContext.objects.get(access_id=identifier)
 
-    if file.author != author:
+    if file_context.author != author:
         raise VLEPermissionError('You are not allowed to update files of other users')
-    if not file.is_temp:
+    if not file_context.is_temp:
         raise VLEBadRequest('You are not allowed to update established files')
 
     if comment:
@@ -87,19 +89,33 @@ def establish_file(author, identifier, course=None, assignment=None, journal=Non
         if not course:
             course = assignment.get_active_course(author)
 
-    file.comment = comment
-    file.content = content
-    file.journal = journal
-    file.assignment = assignment
-    file.course = course
-    file.is_temp = False
-    file.in_rich_text = in_rich_text
-    file.save()
+    file_context.comment = comment
+    file_context.content = content
+    file_context.journal = journal
+    file_context.assignment = assignment
+    file_context.course = course
+    file_context.is_temp = False
+    file_context.in_rich_text = in_rich_text
+
+    # Move the file on filesystem to a permanent location
+    initial_path = file_context.file.path
+    file_context.file.name = get_file_path(file_context, file_context.file_name)
+    new_path = os.path.join(settings.MEDIA_ROOT, file_context.file.name)
+    # Prevent potential name clash on filesystem
+    while os.path.exists(new_path):
+        p = pathlib.Path(new_path)
+        random_file_name = '{}-{}{}'.format(p.stem, uuid.uuid4(), p.suffix)
+        file_context.file.name = pathlib.Path(file_context.file.name).with_name(random_file_name)
+        new_path = p.with_name(file_context)
+    os.rename(initial_path, new_path)
+
+    file_context.save()
+
     if content and not in_rich_text:
-        content.data = str(file.pk)
+        content.data = str(file_context.pk)
         content.save()
 
-    return file
+    return file_context
 
 
 def get_files_from_rich_text(rich_text, only_temp=True):
