@@ -21,18 +21,18 @@ def get_path(instance, filename):
     return str(instance.author.id) + '/' + str(instance.assignment.id) + '/' + filename
 
 
-def get_file_path(file, filename):
+def get_file_path(instance, filename):
     """Upload user files into their respective directories. Following MEDIA_ROOT/uID/<category>/?[id/]<filename>"""
-    if file.is_temp:
-        return('{}/tempfiles/{}'.format(file.author.id, filename))
-    elif file.journal is not None:
-        return '{}/journalfiles/{}/{}'.format(file.author.id, file.journal.id, filename)
-    elif file.assignment is not None:
-        return '{}/assignmentfiles/{}/{}'.format(file.author.id, file.assignment.id, filename)
-    elif file.course is not None:
-        return '{}/coursefiles/{}/{}'.format(file.author.id, file.course.id, filename)
+    if instance.is_temp:
+        return('{}/tempfiles/{}'.format(instance.author.id, filename))
+    elif instance.journal is not None:
+        return '{}/journalfiles/{}/{}'.format(instance.author.id, instance.journal.id, filename)
+    elif instance.assignment is not None:
+        return '{}/assignmentfiles/{}/{}'.format(instance.author.id, instance.assignment.id, filename)
+    elif instance.course is not None:
+        return '{}/coursefiles/{}/{}'.format(instance.author.id, instance.course.id, filename)
     else:
-        return '{}/userfiles/{}'.format(file.author.id, filename)
+        return '{}/userfiles/{}'.format(instance.author.id, filename)
 
 
 def get_feedback_file_path(instance, filename):
