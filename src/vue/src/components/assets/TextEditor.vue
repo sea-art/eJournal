@@ -276,6 +276,7 @@ export default {
             if (file.size > this.$root.maxFileSizeBytes) {
                 failure(`The selected file exceeds the maximum file size of: ${this.maxSizeBytes} bytes.`)
             } else {
+                formData.append('in_rich_text', true)
                 formData.append('file', file)
 
                 auth.uploadFileEmail('files', formData)

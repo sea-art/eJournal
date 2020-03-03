@@ -574,10 +574,8 @@ class FileSerializer(serializers.ModelSerializer):
         fields = ('download_url', 'file_name', 'id', )
 
     def get_download_url(self, file):
-        if file.is_temp or file.in_rich_text:
-            return file.download_url(access_id=True)
-        else:
-            return file.download_url(access_id=False)
+        # Get access_id if file is in rich text
+        return file.download_url(access_id=file.in_rich_text)
 
 
 class FieldSerializer(serializers.ModelSerializer):

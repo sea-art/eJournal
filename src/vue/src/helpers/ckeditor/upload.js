@@ -59,6 +59,7 @@ class UploadAdapter {
 
     _sendRequest (file) {
         const data = new FormData()
+        data.append('in_rich_text', true)
         data.append('file', file)
         this.xhr.send(data)
     }

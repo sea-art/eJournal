@@ -28,7 +28,9 @@ class FileView(viewsets.ViewSet):
             file_name=request.FILES['file'].name,
             author=request.user,
             is_temp=True,
+            in_rich_text='in_rich_text' in request.POST
         )
+        print(request.POST)
 
         return response.created(FileSerializer(file).data)
 

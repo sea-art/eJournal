@@ -74,6 +74,19 @@ class FileHandlingTest(TestCase):
         assert file_handling.get_file_path(file, file.file_name) in file.file.path, \
             "The user file's file path should follow the get_path logic once made a permanent file"
 
+        # Two files with the same name should be able to be established to the same folder
+        file1 = FileContext.objects.create(file=self.video, author=self.student, file_name=self.video.name)
+        file2 = FileContext.objects.create(file=self.video, author=self.student, file_name=self.video.name)
+        file_handling.establish_file(self.student, file1.pk, assignment=self.assignment)
+        file_handling.establish_file(self.student, file2.pk, assignment=self.assignment)
+        # After established files, another file with same name should be able to be established
+        file3 = FileContext.objects.create(file=self.video, author=self.student, file_name=self.video.name)
+        file_handling.establish_file(self.student, file3.pk, assignment=self.assignment)
+
+        # Files should be on their own
+        assert FileContext.objects.get(pk=file1.pk).file.path != FileContext.objects.get(pk=file2.pk).file.path
+        assert FileContext.objects.get(pk=file2.pk).file.path != FileContext.objects.get(pk=file3.pk).file.path
+
     def test_remove_unused_files(self):
         # Test uploading two files, then post entry, 1 gets removed
         content_fake = api.post(
@@ -88,11 +101,14 @@ class FileHandlingTest(TestCase):
 
         # Rich text fields also need to be checked to not be deleted
         content_fake = api.post(
-            self, 'files', params={'file': self.image}, user=self.student, content_type=MULTIPART_CONTENT, status=201)
+            self, 'files', params={'file': self.image, 'in_rich_text': True},
+            user=self.student, content_type=MULTIPART_CONTENT, status=201)
         content_real = api.post(
-            self, 'files', params={'file': self.image}, user=self.student, content_type=MULTIPART_CONTENT, status=201)
+            self, 'files', params={'file': self.image, 'in_rich_text': True},
+            user=self.student, content_type=MULTIPART_CONTENT, status=201)
         content_rt = api.post(
-            self, 'files', params={'file': self.image}, user=self.student, content_type=MULTIPART_CONTENT, status=201)
+            self, 'files', params={'file': self.image, 'in_rich_text': True},
+            user=self.student, content_type=MULTIPART_CONTENT, status=201)
         post = self.create_params
         post['content'] = [
             {'data': content_real, 'id': self.img_field.pk},
@@ -119,9 +135,11 @@ class FileHandlingTest(TestCase):
         # When file in rich text updates, old file needs to be removed
         content_old_rt = content_rt
         content_new_rt = api.post(
-            self, 'files', params={'file': self.image}, user=self.student, content_type=MULTIPART_CONTENT, status=201)
+            self, 'files', params={'file': self.image, 'in_rich_text': True},
+            user=self.student, content_type=MULTIPART_CONTENT, status=201)
         content_new_rt2 = api.post(
-            self, 'files', params={'file': self.image}, user=self.student, content_type=MULTIPART_CONTENT, status=201)
+            self, 'files', params={'file': self.image, 'in_rich_text': True},
+            user=self.student, content_type=MULTIPART_CONTENT, status=201)
         patch['content'][1]['data'] = "<p>hello!<img src='{}' /><img src='{}' /></p>".format(
             content_new_rt['download_url'], content_new_rt2['download_url'])
         api.update(self, 'entries', params=patch, user=self.student)
@@ -132,11 +150,14 @@ class FileHandlingTest(TestCase):
     def test_remove_unused_files_assignment(self):
         # Remove old images in rich text of assignment description / template fields
         needs_removal = api.post(
-            self, 'files', params={'file': self.image}, user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
+            self, 'files', params={'file': self.image, 'in_rich_text': True},
+            user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
         description = api.post(
-            self, 'files', params={'file': self.image}, user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
+            self, 'files', params={'file': self.image, 'in_rich_text': True},
+            user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
         field_description = api.post(
-            self, 'files', params={'file': self.image}, user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
+            self, 'files', params={'file': self.image, 'in_rich_text': True},
+            user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
         self.assignment.description = '<p> <img src="{}" /> </p>'.format(description['download_url'])
         self.assignment.save()
         update_params = {
