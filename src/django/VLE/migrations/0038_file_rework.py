@@ -10,16 +10,10 @@ from django.core.files.base import ContentFile
 from django.db import migrations, models
 
 import VLE.utils.file_handling
+from VLE.utils import file_handling
 
 logger = logging.getLogger(__name__)
 base64ImgEmbedded = re.compile(r'<img\s+src=\"(data:image\/[^;]+;base64[^\"]+)\"\s*/>')
-
-
-def get_path(instance, filename):
-    """Upload user files into their respective directories. Following MEDIA_ROOT/uID/aID/<file>
-
-    Uploaded files not part of an entry yet, and are treated as temporary untill linked to an entry."""
-    return str(instance.author.id) + '/' + str(instance.assignment.id) + '/' + filename
 
 
 class UserFile(models.Model):
@@ -41,7 +35,7 @@ class UserFile(models.Model):
     """
     file = models.FileField(
         null=False,
-        upload_to=get_path
+        upload_to=file_handling.get_path
     )
     file_name = models.TextField(
         null=False
@@ -101,7 +95,7 @@ def base64ToContentFile(string, filename):
 
 
 def fileToEmbdeddedImageLink(file):
-    return '<img src="{}"/>'.format(file.dowload_url())
+    return '<img src="{}"/>'.format(file.download_url(access_id=True))
 
 
 def convertUserFiles(apps, schema_editor):
