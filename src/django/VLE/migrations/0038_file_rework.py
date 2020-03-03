@@ -8,12 +8,13 @@ import django.db.models.deletion
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db import migrations, models
+from django.utils import timezone
 
 import VLE.utils.file_handling
 from VLE.utils import file_handling
 
 logger = logging.getLogger(__name__)
-base64ImgEmbedded = re.compile(r'<img\s+src=\"(data:image\/[^;]+;base64[^\"]+)\"\s*/>')
+base64ImgEmbedded = re.compile(r'<img\s+src="(data:image\/[^;]+;base64[^\"]+)"\s*/>')
 
 
 class UserFile(models.Model):
@@ -86,20 +87,38 @@ class UserFile(models.Model):
         return "UserFile"
 
 
+def decode_base64(data, altchars=b'+/'):
+    """Decode base64, padding being optional.
+
+    :param data: Base64 data as an ASCII byte string
+    :returns: The decoded byte string.
+
+    """
+    data = re.sub(rb'[^a-zA-Z0-9%s]+' % altchars, b'', data)  # normalize
+    missing_padding = len(data) % 4
+    if missing_padding:
+        data += b'='* (4 - missing_padding)
+    return base64.b64decode(data, altchars)
+
 # Expects a string containing a single base64 file
 def base64ToContentFile(string, filename):
     matches = re.findall(r'data:(.*);base64,(.*)', string)[0]
+    print(matches)
     mimetype = matches[0]
     extension = guess_extension(mimetype)
-    return ContentFile(base64.b64decode(matches[1]), name='{}{}'.format(filename, extension))
+    return ContentFile(decode_base64(str.encode(string)), name='{}{}'.format(filename, extension))
 
 
 def fileToEmbdeddedImageLink(file):
-    return '<img src="{}"/>'.format(file.download_url(access_id=True))
+    return '<img src="{}/files/{}/access_id/"/>'.format(settings.API_URL, file.access_id)
 
 
 def convertUserFiles(apps, schema_editor):
     FileContext = apps.get_model('VLE', 'FileContext')
+    User = apps.get_model('VLE', 'User')
+    Content = apps.get_model('VLE', 'Content')
+    Assignment = apps.get_model('VLE', 'Assignment')
+    Journal = apps.get_model('VLE', 'Journal')
 
     # Delete temp files
     UserFile.objects.filter(content=None).delete()
@@ -109,12 +128,13 @@ def convertUserFiles(apps, schema_editor):
         FileContext.objects.create(
             file=ContentFile(f.file.file.read(), name=f.file_name),
             file_name=f.file_name,
-            author=f.author,
-            journal=f.content.entry.node.journal,
+            author=User.objects.get(pk=f.author.pk),
+            journal=Journal.all_objects.get(pk=f.content.entry.node.journal.pk),
+            assignment=Assignment.objects.get(pk=f.content.entry.node.journal.assignment.pk),
             is_temp=False,
             creation_date=f.creation_date,
             last_edited=f.last_edited,
-            content=f.content,
+            content=Content.objects.get(pk=f.content.pk),
         )
         f.delete()
 
@@ -136,7 +156,7 @@ def convertBase64CommentsToFiles(apps, schema_editor):
             file_name = 'comment-{}-from-base64-{}'.format(c.pk, uuid.uuid4().hex)
 
             f = FileContext.objects.create(
-                file=base64ToContentFile(str_match, file_name),
+                file=base64ToContentFile(str_match.group(0), file_name),
                 file_name=file_name,
                 author=c.author,
                 journal=c.entry.node.journal,
@@ -160,7 +180,7 @@ def convertBase64ContentsToFiles(apps, schema_editor):
             file_name = 'content-{}-from-base64-{}'.format(c.pk, uuid.uuid4().hex)
 
             f = FileContext.objects.create(
-                file=base64ToContentFile(str_match, file_name),
+                file=base64ToContentFile(str_match.group(0), file_name),
                 file_name=file_name,
                 author=c.entry.node.journal.user,
                 journal=c.entry.node.journal,
@@ -188,7 +208,7 @@ def convertBase64AssignmentDescriptionsToFiles(apps, schema_editor):
             file_name = 'assignment-description-{}-from-base64-{}'.format(a.pk, uuid.uuid4().hex)
 
             f = FileContext.objects.create(
-                file=base64ToContentFile(str_match, file_name),
+                file=base64ToContentFile(str_match.group(0), file_name),
                 file_name=file_name,
                 author=a.author,
                 assignment=a,
@@ -218,7 +238,7 @@ def convertBase64FieldDescriptionsToFiles(apps, schema_editor):
             file_name = 'field-description-{}-from-base64-{}'.format(field.pk, uuid.uuid4().hex)
 
             f = FileContext.objects.create(
-                file=base64ToContentFile(str_match, file_name),
+                file=base64ToContentFile(str_match.group(0), file_name),
                 file_name=file_name,
                 author=assignment.author,
                 assignment=assignment,
@@ -251,7 +271,7 @@ def convertBase64ProfilePicturesToFiles(apps, schema_editor):
                 is_temp=False,
             )
 
-            u.profile_picture = f.download_url()
+            u.profile_picture = '{}/files/{}/access_id/'.format(settings.API_URL, f.access_id)
             u.save()
 
 
