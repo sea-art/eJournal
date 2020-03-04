@@ -134,7 +134,7 @@ export default {
                         fontsize: '1.2em',
                         padding: '13px 0 0 6px',
                         overflow: 'hidden',
-                        'font-family': 'Roboto Condensed',
+                        'font-family': 'Roboto',
                         'white-space': 'pre-wrap',
                     },
                 },
