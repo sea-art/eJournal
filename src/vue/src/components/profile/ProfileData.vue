@@ -75,7 +75,6 @@
 <script>
 import email from '@/components/profile/Email.vue'
 import userAPI from '@/api/user.js'
-import auth from '@/api/auth.js'
 import cropper from '@/components/assets/ImageCropper.vue'
 import { mapGetters } from 'vuex'
 
