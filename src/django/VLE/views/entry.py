@@ -91,8 +91,7 @@ class EntryView(viewsets.ViewSet):
                     files_to_establish += [(f, created_content) for f in file_handling.get_files_from_rich_text(data)]
 
         except FileContext.DoesNotExist:
-            # TODO: test why this is only done when file upload goes wrong, and not also when
-            # required data is not set.
+            # QUESTION: why this is only done when file upload goes wrong and not also when required data is not set?
             node.entry.delete()
             # If there is a newly created node, delete that as well
             if not node_id:

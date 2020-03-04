@@ -3,13 +3,10 @@ Utilities.
 
 A library with useful functions.
 """
-import re
-
-from django.conf import settings
 from django.db.models import Case, When
 
 import VLE.factory as factory
-from VLE.models import Entry, FileContext, Journal, Node, PresetNode, Template
+from VLE.models import Entry, Journal, Node, PresetNode, Template
 from VLE.utils.error_handling import VLEBadRequest, VLEMissingRequiredKey, VLEParamWrongType
 
 
@@ -289,10 +286,3 @@ def archive_templates(templates):
         ids.append(template['id'])
 
     Template.objects.filter(pk__in=ids).update(archived=True)
-
-
-def get_embedded_file_context_from_string(string):
-    """Retrieves all file contexts embbeded in the given string based on the expected download url pattern by id"""
-    base = re.escape('{}/files'.format(settings.API_URL))
-    base64ImgEmbedded = re.compile(r'<img\s+src=\"' + base + r'/(\d+)/\"\s*/>')
-    return FileContext.objects.filter(pk__in=[int(match) for match in re.findall(base64ImgEmbedded, string)])

@@ -141,23 +141,25 @@ def remove_unused_user_files(user):
     """Deletes floating user files."""
     # Remove temp images
     VLE.models.FileContext.objects.filter(author=user, is_temp=True).delete()
-    # Remove rich_text files
+
+    # Remove overwritten files
     for file in VLE.models.FileContext.objects.filter(author=user, content__isnull=False):
         if file.content.field.type in VLE.models.Field.FILE_TYPES:  # Check if file is replaced
             if str(file.pk) != file.content.data:
                 file.delete()
-        elif file.content.field.type == VLE.models.Field.RICH_TEXT:  # Check if file is replaced
+        # Remove rich_text files
+        elif file.content.field.type == VLE.models.Field.RICH_TEXT:  # Check if url is not in field anymore
             if str(file.access_id) not in file.content.data:
                 file.delete()
     for file in VLE.models.FileContext.objects.filter(author=user, comment__isnull=False):
-        if str(file.access_id) not in file.comment.text:
+        if str(file.access_id) not in file.comment.text:  # Check if url is not in comment anymore
             file.delete()
     for file in VLE.models.FileContext.objects.filter(author=user, assignment__isnull=False, journal__isnull=True):
-        if str(file.access_id) not in file.assignment.description:
+        if str(file.access_id) not in file.assignment.description:  # Check if url is not in assignment anymore
             found = False
             for field in VLE.models.Field.objects.filter(template__format__assignment=file.assignment):
-                if str(file.access_id) in field.description:
+                if str(file.access_id) in field.description:  # Nor is it in a field
                     found = True
                     break
-            if not found:
+            if not found:  # Only then delete the file
                 file.delete()
