@@ -3,7 +3,7 @@
     <b-navbar
         v-if="loggedIn"
         id="header"
-        class="shadow pattern-background"
+        class="shadow"
         toggleable="md"
         type="dark"
         fixed="top"
@@ -99,7 +99,7 @@
     <b-navbar
         v-else
         id="header"
-        class="shadow pattern-background"
+        class="shadow"
         toggleable="md"
         type="dark"
         fixed="top"
@@ -193,6 +193,7 @@ export default {
 @import '~sass/partials/shadows.sass'
 
 #header
+    background-color: $theme-dark-blue
     color: white
     font-family: 'Roboto Condensed', sans-serif
     font-size: 1.3em

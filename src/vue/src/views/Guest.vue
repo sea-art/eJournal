@@ -24,6 +24,7 @@
                 <br/>
                 <b-button
                     href="https://www.eJournal.app"
+                    target="_blank"
                     class="mr-2 mt-4"
                 >
                     <icon name="play"/>
@@ -31,6 +32,7 @@
                 </b-button>
                 <b-button
                     href="mailto:contact@ejournal.app?subject=I%20would%20like%20to%20know%20more%20about%20eJournal!"
+                    target="_blank"
                     class="change-button mt-4"
                 >
                     <icon name="desktop"/>
