@@ -41,6 +41,7 @@
       - supervisor
       - apt-transport-https
       - dirmngr
+      - python3-setuptools
   tags:
     - packages
     - packages.security
