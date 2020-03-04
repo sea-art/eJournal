@@ -4,6 +4,7 @@
             ref="cropperModal"
             title="Edit profile picture"
             hideFooter
+            noEnforceFocus
         >
             <cropper
                 v-if="profileImageDataURL"

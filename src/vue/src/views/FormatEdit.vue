@@ -125,6 +125,7 @@
                     size="lg"
                     title="Edit template"
                     hideFooter
+                    noEnforceFocus
                 >
                     <template-editor
                         v-if="currentTemplate !== -1"

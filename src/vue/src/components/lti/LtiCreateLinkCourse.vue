@@ -47,6 +47,7 @@
             title="New Course"
             size="lg"
             hideFooter
+            noEnforceFocus
         >
             <create-course
                 :lti="lti"
@@ -59,6 +60,7 @@
             title="Link Course"
             size="lg"
             hideFooter
+            noEnforceFocus
         >
             <link-course
                 :lti="lti"

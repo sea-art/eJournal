@@ -106,6 +106,7 @@
             size="lg"
             title="Grade history"
             hideFooter
+            noEnforceFocus
         >
             <b-card class="no-hover">
                 <b-table

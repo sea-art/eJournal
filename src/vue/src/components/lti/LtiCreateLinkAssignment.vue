@@ -70,6 +70,7 @@
             title="Link to existing assignment"
             size="lg"
             hideFooter
+            noEnforceFocus
         >
             <link-assignment
                 :lti="lti"
@@ -83,6 +84,7 @@
             title="Create new assignment"
             size="lg"
             hideFooter
+            noEnforceFocus
         >
             <create-assignment
                 :lti="lti"

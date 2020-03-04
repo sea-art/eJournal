@@ -20,6 +20,7 @@
             size="lg"
             title="Technical support"
             hideFooter
+            noEnforceFocus
         >
             <feedback @feedbackSent="hideModal('feedbackModal')"/>
         </b-modal>

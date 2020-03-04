@@ -56,6 +56,7 @@
             title="Password recovery"
             hideFooter
             @shown="$refs.usernameEmailInput.focus(); usernameEmail=username"
+            noEnforceFocus
         >
             <b-card class="no-hover">
                 <b-form @submit.prevent="handleForgotPassword">

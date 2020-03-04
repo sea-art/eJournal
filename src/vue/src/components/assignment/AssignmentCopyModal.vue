@@ -4,6 +4,7 @@
         size="lg"
         title="Copy assignment"
         hideFooter
+        noEnforceFocus
     >
         <b-card class="no-hover">
             <h2 class="theme-h2 multi-form">

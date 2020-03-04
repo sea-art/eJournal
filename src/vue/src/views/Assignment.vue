@@ -100,6 +100,7 @@
                 size="lg"
                 hideFooter
                 @hide="$refs['bounsPointsUpload'].resetErrorLogs()"
+                noEnforceFocus
             >
                 <b-card class="no-hover">
                     <h2 class="theme-h2">
@@ -138,6 +139,7 @@
                 hideFooter
                 @show="newActiveLTICourse = assignment.active_lti_course.cID"
                 @hide="newActiveLTICourse = null"
+                noEnforceFocus
             >
                 <b-card class="no-hover">
                     <h2 class="theme-h2">

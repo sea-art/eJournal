@@ -75,6 +75,7 @@
             size="lg"
             hideFooter
             @shown="focusRoleNameInput"
+            noEnforceFocus
         >
             <b-card class="no-hover">
                 <b-form-input
