@@ -132,6 +132,10 @@ class UserView(viewsets.ViewSet):
 
         username, password = utils.required_params(request.data, 'username', 'password')
 
+        if not is_test_student and email in ['', None]:
+            return response.bad_request('No email address is provided.')
+        if not is_test_student and full_name in ['', None]:
+            return response.bad_request('No full name is provided.')
         if email and User.objects.filter(email=email).exists():
             return response.bad_request('User with this email already exists.')
 
