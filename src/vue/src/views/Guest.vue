@@ -8,47 +8,21 @@
         <h4 class="multi-form mt-4">
             <span>Want to use eJournal in your education?</span>
         </h4>
-        <b-card class="no-hover">
-            eJournal is a blended learning application that provides an easy to manage graded journal system for
-            teachers and students. It seamlessly connects to your <i>learning management system</i> (LMS) via LTI,
-            allowing for automatic grade passback and simple setup.
-            Do you want to use eJournal in your education? Do not hesitate to contact us!
-            <div class="text-right">
-                <b-button
-                    class="big-button-text"
-                    href="https://www.ejournal.app"
-                    target="_blank"
-                >
-                    <icon
-                        name="globe"
-                        scale="1.3"
-                    />
-                    Website
-                </b-button>
-            </div>
-        </b-card>
-
-        <h4 class="multi-form mt-4">
-            <span>eJournal is open source software</span>
-        </h4>
-        <b-card class="no-hover mb-4">
-            eJournal is an open source project. This means that you have the right to see the source code and many
-            more.
-            You can find this and more information including instructions for deployment on our GitHub repository.
-            <div class="text-right">
-                <b-button
-                    class="big-button-text"
-                    href="https://github.com/eJourn-al/eJournal/"
-                    target="_blank"
-                >
-                    <icon
-                        name="github"
-                        scale="1.3"
-                    />
-                    GitHub
-                </b-button>
-            </div>
-        </b-card>
+        <p>
+            eJournal is a blended learning web application that provides an easy to manage graded journal system
+            focused on education. Curious what eJournal has to offer for your education?
+        </p>
+        <b-button href="#feature-section">
+            <icon name="play"/>
+            Learn more
+        </b-button>
+        <b-button
+            href="mailto:contact@ejournal.app?subject=I%20would%20like%20to%20know%20more%20about%20eJournal!"
+            class="change-button ml-2"
+        >
+            <icon name="desktop"/>
+            Request a demo
+        </b-button>
         <custom-footer style="clear:both"/>
     </content-single-column>
 </template>

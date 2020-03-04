@@ -3,7 +3,7 @@
     <b-navbar
         v-if="loggedIn"
         id="header"
-        class="shadow"
+        class="shadow pattern-background"
         toggleable="md"
         type="dark"
         fixed="top"
@@ -14,7 +14,7 @@
                 class="spinner shadow"
             >
                 <icon
-                    name="circle-o-notch"
+                    name="circle-notch"
                     spin
                     scale="1.1"
                 />
@@ -88,7 +88,7 @@
                     &nbsp;Profile
                 </b-button>
                 <b-button :to="{ name: 'Logout' }">
-                    <icon name="sign-out"/>
+                    <icon name="sign-out-alt"/>
                     Log out
                 </b-button>
             </b-nav-dropdown>
@@ -99,7 +99,7 @@
     <b-navbar
         v-else
         id="header"
-        class="shadow"
+        class="shadow pattern-background"
         toggleable="md"
         type="dark"
         fixed="top"
@@ -110,7 +110,7 @@
                 class="spinner shadow"
             >
                 <icon
-                    name="circle-o-notch"
+                    name="circle-notch"
                     spin
                     scale="1.3"
                 />
@@ -139,7 +139,7 @@
                 >
                     <icon
                         name="user"
-                        scale="2.5"
+                        scale="2"
                     />
                 </div>
                 <b-button
@@ -151,7 +151,7 @@
                     Register
                 </b-button>
                 <b-button :to="{ name: 'Login' }">
-                    <icon name="sign-in"/>
+                    <icon name="sign-in-alt"/>
                     Log in
                 </b-button>
             </b-nav-dropdown>
@@ -193,7 +193,6 @@ export default {
 @import '~sass/partials/shadows.sass'
 
 #header
-    background-color: $theme-dark-blue
     color: white
     font-family: 'Roboto Condensed', sans-serif
     font-size: 1.3em
@@ -260,9 +259,6 @@ export default {
 
         a.nav-link
             text-align: right !important
-
-#nav-collapse
-    background-color: $theme-dark-blue
 
 .dropdown-menu
     @extend .shadow

@@ -28,7 +28,7 @@
                     class="float-right multi-form"
                     type="submit"
                 >
-                    <icon name="sign-in"/>
+                    <icon name="sign-in-alt"/>
                     Log in
                 </b-button>
                 <b-button
