@@ -125,18 +125,23 @@ def convertUserFiles(apps, schema_editor):
 
     for f in UserFile.objects.all():
         # Works once per file retrieval
-        FileContext.objects.create(
-            file=ContentFile(f.file.file.read(), name=f.file_name),
-            file_name=f.file_name,
-            author=User.objects.get(pk=f.author.pk),
-            journal=Journal.all_objects.get(pk=f.content.entry.node.journal.pk),
-            assignment=Assignment.objects.get(pk=f.content.entry.node.journal.assignment.pk),
-            is_temp=False,
-            creation_date=f.creation_date,
-            last_edited=f.last_edited,
-            content=Content.objects.get(pk=f.content.pk),
-        )
-        f.delete()
+        try:
+            FileContext.objects.create(
+                file=ContentFile(f.file.file.read(), name=f.file_name),
+                file_name=f.file_name,
+                author=User.objects.get(pk=f.author.pk),
+                journal=Journal.all_objects.get(pk=f.content.entry.node.journal.pk),
+                assignment=Assignment.objects.get(pk=f.content.entry.node.journal.assignment.pk),
+                is_temp=False,
+                creation_date=f.creation_date,
+                last_edited=f.last_edited,
+                content=Content.objects.get(pk=f.content.pk),
+            )
+            f.delete()
+        except OSError:
+            logger.error('File {} was not found on the filesystem ({})', f.file_name, f.content)
+            f.delete()
+
 
     remaining_user_files = UserFile.objects.all()
     if remaining_user_files.exists():
@@ -191,12 +196,18 @@ def convertBase64ContentsToFiles(apps, schema_editor):
 
             return fileToEmbdeddedImageLink(f)
 
-        c.data = re.sub(base64ImgEmbedded, createEmbbededContentFiles, c.data)
-        c.save()
+        if c.data:
+            c.data = re.sub(base64ImgEmbedded, createEmbbededContentFiles, c.data)
+            c.save()
 
     for c in Content.objects.filter(field__type__in=['p', 'f', 'i']):
-        c.data = str(FileContext.objects.get(content=c, file_name=c.data).pk)
-        c.save()
+        if c.data:
+            try:
+                c.data = str(FileContext.objects.get(content=c, file_name=c.data).pk)
+                c.save()
+            except:
+                c.data = None
+                c.save()
 
 
 def convertBase64AssignmentDescriptionsToFiles(apps, schema_editor):
@@ -223,17 +234,23 @@ def convertBase64AssignmentDescriptionsToFiles(apps, schema_editor):
 
             return fileToEmbdeddedImageLink(f)
 
-        a.description = re.sub(base64ImgEmbedded, createEmbbededAssignmentDescriptionFiles, a.description)
-        a.save()
+        if a.description:
+            a.description = re.sub(base64ImgEmbedded, createEmbbededAssignmentDescriptionFiles, a.description)
+            a.save()
 
 
 def convertBase64FieldDescriptionsToFiles(apps, schema_editor):
     Field = apps.get_model('VLE', 'Field')
     FileContext = apps.get_model('VLE', 'FileContext')
     Assignment = apps.get_model('VLE', 'Assignment')
+    Node = apps.get_model('VLE', 'Node')
 
     for field in Field.objects.all():
-        assignment = Assignment.objects.get(format=field.template.format)
+        if not Node.objects.filter(preset__format=field.template.format).exists():
+            continue
+        assignment = field.template.format.assignment
+        if not assignment:
+            assignment = Node.objects.filter(preset__format=field.template.format).first().journal.assignment
         if assignment.author is None and re.search(base64ImgEmbedded, field.description):
             logger.error('Field {} description contains base64 images without author'.format(field.id))
             continue
