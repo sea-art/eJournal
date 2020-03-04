@@ -6,10 +6,6 @@
             @edit-click="handleEdit()"
         />
 
-        <rich-text-editor
-            slot="main-content-column"
-            placeholder="placeholder"
-        />
         <load-wrapper
             slot="main-content-column"
             :loading="loadingCourses"
@@ -54,6 +50,7 @@
             title="Global Changes"
             size="lg"
             hideFooter
+            noEnforceFocus
         >
             <edit-home @handleAction="handleConfirm('editCourseRef')"/>
         </b-modal>
@@ -64,6 +61,7 @@
             title="New Course"
             size="lg"
             hideFooter
+            noEnforceFocus
         >
             <create-course @handleAction="handleConfirm('createCourseRef')"/>
         </b-modal>
@@ -79,8 +77,6 @@ import createCourse from '@/components/course/CreateCourse.vue'
 import editHome from '@/components/home/EditHome.vue'
 import deadlineDeck from '@/components/assets/DeadlineDeck.vue'
 
-import richTextEditor from '@/components/assets/RichTextEditor.vue'
-
 import courseAPI from '@/api/course.js'
 
 export default {
@@ -93,7 +89,6 @@ export default {
         createCourse,
         editHome,
         deadlineDeck,
-        richTextEditor,
     },
     data () {
         return {
