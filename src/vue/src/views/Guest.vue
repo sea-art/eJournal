@@ -6,23 +6,38 @@
         </h4>
         <login-form @handleAction="handleLoginSucces"/>
         <h4 class="multi-form mt-4">
-            <span>Want to use eJournal in your education?</span>
+            <span>About eJournal</span>
         </h4>
-        <p>
-            eJournal is a blended learning web application that provides an easy to manage graded journal system
-            focused on education. Curious what eJournal has to offer for your education?
-        </p>
-        <b-button href="#feature-section">
-            <icon name="play"/>
-            Learn more
-        </b-button>
-        <b-button
-            href="mailto:contact@ejournal.app?subject=I%20would%20like%20to%20know%20more%20about%20eJournal!"
-            class="change-button ml-2"
-        >
-            <icon name="desktop"/>
-            Request a demo
-        </b-button>
+        <b-row>
+            <b-col
+                lg="5"
+                class="mb-4"
+            >
+                <img
+                    src="/journal-view.png"
+                    class="screenshot round-border shadow no-hover"
+                />
+            </b-col>
+            <b-col lg="7">
+                eJournal is a blended learning web application that provides an easy to manage graded journal system
+                focused on education. Curious what eJournal has to offer for your education?
+                <br/>
+                <b-button
+                    href="https://www.eJournal.app"
+                    class="mr-2 mt-4"
+                >
+                    <icon name="play"/>
+                    Learn more
+                </b-button>
+                <b-button
+                    href="mailto:contact@ejournal.app?subject=I%20would%20like%20to%20know%20more%20about%20eJournal!"
+                    class="change-button mt-4"
+                >
+                    <icon name="desktop"/>
+                    Request a demo
+                </b-button>
+            </b-col>
+        </b-row>
         <custom-footer style="clear:both"/>
     </content-single-column>
 </template>
@@ -67,3 +82,14 @@ export default {
     },
 }
 </script>
+
+<style lang="sass">
+.screenshot
+    width: 100%
+    padding-top: 15px
+    background-color: #444444
+    background-image: url('../assets/images/window-controls.svg')
+    background-repeat: no-repeat
+    background-size: auto 10px
+    background-position: 2px 2px
+</style>
