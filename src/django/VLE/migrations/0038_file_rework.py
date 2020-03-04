@@ -14,7 +14,7 @@ import VLE.utils.file_handling
 from VLE.utils import file_handling
 
 logger = logging.getLogger(__name__)
-base64ImgEmbedded = re.compile(r'<img\s+src="(data:image\/[^;]+;base64[^\"]+)"\s*/>')
+base64ImgEmbedded = re.compile(r'<img\s+src=\"(data:image\/[^;]+;base64[^\"]+)\"\s*/>')
 
 
 class UserFile(models.Model):
@@ -100,13 +100,13 @@ def decode_base64(data, altchars=b'+/'):
         data += b'='* (4 - missing_padding)
     return base64.b64decode(data, altchars)
 
+
 # Expects a string containing a single base64 file
 def base64ToContentFile(string, filename):
     matches = re.findall(r'data:(.*);base64,(.*)', string)[0]
-    print(matches)
     mimetype = matches[0]
     extension = guess_extension(mimetype)
-    return ContentFile(decode_base64(str.encode(string)), name='{}{}'.format(filename, extension))
+    return ContentFile(base64.b64decode(matches[1]), name='{}{}'.format(filename, extension))
 
 
 def fileToEmbdeddedImageLink(file):
@@ -154,9 +154,8 @@ def convertBase64CommentsToFiles(apps, schema_editor):
 
         def createEmbbededCommentFiles(str_match):
             file_name = 'comment-{}-from-base64-{}'.format(c.pk, uuid.uuid4().hex)
-
             f = FileContext.objects.create(
-                file=base64ToContentFile(str_match.group(0), file_name),
+                file=base64ToContentFile(str_match.group(1), file_name),
                 file_name=file_name,
                 author=c.author,
                 journal=c.entry.node.journal,
@@ -174,13 +173,14 @@ def convertBase64CommentsToFiles(apps, schema_editor):
 def convertBase64ContentsToFiles(apps, schema_editor):
     Content = apps.get_model('VLE', 'Content')
     FileContext = apps.get_model('VLE', 'FileContext')
+    Field = apps.get_model('VLE', 'Field')
 
     for c in Content.objects.filter(field__type='rt'):
         def createEmbbededContentFiles(str_match):
             file_name = 'content-{}-from-base64-{}'.format(c.pk, uuid.uuid4().hex)
 
             f = FileContext.objects.create(
-                file=base64ToContentFile(str_match.group(0), file_name),
+                file=base64ToContentFile(str_match.group(1), file_name),
                 file_name=file_name,
                 author=c.entry.node.journal.user,
                 journal=c.entry.node.journal,
@@ -192,6 +192,10 @@ def convertBase64ContentsToFiles(apps, schema_editor):
             return fileToEmbdeddedImageLink(f)
 
         c.data = re.sub(base64ImgEmbedded, createEmbbededContentFiles, c.data)
+        c.save()
+
+    for c in Content.objects.filter(field__type__in=['p', 'f', 'i']):
+        c.data = str(FileContext.objects.get(content=c, file_name=c.data).pk)
         c.save()
 
 
@@ -208,13 +212,13 @@ def convertBase64AssignmentDescriptionsToFiles(apps, schema_editor):
             file_name = 'assignment-description-{}-from-base64-{}'.format(a.pk, uuid.uuid4().hex)
 
             f = FileContext.objects.create(
-                file=base64ToContentFile(str_match.group(0), file_name),
+                file=base64ToContentFile(str_match.group(1), file_name),
                 file_name=file_name,
                 author=a.author,
                 assignment=a,
                 is_temp=False,
-                creation_date=a.creation_date,
-                last_edited=a.last_edited,
+                creation_date=a.courses.first().startdate or timezone.now(),
+                last_edited=a.courses.first().startdate or timezone.now(),
             )
 
             return fileToEmbdeddedImageLink(f)
@@ -238,20 +242,21 @@ def convertBase64FieldDescriptionsToFiles(apps, schema_editor):
             file_name = 'field-description-{}-from-base64-{}'.format(field.pk, uuid.uuid4().hex)
 
             f = FileContext.objects.create(
-                file=base64ToContentFile(str_match.group(0), file_name),
+                file=base64ToContentFile(str_match.group(1), file_name),
                 file_name=file_name,
                 author=assignment.author,
                 assignment=assignment,
                 is_temp=False,
                 # QUESTION: Should we add these dates to a template?
-                creation_date=assignment.creation_date,
-                last_edited=assignment.last_edited,
+                creation_date=assignment.courses.first().startdate or timezone.now(),
+                last_edited=assignment.courses.first().startdate or timezone.now(),
             )
 
             return fileToEmbdeddedImageLink(f)
 
-        field.description = re.sub(base64ImgEmbedded, createEmbbededFieldDescriptionFiles, field.description)
-        field.save()
+        if field.description:
+            field.description = re.sub(base64ImgEmbedded, createEmbbededFieldDescriptionFiles, field.description)
+            field.save()
 
 
 def convertBase64ProfilePicturesToFiles(apps, schema_editor):
