@@ -75,6 +75,7 @@
 <script>
 import email from '@/components/profile/Email.vue'
 import userAPI from '@/api/user.js'
+import auth from '@/api/auth.js'
 import cropper from '@/components/assets/ImageCropper.vue'
 import { mapGetters } from 'vuex'
 
@@ -119,9 +120,9 @@ export default {
         },
         fileHandler (dataURL) {
             userAPI.updateProfilePictureBase64(dataURL, { customSuccessToast: 'Profile picture updated.' })
-                .then(() => {
-                    this.$store.commit('user/SET_PROFILE_PICTURE', dataURL)
-                    this.profileImageDataURL = dataURL
+                .then((resp) => {
+                    this.$store.commit('user/SET_PROFILE_PICTURE', resp.data.download_url)
+                    this.profileImageDataURL = resp.data.download_url
                     this.$refs.cropperModal.hide()
                 })
         },

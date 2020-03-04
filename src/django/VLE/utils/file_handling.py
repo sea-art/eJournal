@@ -103,13 +103,14 @@ def establish_file(author, identifier, course=None, assignment=None, journal=Non
     new_folder = os.path.join(settings.MEDIA_ROOT, get_file_path(file_context, ''))
 
     new_path = os.path.join(settings.MEDIA_ROOT, file_context.file.name)
-    print(new_path)
+
     # Prevent potential name clash on filesystem
     while os.path.exists(new_path):
         p = pathlib.Path(new_path)
         random_file_name = '{}-{}{}'.format(p.stem, uuid.uuid4(), p.suffix)
         file_context.file.name = str(pathlib.Path(file_context.file.name).with_name(random_file_name))
         new_path = p.with_name(random_file_name)
+
     os.makedirs(new_folder, exist_ok=True)
     os.rename(initial_path, new_path)
 

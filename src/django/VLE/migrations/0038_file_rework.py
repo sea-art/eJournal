@@ -274,6 +274,8 @@ def convertBase64ProfilePicturesToFiles(apps, schema_editor):
                 file_name=file_name,
                 author=u,
                 is_temp=False,
+                creation_date=timezone.now(),
+                last_edited=timezone.now(),
             )
 
             u.profile_picture = '{}/files/{}/access_id/'.format(settings.API_URL, f.access_id)

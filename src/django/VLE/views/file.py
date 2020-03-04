@@ -30,7 +30,6 @@ class FileView(viewsets.ViewSet):
             is_temp=True,
             in_rich_text='in_rich_text' in request.POST
         )
-        print(request.POST)
 
         return response.created(FileSerializer(file).data)
 

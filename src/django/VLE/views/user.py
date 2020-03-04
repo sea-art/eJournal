@@ -3,7 +3,12 @@ user.py.
 
 In this file are all the user api requests.
 """
+import base64
+import re
+from mimetypes import guess_extension
+
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -16,8 +21,8 @@ import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
-from VLE.models import Entry, Instance, Journal, Node, User
-from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
+from VLE.models import Entry, FileContext, Instance, Journal, Node, User
+from VLE.serializers import EntrySerializer, FileSerializer, OwnUserSerializer, UserSerializer
 from VLE.tasks import send_email_verification_link
 from VLE.utils import file_handling
 from VLE.views import lti
@@ -336,14 +341,27 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- a zip file of all the userdata with all their files
         """
-        utils.required_params(request.data, 'file')
+        def base64ToContentFile(string, filename):
+            matches = re.findall(r'data:(.*);base64,(.*)', string)[0]
+            mimetype = matches[0]
+            extension = guess_extension(mimetype)
+            return ContentFile(base64.b64decode(matches[1]), name='{}{}'.format(filename, extension))
 
-        validators.validate_profile_picture_base64(request.data['file'])
+        file_data, = utils.required_params(request.data, 'file')
+        content_file = base64ToContentFile(file_data, 'profile_picture')
+        validators.validate_user_file(content_file, request.user)
 
-        request.user.profile_picture = request.data['file']
+        file = FileContext.objects.create(
+            file=content_file,
+            file_name=content_file.name,
+            author=request.user,
+            is_temp=False,
+            in_rich_text=True,
+        )
+        request.user.profile_picture = file.download_url(access_id=True)
         request.user.save()
 
-        return response.success(description='Successfully updated profile picture')
+        return response.created(FileSerializer(file).data)
 
     def get_permissions(self):
         if self.request.path == '/users/' and self.request.method == 'POST':
