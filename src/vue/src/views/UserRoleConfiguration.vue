@@ -74,8 +74,8 @@
             title="New Role"
             size="lg"
             hideFooter
-            @shown="focusRoleNameInput"
             noEnforceFocus
+            @shown="focusRoleNameInput"
         >
             <b-card class="no-hover">
                 <b-form-input
