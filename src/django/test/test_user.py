@@ -70,7 +70,7 @@ class UserAPITest(TestCase):
         assert 'verified_email' in resp, 'Admin can retrieve all user data'
         assert 'email' in resp, 'Admin can retrieve all user data'
 
-    def test_create(self):
+    def test_create_user(self):
         params = dict(self.create_params)
 
         # Test a valid creation
@@ -86,6 +86,16 @@ class UserAPITest(TestCase):
         # Test a non lti creation without email
         params_without_email = {'username': 'test2', 'password': 'Pa$$word!', 'full_name': 'test user2'}
         resp = api.create(self, 'users', params=params_without_email, status=400)
+        params_without_email = {'username': 'test2', 'password': 'Pa$$word!', 'full_name': 'test user2', 'email': ''}
+        resp = api.create(self, 'users', params=params_without_email, status=400)
+        assert resp['description'] == 'No email address is provided.'
+        params_without_email = {'username': 'test2', 'password': 'Pa$$word!', 'full_name': 'test user2', 'email': None}
+        resp = api.create(self, 'users', params=params_without_email, status=400)
+        assert resp['description'] == 'No email address is provided.'
+        params_without_email = {
+            'username': 'test2', 'password': 'Pa$$word!', 'full_name': '', 'email': 'valid@email.com'}
+        resp = api.create(self, 'users', params=params_without_email, status=400)
+        assert resp['description'] == 'No full name is provided.'
 
         # Test a creation with the different username and same email
         params['username'] = 'test2'
