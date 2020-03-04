@@ -1,5 +1,6 @@
 <template>
     <footer>
+        <hr class="mt-4"/>
         &copy; 2020 - eJournal
         <a
             href="https://www.eJournal.app/changelog"
@@ -37,11 +38,6 @@ export default {
 @import '~sass/modules/colors.sass'
 
 footer
-    border-width: 2px 2px 2px 2px
-    border-color: $theme-dark-grey
-    border-radius: 1em !important
-    border-left: 8px solid $theme-blue
-    border: 1px solid $theme-dark-grey
     color: grey
     text-align: center
     width: 100%
