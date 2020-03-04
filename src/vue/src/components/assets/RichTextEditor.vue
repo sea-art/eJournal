@@ -10,11 +10,6 @@
         <p v-if="wordCount">
             {{ nWords }} WORDS
         </p>
-        <b-button
-            @click="test"
-        >
-            Test
-        </b-button>
     </div>
 </template>
 
@@ -63,7 +58,7 @@ export default {
     props: {
         wordCount: {
             type: Boolean,
-            default: false,
+            default: true,
         },
         placeholder: {
             type: String,
@@ -88,6 +83,7 @@ export default {
                 image: ['imageTextAlternative', 'imageStyle:full', 'imageStyle:side', 'imageUpload'],
             },
             editorConfig: {
+                placeholder: this.placeholder,
                 plugins: [
                     essentialsPlugin,
 
@@ -149,9 +145,6 @@ export default {
         editorInstanceReady (editorInstance) {
             this.instance = editorInstance
         },
-        test () {
-            this.editorData = ''
-        },
         /* NOTE: Called from parent. */
         clearContent () {
             this.editorData = ''
@@ -159,3 +152,11 @@ export default {
     },
 }
 </script>
+
+<style lang='sass'>
+.ck-editor__editable_inline
+    max-height: 400px
+
+.ck-rounded-corners
+    border-radius: 5px !important
+</style>
