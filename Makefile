@@ -10,6 +10,12 @@ else
 ansible_use = --vault-password-file pass.txt
 endif
 
+ifdef no_become
+become =
+else
+become = --ask-become-pass
+endif
+
 postgres_db = ejournal
 postgres_test_db = test_$(postgres_db)
 postgres_dev_user = ejournal
@@ -98,37 +104,25 @@ setup-venv:
 ##### DEPLOY COMMANDS ######
 
 ansible-test-connection:
-	@bash -c 'source ./venv/bin/activate && ansible -m ping all --ask-become-pass && deactivate'
+	ansible -m ping all ${become}
 
 run-ansible-provision:
-	@bash -c 'source ./venv/bin/activate && \
-		ansible-playbook ./system_configuration_tools/provision-servers.yml --ask-become-pass ${ansible_use} \
-		&& deactivate'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use}
 
 run-ansible-deploy:
-	@bash -c 'source ./venv/bin/activate && \
-		ansible-playbook ./system_configuration_tools/provision-servers.yml --ask-become-pass --tags "deploy_front,deploy_back" ${ansible_use} \
-		&& deactivate'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} --tags "deploy_front,deploy_back"
 
 run-ansible-deploy-front:
-	@bash -c 'source ./venv/bin/activate && \
-		ansible-playbook ./system_configuration_tools/provision-servers.yml --ask-become-pass --tags "deploy_front" ${ansible_use} \
-		&& deactivate'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} --tags "deploy_front"
 
 run-ansible-deploy-back:
-	@bash -c 'source ./venv/bin/activate && \
-		ansible-playbook ./system_configuration_tools/provision-servers.yml --ask-become-pass --tags "deploy_back" ${ansible_use} \
-		&& deactivate'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} --tags "deploy_back"
 
 run-ansible-backup:
-	@bash -c 'source ./venv/bin/activate && \
-		ansible-playbook ./system_configuration_tools/provision-servers.yml --ask-become-pass --tags "backup" ${ansible_use} \
-		&& deactivate'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} --tags "backup"
 
 run-ansible-preset_db:
-	@bash -c 'source ./venv/bin/activate && \
-		ansible-playbook ./system_configuration_tools/provision-servers.yml --ask-become-pass --tags "run_preset_db" ${ansible_use} \
-		&& deactivate'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} --tags "run_preset_db"
 
 ##### MAKEFILE COMMANDS #####
 
