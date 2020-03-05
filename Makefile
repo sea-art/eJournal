@@ -104,25 +104,32 @@ setup-venv:
 ##### DEPLOY COMMANDS ######
 
 ansible-test-connection:
-	ansible -m ping all ${become}
+	bash -c 'source ./venv/bin/activate && \
+	ansible -m ping all ${become}'
 
 run-ansible-provision:
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use}
+	bash -c 'source ./venv/bin/activate && \
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use}'
 
 run-ansible-deploy:
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} --tags "deploy_front,deploy_back"
+	bash -c 'source ./venv/bin/activate && \
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} --tags "deploy_front,deploy_back"'
 
 run-ansible-deploy-front:
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} --tags "deploy_front"
+	bash -c 'source ./venv/bin/activate && \
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} --tags "deploy_front"'
 
 run-ansible-deploy-back:
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} --tags "deploy_back"
+	bash -c 'source ./venv/bin/activate && \
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} --tags "deploy_back"'
 
 run-ansible-backup:
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} --tags "backup"
+	bash -c 'source ./venv/bin/activate && \
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} --tags "backup"'
 
 run-ansible-preset_db:
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} --tags "run_preset_db"
+	bash -c 'source ./venv/bin/activate && \
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} --tags "run_preset_db"'
 
 ##### MAKEFILE COMMANDS #####
 
