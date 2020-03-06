@@ -2,7 +2,6 @@
 
 # Git settings.
 setup_git_repo: true
-git_branch: develop
 
 
 # Database settings.
