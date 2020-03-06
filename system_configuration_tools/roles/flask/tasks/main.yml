@@ -1,14 +1,5 @@
 ---
 
-- name: Installing flask
-  pip:
-    name:
-        - flask
-        - gunicorn
-        - ansible
-    virtualenv: "{{ virtualenv_path }}"
-    virtualenv_python: python3.6
-
 - name: Create flask entry application
   template: src=webhook.j2
             dest={{ virtualenv_path }}/webhook.py

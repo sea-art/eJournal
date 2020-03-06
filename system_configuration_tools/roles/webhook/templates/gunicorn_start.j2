@@ -1,7 +1,7 @@
 #!/bin/sh
 
-NAME="{{ project_name }}"
-FLASKDIR="{{ project_path }}"
+NAME="ejournal-webhook"
+FLASKDIR="{{ virtualenv_path }}"
 SOCKFILE={{ virtualenv_path }}/run/gunicorn.sock
 USER={{ gunicorn_user }}
 GROUP={{ gunicorn_group }}
@@ -15,7 +15,7 @@ MAX_REQUESTS={{ gunicorn_max_requests }}
 echo "Starting $NAME as `whoami`"
 
 # Activate the virtual environment.
-cd $DJANGODIR
+cd $FLASKDIR
 . {{ virtualenv_path }}/bin/activate
 
 # Set additional environment variables.
