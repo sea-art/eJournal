@@ -35,12 +35,12 @@ export default {
         return auth.get(`assignments/${id}`, { lti: true }, connArgs)
     },
 
-    getCopyable (connArgs = auth.DEFAULT_CONN_ARGS) {
-        return auth.get('assignments/copyable', null, connArgs)
+    getImportable (connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.get('assignments/importable', null, connArgs)
             .then(response => response.data.data)
     },
 
-    copy (id, data, connArgs = auth.DEFAULT_CONN_ARGS) {
+    import (id, data, connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.post(`assignments/${id}/copy/`, data, connArgs)
             .then(response => response.data)
     },

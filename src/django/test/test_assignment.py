@@ -188,28 +188,28 @@ class AssignmentAPITest(TestCase):
         api.delete(
             self, 'assignments', params={'pk': assignment.pk, 'course_id': course2.pk}, user=factory.Admin())
 
-    def test_copyable(self):
+    def test_importable(self):
         teacher = factory.Teacher()
         course = factory.Course(author=teacher)
         assignment = factory.TemplateAssignment(courses=[course])
 
-        # Check copyable return values
-        resp = api.get(self, 'assignments/copyable', user=teacher)['data']
-        assert resp[0]['assignments'][0]['id'] == assignment.pk, 'copyable assignment should be displayed'
+        # Check importable return values
+        resp = api.get(self, 'assignments/importable', user=teacher)['data']
+        assert resp[0]['assignments'][0]['id'] == assignment.pk, 'importable assignment should be displayed'
         assert len(resp[0]['assignments']) == 1
-        assert resp[0]['course']['id'] == course.id, 'copyable course should be displayed'
+        assert resp[0]['course']['id'] == course.id, 'importable course should be displayed'
 
         student = factory.Journal(assignment=assignment).user
-        data = api.get(self, 'assignments/copyable', user=student, status=200)['data']
-        assert len(data) == 0, 'A student should not be able to see any copyable assignments'
+        data = api.get(self, 'assignments/importable', user=student, status=200)['data']
+        assert len(data) == 0, 'A student should not be able to see any importable assignments'
 
         r = Participation.objects.get(course=course, user=teacher).role
         r.can_edit_assignment = False
         r.save()
-        data = api.get(self, 'assignments/copyable', user=teacher)['data']
-        assert len(data) == 0, 'A teacher requires can_edit_assignment to see copyable assignments.'
+        data = api.get(self, 'assignments/importable', user=teacher)['data']
+        assert len(data) == 0, 'A teacher requires can_edit_assignment to see importable assignments.'
 
-    def test_assignment_copy(self):
+    def test_assignment_import(self):
         start2018_2019 = datetime.datetime(year=2018, month=9, day=1)
         start2019_2020 = datetime.datetime(year=2019, month=9, day=1)
         end2018_2019 = start2019_2020 - relativedelta(days=1)
@@ -221,9 +221,9 @@ class AssignmentAPITest(TestCase):
             startdate=start2018_2019,
             enddate=end2019_2020,
         )
-        not_copy_course = factory.Course()
+        not_import_course = factory.Course()
         source_assignment = factory.TemplateAssignment(
-            courses=[course, not_copy_course],
+            courses=[course, not_import_course],
             unlock_date=start2018_2019,
             due_date=end2018_2019,
             lock_date=end2018_2019,
@@ -272,11 +272,11 @@ class AssignmentAPITest(TestCase):
         before_source_templates = Template.objects.filter(format=source_assignment.format)
         before_source_format_resp = api.get(self, 'formats', params={'pk': source_assignment.pk}, user=teacher)
 
-        pre_copy_format_count = Format.objects.count()
-        pre_copy_journal_count = Journal.objects.count()
-        pre_copy_entry_count = Entry.objects.count()
-        pre_copy_node_count = Node.objects.count()
-        pre_copy_preset_node_count = PresetNode.objects.count()
+        pre_import_format_count = Format.objects.count()
+        pre_import_journal_count = Journal.objects.count()
+        pre_import_entry_count = Entry.objects.count()
+        pre_import_node_count = Node.objects.count()
+        pre_import_preset_node_count = PresetNode.objects.count()
         resp = api.post(self, 'assignments/{}/copy'.format(source_assignment.pk), params={
                 'course_id': course.pk,
                 'months_offset': 0,
@@ -284,20 +284,21 @@ class AssignmentAPITest(TestCase):
         created_assignment = Assignment.objects.get(pk=resp['assignment_id'])
         created_format = created_assignment.format
 
-        assert pre_copy_format_count + 1 == Format.objects.count(), 'One additional format is created'
+        assert pre_import_format_count + 1 == Format.objects.count(), 'One additional format is created'
         assert created_format == Format.objects.last(), 'Last created format should be the new assignment format'
-        assert pre_copy_journal_count * 2 == Journal.objects.count(), \
+        assert pre_import_journal_count * 2 == Journal.objects.count(), \
             'A journal should be created for each of the existing course users'
-        assert pre_copy_entry_count == Entry.objects.count(), 'No additional entries are created'
-        assert pre_copy_node_count + 4 == Node.objects.count(), 'Both student and teacher receive nodes for the presets'
-        assert pre_copy_preset_node_count + 2 == PresetNode.objects.count(), \
-            'The progress and preset nodes are copied'
+        assert pre_import_entry_count == Entry.objects.count(), 'No additional entries are created'
+        assert pre_import_node_count + 4 == Node.objects.count(), \
+            'Both student and teacher receive nodes for the presets'
+        assert pre_import_preset_node_count + 2 == PresetNode.objects.count(), \
+            'The progress and preset nodes are imported'
         assert before_source_preset_nodes.count() == PresetNode.objects.filter(
-            format=created_assignment.format).count(), 'All preset nodes should be copied along.'
-        assert created_assignment.active_lti_id is None, 'Copied assignment should not be linked to LTI'
-        assert created_assignment.lti_id_set == [], 'Copied assignment should not be linked to LTI'
+            format=created_assignment.format).count(), 'All preset nodes should be imported along.'
+        assert created_assignment.active_lti_id is None, 'Imported assignment should not be linked to LTI'
+        assert created_assignment.lti_id_set == [], 'Imported assignment should not be linked to LTI'
         assert created_assignment.courses.count() == 1 and course in created_assignment.courses.all(), \
-            'Only the course where we call copy from should be part of the created assignment course set'
+            'Only the course where we call import from should be part of the created assignment course set'
 
         resp = api.post(self, 'assignments/{}/copy'.format(source_assignment.pk), params={
                 'course_id': course.pk,
@@ -307,57 +308,57 @@ class AssignmentAPITest(TestCase):
         created_assignment = Assignment.objects.get(pk=resp['assignment_id'])
         created_format = created_assignment.format
         assert created_assignment.author == teacher
-        assert created_assignment.active_lti_id == 'test', 'Copied assignment should not be linked to LTI'
-        assert created_assignment.lti_id_set == ['test'], 'Copied assignment should not be linked to LTI'
+        assert created_assignment.active_lti_id == 'test', 'Imported assignment should not be linked to LTI'
+        assert created_assignment.lti_id_set == ['test'], 'Imported assignment should not be linked to LTI'
 
         after_source_preset_nodes = PresetNode.objects.filter(format=source_assignment.format)
         after_source_templates = Template.objects.filter(format=source_assignment.format)
         after_source_format_resp = api.get(self, 'formats', params={'pk': source_assignment.pk}, user=teacher)
         created_format_resp = api.get(self, 'formats', params={'pk': created_assignment.pk}, user=teacher)
 
-        # Validate that the entire copied response format is unchanged
+        # Validate that the entire imported response format is unchanged
         assert before_source_format_resp == after_source_format_resp, 'Source format should remain unchanged'
         # The check above is extensive, but limited by the serializer, so let us check the db fully.
         assert before_source_preset_nodes.count() == after_source_preset_nodes.count() \
             and before_source_templates.count() == after_source_templates.count(), \
-            'Format of the copy target should remain unchanged'
+            'Format of the import target should remain unchanged'
         for before_n, after_n in zip(before_source_preset_nodes, after_source_preset_nodes):
-            assert equal_models(before_n, after_n), 'Copy target preset nodes should remain unchanged'
+            assert equal_models(before_n, after_n), 'Import target preset nodes should remain unchanged'
         for before_t, after_t in zip(before_source_templates, after_source_templates):
-            assert equal_models(before_t, after_t), 'Copy target templates should remain unchanged'
+            assert equal_models(before_t, after_t), 'Import target templates should remain unchanged'
         assert len(utils.get_journal_entries(source_student_journal)) == number_of_source_student_journal_entries, \
             'Old entries should not be removed'
 
         assert created_format.pk == created_format_resp['format']['id'], \
-            'The most recently created (fresh copy) format, should be returned.'
+            'The most recently created (fresh import) format, should be returned.'
 
-        # Validate copy response results
+        # Validate import response results
         o = before_source_format_resp['format']  # original
         a = after_source_format_resp['format']
         c = created_format_resp['format']
         assert o['id'] != c['id'], 'Created format should be a new format'
         assert o['id'] == a['id'], 'Original format should be the same'
-        # Validate template copy results
+        # Validate template import results
         for o_t, a_t, c_t in zip(o['templates'], a['templates'], c['templates']):
             assert c_t['id'] != a_t['id'], 'Should be a new template'
-        # Validate preset copy results
+        # Validate preset import results
         for o_p, a_p, c_p in zip(o['presets'], a['presets'], c['presets']):
             assert c_p['id'] != a_p['id'], 'Should be a new preset'
 
-        # Validate the copy result values without the meddling of the serializer
+        # Validate the import result values without the meddling of the serializer
         created_preset_nodes = PresetNode.objects.filter(format=created_format)
         created_templates = Template.objects.filter(format=created_format)
         assert before_source_preset_nodes.count() == created_preset_nodes.count() \
             and before_source_templates.count() == created_templates.count(), \
-            'Format of the copy should be equal to the copy target'
+            'Format of the import should be equal to the import target'
         for before_n, created_n in zip(before_source_preset_nodes, created_preset_nodes):
             assert equal_models(before_n, created_n, ignore=['id', 'format', 'forced_template']), \
-                'Copy preset nodes should be equal'
+                'Import preset nodes should be equal'
         for before_t, created_t in zip(before_source_templates, created_templates):
             assert equal_models(before_t, created_t, ignore=['id', 'format', 'forced_template']), \
-                'Copy target templates should be equal'
+                'Import target templates should be equal'
 
-        # Copy again, but now update all dates
+        # Import again, but now update all dates
         resp = api.post(self, 'assignments/{}/copy'.format(source_assignment.pk), params={
                 'course_id': course.pk,
                 'months_offset': 12,
@@ -376,20 +377,20 @@ class AssignmentAPITest(TestCase):
                     else:
                         assert relativedelta(parser.parse(value), parser.parse(o_p[key])).years == 1
 
-        # The copy result values should still be equal apart from the dates
+        # The import result values should still be equal apart from the dates
         created_preset_nodes = PresetNode.objects.filter(format=created_format)
         created_templates = Template.objects.filter(format=created_format)
         assert before_source_preset_nodes.count() == created_preset_nodes.count() \
             and before_source_templates.count() == created_templates.count(), \
-            'Format of the copy should be equal to the copy target'
+            'Format of the import should be equal to the import target'
         for before_n, created_n in zip(before_source_preset_nodes, created_preset_nodes):
             assert equal_models(before_n, created_n,
                                 ignore=['id', 'format', 'forced_template', 'unlock_date', 'due_date', 'lock_date']), \
-                'Copy preset nodes should be equal'
+                'Import preset nodes should be equal'
         for before_t, created_t in zip(before_source_templates, created_templates):
             assert equal_models(before_t, created_t,
                                 ignore=['id', 'format', 'forced_template', 'unlock_date', 'due_date', 'lock_date']), \
-                'Copy target templates should be equal'
+                'Import target templates should be equal'
 
         created_progress_node = created_preset_nodes.filter(type=Node.PROGRESS).first()
         created_deadline_node = created_preset_nodes.filter(type=Node.ENTRYDEADLINE).first()

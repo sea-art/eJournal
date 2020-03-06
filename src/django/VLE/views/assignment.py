@@ -26,14 +26,14 @@ def day_neutral_datetime_increment(date, months=0):
     return date + relativedelta(months=months, weekday=date.weekday())
 
 
-def set_assignment_dates(assignment_copy, months=0):
-    """Sets the to assignment dates to the assignment source dates plus offset if exists."""
-    if assignment_copy.unlock_date:
-        assignment_copy.unlock_date = day_neutral_datetime_increment(assignment_copy.unlock_date, months)
-    if assignment_copy.due_date:
-        assignment_copy.due_date = day_neutral_datetime_increment(assignment_copy.due_date, months)
-    if assignment_copy.lock_date:
-        assignment_copy.lock_date = day_neutral_datetime_increment(assignment_copy.lock_date, months)
+def set_assignment_dates(assignment, months=0):
+    """Add an offset of [months] months to the assignment dates."""
+    if assignment.unlock_date:
+        assignment.unlock_date = day_neutral_datetime_increment(assignment.unlock_date, months)
+    if assignment.due_date:
+        assignment.due_date = day_neutral_datetime_increment(assignment.due_date, months)
+    if assignment.lock_date:
+        assignment.lock_date = day_neutral_datetime_increment(assignment.lock_date, months)
 
 
 class AssignmentView(viewsets.ViewSet):
@@ -403,35 +403,35 @@ class AssignmentView(viewsets.ViewSet):
         return response.success()
 
     @action(methods=['get'], detail=False)
-    def copyable(self, request):
-        """Get all assignments that a user can copy a format from.
+    def importable(self, request):
+        """Get all assignments that a user can import a format from.
 
-        Returns a list of tuples consisting of courses and copyable assignments."""
+        Returns a list of tuples consisting of courses and importable assignments."""
         courses = Course.objects.filter(participation__user=request.user.id,
                                         participation__role__can_edit_assignment=True)
 
-        copyable = []
+        importable = []
         for course in courses:
             assignments = Assignment.objects.filter(courses=course)
             if assignments:
-                copyable.append({
+                importable.append({
                     'course': CourseSerializer(course).data,
                     'assignments': AssignmentDetailsSerializer(assignments, context={'user': request.user},
                                                                many=True).data
                 })
-        return response.success({'data': copyable})
+        return response.success({'data': importable})
 
     @action(methods=['post'], detail=True)
     def copy(self, request, pk):
-        """Copy an assignment format.
-        Users should have edit rights for the assignment copy source.
+        """Import an assignment format.
+        Users should have edit rights for the assignment import source.
 
         Arguments:
         request -- request data
-            course_id -- course id which will receive the assignment copy
+            course_id -- course id which will receive the assignment import
             months_offset -- number of months to shift all dates
             years_offset -- number of years to shift all dates
-        pk -- assignment copy source ID
+        pk -- assignment import source ID
 
         """
         course_id, months_offset = utils.required_typed_params(request.data, (int, 'course_id'), (int, 'months_offset'))
@@ -455,7 +455,7 @@ class AssignmentView(viewsets.ViewSet):
         assignment.format = format
         assignment.save()
 
-        # Many to many field requires manual update, only set the course we are copying into
+        # Many to many field requires manual update, only set the course we are importing into
         assignment.courses.set([course])
         assignment.save()
 
