@@ -17,7 +17,7 @@ become = --ask-become-pass
 endif
 
 ifdef branch
-vars = --extra-vars \'{"git_branch": "${branch}"}\'
+vars = --extra-vars '"'"'{"git_branch": "${branch}"}'"'"'
 else
 vars =
 endif
