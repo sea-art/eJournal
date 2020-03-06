@@ -16,6 +16,12 @@ else
 become = --ask-become-pass
 endif
 
+ifdef branch
+become = --extra-vars '{"git_branch": "${branch}"}'
+else
+become = 
+endif
+
 postgres_db = ejournal
 postgres_test_db = test_$(postgres_db)
 postgres_dev_user = ejournal
@@ -109,27 +115,27 @@ ansible-test-connection:
 
 run-ansible-provision:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use}'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} ${branch}'
 
 run-ansible-deploy:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} --tags "deploy_front,deploy_back"'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} ${branch} --tags "deploy_front,deploy_back"'
 
 run-ansible-deploy-front:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} --tags "deploy_front"'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} ${branch} --tags "deploy_front"'
 
 run-ansible-deploy-back:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} --tags "deploy_back"'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} ${branch} --tags "deploy_back"'
 
 run-ansible-backup:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} --tags "backup"'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} ${branch} --tags "backup"'
 
 run-ansible-preset_db:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} --tags "run_preset_db"'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} ${branch} --tags "run_preset_db"'
 
 ##### MAKEFILE COMMANDS #####
 
