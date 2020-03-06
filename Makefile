@@ -17,9 +17,9 @@ become = --ask-become-pass
 endif
 
 ifdef branch
-become = --extra-vars '{"git_branch": "${branch}"}'
+branch = --extra-vars '{"git_branch": "${branch}"}'
 else
-become = 
+branch = 
 endif
 
 postgres_db = ejournal
