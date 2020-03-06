@@ -131,6 +131,10 @@ run-ansible-preset_db:
 	bash -c 'source ./venv/bin/activate && \
 	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} --tags "run_preset_db"'
 
+run-ansible-webhook-test:
+	bash -c 'source ./venv/bin/activate && \
+	ansible-playbook ./system_configuration_tools/provision-webhook.yml'
+
 ##### MAKEFILE COMMANDS #####
 
 default:
