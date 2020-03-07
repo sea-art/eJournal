@@ -1,6 +1,6 @@
 <template>
     <b-card class="no-hover">
-        <h2 class="multi-form">
+        <h2 class="theme-h2 multi-form">
             How can we help you?
             <div
                 v-b-tooltip.hover
@@ -9,11 +9,11 @@
             >
                 <img
                     src="/gb-flag.svg"
-                    class="support-lang-flag mr-1"
+                    class="theme-img support-lang-flag mr-1"
                 />
                 <img
                     src="/nl-flag.svg"
-                    class="support-lang-flag"
+                    class="theme-img support-lang-flag"
                 />
             </div>
         </h2>

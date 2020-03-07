@@ -54,6 +54,7 @@ module.exports = {
         'prefer-destructuring': 'off',
         'no-param-reassign': ['error', { 'props': false }], // vuex
         'no-else-return': 'off',
+        'no-underscore-dangle': 'off',
         'no-plusplus': 'off',
         'no-alert': 'off', // allow alerts (we should create a custom component for this)
         'function-paren-newline': 'off',

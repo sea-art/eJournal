@@ -14,7 +14,7 @@
                 >
                     <img
                         :src="user.profile_picture"
-                        class="profile-picture-sm"
+                        class="theme-img profile-picture-sm"
                     />
                 </b-col>
                 <b-col cols="9">

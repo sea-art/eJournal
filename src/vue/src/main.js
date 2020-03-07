@@ -35,8 +35,27 @@ initSentry(Vue)
 
 /* Checks the store for for permissions according to the current route cID or aID. */
 Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
+const toApi = new RegExp(`^${CustomEnv.API_URL}`)
 
-Vue.config.productionTip = false
+/* eslint-disable */
+Vue.config.productionTip = false;
+
+(function (open, send) {
+    let xhrOpenRequestUrl;
+
+    XMLHttpRequest.prototype.open = function (_, url) {
+        xhrOpenRequestUrl = url
+        open.apply(this, arguments)
+    }
+
+    XMLHttpRequest.prototype.send = function () {
+        if (store.getters['user/jwtAccess'] && toApi.test(xhrOpenRequestUrl)) {
+            this.setRequestHeader('Authorization', `Bearer ${store.getters['user/jwtAccess']}`)
+        }
+        send.apply(this, arguments)
+    }
+})(XMLHttpRequest.prototype.open, XMLHttpRequest.prototype.send)
+/* eslint-enable */
 
 /* eslint-disable no-new */
 new Vue({
@@ -82,8 +101,8 @@ new Vue({
         store.dispatch('connection/setupConnectionInterceptors', { connection: connection.conn })
         store.dispatch('connection/setupConnectionInterceptors',
             { connection: connection.connRefresh, isRefresh: true })
-        store.dispatch('connection/setupConnectionInterceptors', { connection: connection.connFile })
-        store.dispatch('connection/setupConnectionInterceptors', { connection: connection.connFileEmail })
+        store.dispatch('connection/setupConnectionInterceptors', { connection: connection.connUpFile })
+        store.dispatch('connection/setupConnectionInterceptors', { connection: connection.connDownFile })
 
         window.addEventListener('resize', () => {
             this.windowWidth = window.innerWidth

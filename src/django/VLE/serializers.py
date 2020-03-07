@@ -8,8 +8,8 @@ from django.utils import timezone
 from rest_framework import serializers
 
 import VLE.permissions as permissions
-from VLE.models import (Assignment, Comment, Content, Course, Entry, Field, Format, Grade, Group, Instance, Journal,
-                        Node, Participation, Preferences, PresetNode, Role, Template, User)
+from VLE.models import (Assignment, Comment, Content, Course, Entry, Field, FileContext, Format, Grade, Group, Instance,
+                        Journal, Node, Participation, Preferences, PresetNode, Role, Template, User)
 from VLE.utils import generic_utils as utils
 from VLE.utils.error_handling import VLEParticipationError, VLEProgrammingError
 
@@ -549,10 +549,33 @@ class TemplateSerializer(serializers.ModelSerializer):
 
 
 class ContentSerializer(serializers.ModelSerializer):
+    data = serializers.SerializerMethodField()
+
     class Meta:
         model = Content
-        fields = '__all__'
+        fields = ('entry', 'field', 'data', )
         read_only_fields = ('id', )
+
+    def get_data(self, content):
+        if content.field.type in Field.FILE_TYPES:
+            try:
+                return FileSerializer(FileContext.objects.get(pk=content.data)).data
+            except FileContext.DoesNotExist:
+                return None
+
+        return content.data
+
+
+class FileSerializer(serializers.ModelSerializer):
+    download_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = FileContext
+        fields = ('download_url', 'file_name', 'id', )
+
+    def get_download_url(self, file):
+        # Get access_id if file is in rich text
+        return file.download_url(access_id=file.in_rich_text)
 
 
 class FieldSerializer(serializers.ModelSerializer):

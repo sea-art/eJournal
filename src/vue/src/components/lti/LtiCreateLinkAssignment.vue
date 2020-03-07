@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2 class="multi-form">
+        <h2 class="theme-h2 multi-form">
             Configuring an assignment
         </h2>
         <span class="d-block mb-2">
@@ -70,6 +70,7 @@
             title="Link to existing assignment"
             size="lg"
             hideFooter
+            noEnforceFocus
         >
             <link-assignment
                 :lti="lti"
@@ -83,6 +84,7 @@
             title="Create new assignment"
             size="lg"
             hideFooter
+            noEnforceFocus
         >
             <create-assignment
                 :lti="lti"

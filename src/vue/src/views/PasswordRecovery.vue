@@ -1,9 +1,11 @@
 <template>
     <content-single-column>
-        <h1><span>Password Recovery</span></h1>
+        <h1 class="theme-h1">
+            <span>Password Recovery</span>
+        </h1>
         <b-card class="no-hover">
             <b-form @submit.prevent="recoverPassword()">
-                <h2 class="field-heading">
+                <h2 class="theme-h2 field-heading">
                     New password
                 </h2>
                 <b-input
@@ -13,7 +15,7 @@
                     required
                     placeholder="New password"
                 />
-                <h2 class="field-heading">
+                <h2 class="theme-h2 field-heading">
                     Repeat new password
                 </h2>
                 <b-input

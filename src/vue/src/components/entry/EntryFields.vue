@@ -8,7 +8,7 @@
             <h2
                 v-if="field.title"
                 :class="{ 'required': field.required }"
-                class="field-heading"
+                class="theme-h2 field-heading"
             >
                 {{ field.title }}
             </h2>
@@ -37,7 +37,7 @@
             />
             <file-upload-input
                 v-else-if="field.type == 'i'"
-                :placeholder="completeContent[i].data"
+                :placeholder="completeContent[i].data ? completeContent[i].data.file_name : null"
                 :acceptedFiletype="'image/*'"
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="true"
@@ -47,7 +47,7 @@
             />
             <file-upload-input
                 v-else-if="field.type == 'f'"
-                :placeholder="completeContent[i].data"
+                :placeholder="completeContent[i].data ? completeContent[i].data.file_name : null"
                 :acceptedFiletype="'*/*'"
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="true"
@@ -63,7 +63,7 @@
             />
             <file-upload-input
                 v-else-if="field.type == 'p'"
-                :placeholder="completeContent[i].data"
+                :placeholder="completeContent[i].data ? completeContent[i].data.file_name : null"
                 :acceptedFiletype="'application/pdf'"
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="true"
@@ -98,7 +98,7 @@
             <h2
                 v-if="field.title"
                 :class="{ 'required': field.required }"
-                class="field-heading"
+                class="theme-h2 field-heading"
             >
                 {{ field.title }}
             </h2>
@@ -117,7 +117,7 @@
             <image-file-display
                 v-else-if="field.type == 'i'"
                 :id="'image-display-field-' + field.location"
-                :fileName="completeContent[field.location].data"
+                :file="completeContent[field.location].data"
                 :authorUID="authorUID"
                 :entryID="entryID"
                 :nodeID="nodeID"
@@ -125,7 +125,7 @@
             />
             <file-download-button
                 v-else-if="field.type == 'f'"
-                :fileName="completeContent[field.location].data"
+                :file="completeContent[field.location].data"
                 :authorUID="authorUID"
                 :entryID="entryID"
                 :nodeID="nodeID"
@@ -140,7 +140,7 @@
             />
             <pdf-display
                 v-else-if="field.type == 'p'"
-                :fileName="completeContent[field.location].data"
+                :file="completeContent[field.location].data"
                 :authorUID="authorUID"
                 :entryID="entryID"
                 :nodeID="nodeID"

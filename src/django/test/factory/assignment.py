@@ -14,7 +14,6 @@ class AssignmentFactory(factory.django.DjangoModelFactory):
     name = 'Logboek'
     description = 'Logboek for all your logging purposes'
     is_published = True
-    author = factory.SubFactory('test.factory.user.TeacherFactory')
     unlock_date = timezone.now()
     due_date = timezone.now() + datetime.timedelta(weeks=1)
     lock_date = timezone.now() + datetime.timedelta(weeks=2)
@@ -27,6 +26,9 @@ class AssignmentFactory(factory.django.DjangoModelFactory):
             return
 
         if extracted:
+            if self.author is None:
+                self.author = extracted[0].author
+                self.save()
             for course in extracted:
                 self.courses.add(course)
                 p = factory.SubFactory('test.factory.participation.ParticipationFactory')
@@ -36,6 +38,10 @@ class AssignmentFactory(factory.django.DjangoModelFactory):
         else:
             course = test.factory.course.CourseFactory()
             self.courses.add(course)
+
+            if self.author is None:
+                self.author = self.courses.first().author
+                self.save()
 
 
 class TemplateAssignmentFactory(AssignmentFactory):

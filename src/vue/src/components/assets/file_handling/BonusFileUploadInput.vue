@@ -150,7 +150,7 @@ export default {
             formData.append('assignment_id', this.aID)
             formData.append('content_id', this.contentID)
 
-            auth.uploadFileEmail(this.endpoint, formData, {
+            auth.uploadFile(this.endpoint, formData, {
                 customSuccessToast: 'Successfully imported bonus points.',
                 customErrorToast: 'Something is wrong with the uploaded file.',
             })

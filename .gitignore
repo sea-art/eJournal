@@ -14,6 +14,8 @@ htmlcov/*
 # Coverage
 .coverage
 
+*.zip
+*.gz
 # Created by https://www.gitignore.io/intellij
 
 ### Intellij ###

@@ -1,7 +1,7 @@
 <template>
     <b-card :class="$root.getBorderClass(assignment.id)">
         <slot class="float-right"/>
-        <h2 class="d-inline align-middle">
+        <h2 class="theme-h2 d-inline align-middle">
             {{ assignment.name }}
         </h2>
         <b-badge

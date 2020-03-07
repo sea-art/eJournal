@@ -24,7 +24,10 @@
             :to="{ name: 'Home' }"
             class="brand-name text-shadow"
         >
-            <img src="/ejournal-logo-white.svg"/>
+            <img
+                src="/ejournal-logo-white.svg"
+                class="theme-img"
+            />
         </b-navbar-brand>
 
         <b-navbar-toggle
@@ -77,7 +80,7 @@
                 >
                     <img
                         :src="profileImg"
-                        class="profile-picture-sm"
+                        class="theme-img profile-picture-sm"
                     />
                 </div>
                 <b-button
@@ -120,7 +123,10 @@
             :to="{ name: 'Guest' }"
             class="brand-name"
         >
-            <img src="/ejournal-logo-white.svg"/>
+            <img
+                src="/ejournal-logo-white.svg"
+                class="theme-img"
+            />
         </b-navbar-brand>
 
         <b-navbar-nav

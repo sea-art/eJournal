@@ -1,11 +1,13 @@
 <template>
     <content-single-column>
-        <h1><span>Welcome to {{ name ? name : 'eJournal' }}</span></h1><br/>
-        <h4 class="multi-form">
+        <h1 class="theme-h1">
+            <span>Welcome to {{ name ? name : 'eJournal' }}</span>
+        </h1><br/>
+        <h4 class="theme-h4 multi-form">
             <span>Let's get started</span>
         </h4>
         <login-form @handleAction="handleLoginSucces"/>
-        <h4 class="multi-form mt-4">
+        <h4 class="theme-h4 multi-form mt-4">
             <span>Want to use eJournal in your education?</span>
         </h4>
         <b-card class="no-hover">
@@ -28,7 +30,7 @@
             </div>
         </b-card>
 
-        <h4 class="multi-form mt-4">
+        <h4 class="theme-h4 multi-form mt-4">
             <span>eJournal is open source software</span>
         </h4>
         <b-card class="no-hover mb-4">

@@ -2,7 +2,7 @@
     <content-single-column>
         <h1
             v-if="currentPage"
-            class="mb-2"
+            class="theme-h1 mb-2"
         >
             <span>{{ currentPage }}</span>
         </h1>

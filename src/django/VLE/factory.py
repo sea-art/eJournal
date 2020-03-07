@@ -10,7 +10,7 @@ from django.utils import timezone
 
 import VLE.validators as validators
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field, Format, Grade, Group, Instance, Journal,
-                        Node, Participation, PresetNode, Role, Template, User, UserFile)
+                        Node, Participation, PresetNode, Role, Template, User)
 
 
 def make_instance(allow_standalone_registration=None):
@@ -421,20 +421,3 @@ def make_grade(entry, author, grade, published=False):
     entry.save()
 
     return grade
-
-
-def make_user_file(uploaded_file, author, assignment, entry=None, node=None, content=None):
-    """Make a user file from an UploadedFile in memory.
-
-    At the time of creation, the UserFile is uploaded but not attached to an entry yet. This UserFile be treated
-    as temporary untill the actual entry is created. And the node, entry, and content are updated."""
-    return UserFile.objects.create(
-        file=uploaded_file,
-        file_name=uploaded_file.name,
-        author=author,
-        content_type=uploaded_file.content_type,
-        assignment=assignment,
-        entry=entry,
-        node=node,
-        content=content
-    )

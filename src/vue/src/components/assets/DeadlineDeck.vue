@@ -1,6 +1,9 @@
 <template>
     <div v-if="computedDeadlines.length > 0">
-        <h3 slot="right-content-column">
+        <h3
+            slot="right-content-column"
+            class="theme-h3"
+        >
             To Do
         </h3>
         <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->

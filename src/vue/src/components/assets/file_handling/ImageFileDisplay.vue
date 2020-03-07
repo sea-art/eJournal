@@ -5,11 +5,12 @@
             @click="handleDownload"
         >
             <icon name="image"/>
-            <i><span>{{ fileName }}</span></i>
+            <i><span>{{ file.file_name }}</span></i>
         </div>
         <transition name="fade">
             <img
                 v-if="fileURL && show"
+                class="theme-img"
                 :class="showImage"
                 :src="fileURL"
             />
@@ -18,13 +19,12 @@
 </template>
 
 <script>
-import userAPI from '@/api/user.js'
+import auth from '@/api/auth.js'
 
 export default {
     props: {
-        fileName: {
+        file: {
             required: true,
-            String,
         },
         authorUID: {
             required: true,
@@ -71,7 +71,7 @@ export default {
             }
         },
         fileDownload () {
-            userAPI.download(this.authorUID, this.fileName, this.entryID, this.nodeID, this.contentID)
+            auth.downloadFile(this.file.download_url)
                 .then((response) => {
                     try {
                         const blob = new Blob([response.data], { type: response.headers['content-type'] })

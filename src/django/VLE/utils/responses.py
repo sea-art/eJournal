@@ -182,8 +182,10 @@ def validation_error(err, exception=None):
 
 
 def file(file_path, filename):
-    """Return a file as bytestring if found, otherwise returns a not found response."""
-    if isinstance(file_path, VLE.models.UserFile):
+    """On local development returns a file as bytestring if found, otherwise returns a not found response.
+    Otherwise returns an internal redirection to serve the file with nginx.
+    """
+    if isinstance(file_path, VLE.models.FileContext):
         file_path = file_path.file.path
 
     if settings.ENVIRONMENT == 'LOCAL':

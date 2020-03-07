@@ -66,7 +66,7 @@ export default {
                 `The profile picture exceeds the maximum file size of ${this.$root.maxFileSizeBytes} bytes.`)
         },
         savePicture () {
-            this.$emit('newPicture', this.croppa.generateDataUrl('image/jpeg'))
+            this.$emit('newPicture', this.croppa.generateDataUrl('image/png'))
         },
         refreshPicture () {
             this.croppa.refresh()

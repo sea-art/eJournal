@@ -12,7 +12,7 @@
                 v-else
                 @submit.prevent="verifyEmail"
             >
-                <h2 class="field-heading">
+                <h2 class="theme-h2 field-heading">
                     Email verification token
                 </h2>
                 <b-input

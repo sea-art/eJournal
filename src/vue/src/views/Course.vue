@@ -68,6 +68,7 @@
             title="Create new assignment"
             size="lg"
             hideFooter
+            noEnforceFocus
         >
             <create-assignment @handleAction="handleCreated"/>
         </b-modal>

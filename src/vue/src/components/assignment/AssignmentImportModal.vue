@@ -4,9 +4,10 @@
         size="lg"
         title="Import assignment"
         hideFooter
+        noEnforceFocus
     >
         <b-card class="no-hover">
-            <h2 class="multi-form">
+            <h2 class="theme-h2 multi-form">
                 Select an assignment to import
             </h2>
             <p>
@@ -43,7 +44,9 @@
                 </div>
             </div>
             <div v-if="!importableFormats">
-                <h4>No existing assignments available</h4>
+                <h4 class="theme-h4">
+                    No existing assignments available
+                </h4>
                 <hr class="m-0 mb-1"/>
                 Only assignments where you have permission to edit are available for import.
             </div>

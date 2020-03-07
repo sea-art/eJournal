@@ -157,7 +157,7 @@ class EntryAPITest(TestCase):
             } for field in fields]
         }
         resp = api.update(self, 'entries', params=params.copy(), user=self.student)['entry']
-        assert len(resp['content']) == 2, 'Response should have emptied the optional fields'
+        assert len(resp['content']) == 3, 'Response should have emptied the optional fields'
         # Student should be able to edit an optinal field
         params = {
             'pk': entry['id'],

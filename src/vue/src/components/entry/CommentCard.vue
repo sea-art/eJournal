@@ -12,7 +12,7 @@
             >
                 <img
                     :src="comment.author.profile_picture"
-                    class="profile-picture-sm no-hover"
+                    class="theme-img profile-picture-sm no-hover"
                 />
                 <b-card
                     :class="$root.getBorderClass($route.params.cID)"
@@ -97,7 +97,7 @@
         >
             <img
                 :src="$store.getters['user/profilePicture']"
-                class="profile-picture-sm no-hover"
+                class="theme-img profile-picture-sm no-hover"
             />
             <b-card
                 :class="$root.getBorderClass($route.params.cID)"

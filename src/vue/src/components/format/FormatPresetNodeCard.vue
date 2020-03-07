@@ -11,7 +11,7 @@
     >
         <h2
             v-if="!newPreset"
-            class="d-inline multi-form"
+            class="theme-h2 d-inline multi-form"
         >
             <span v-if="currentPreset.type == 'd'">Entry</span>
             <span v-if="currentPreset.type == 'p'">Progress goal</span>
@@ -19,7 +19,7 @@
 
         <b-row v-if="currentPreset.type == 'd'">
             <b-col xl="4">
-                <h2 class="field-heading">
+                <h2 class="theme-h2 field-heading">
                     Unlock date
                     <tooltip tip="Students will be able to work on the entry from this date onwards"/>
                 </h2>
@@ -30,7 +30,7 @@
                 />
             </b-col>
             <b-col xl="4">
-                <h2 class="field-heading required">
+                <h2 class="theme-h2 field-heading required">
                     Due date
                     <tooltip
                         tip="Students are expected to have finished their entry by this date, but new entries can
@@ -45,7 +45,7 @@
                 />
             </b-col>
             <b-col xl="4">
-                <h2 class="field-heading">
+                <h2 class="theme-h2 field-heading">
                     Lock date
                     <tooltip tip="Students will not be able to fill in the entry anymore after this date"/>
                 </h2>
@@ -57,7 +57,7 @@
             </b-col>
         </b-row>
         <div v-else>
-            <h2 class="field-heading required">
+            <h2 class="theme-h2 field-heading required">
                 Due date
                 <tooltip
                     tip="Students are expected to have reached the amount of points below by this date,
@@ -72,7 +72,7 @@
             />
         </div>
 
-        <h2 class="field-heading">
+        <h2 class="theme-h2 field-heading">
             Description
         </h2>
         <b-textarea
@@ -82,7 +82,7 @@
         />
 
         <div v-if="currentPreset.type === 'd'">
-            <h2 class="field-heading required">
+            <h2 class="theme-h2 field-heading required">
                 Preset Template
                 <tooltip tip="The template students can use for this entry"/>
             </h2>
@@ -136,7 +136,7 @@
             </div>
         </div>
         <div v-else-if="currentPreset.type === 'p'">
-            <h2 class="field-heading required">
+            <h2 class="theme-h2 field-heading required">
                 Amount of points
                 <tooltip
                     tip="The amount of points students should have achieved by the deadline of this node to be on
