@@ -3,13 +3,14 @@ group.py.
 
 In this file are all the group api requests.
 """
+from django.db.models import Count
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
-from VLE.models import Course, Group
+from VLE.models import Assignment, Course, Group, Journal, Participation
 from VLE.serializers import GroupSerializer
 from VLE.utils.error_handling import VLEPermissionError
 
@@ -40,12 +41,28 @@ class GroupView(viewsets.ViewSet):
 
         """
         course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
+        assignment_id, = utils.optional_typed_params(request.query_params, (int, 'assignment_id'))
 
         course = Course.objects.get(pk=course_id)
 
         check_can_view_groups(request.user, course)
 
-        queryset = Group.objects.filter(course=course)
+        if assignment_id:
+            assignment = Assignment.objects.get(pk=assignment_id)
+            journals = Journal.objects.filter(assignment=assignment)
+            participations = Participation.objects.filter(
+                user__in=journals.values('user'), course=course).exclude(user__is_test_student=True)
+            groups = Group.objects.filter(
+                course=course, participation__in=participations
+            ).annotate(
+                matched=Count('participation')
+            ).exclude(
+                matched=len(participations)
+            )
+            queryset = groups.distinct()
+            # TODO GROUPS: make sure group journal get correctly filtered
+        else:
+            queryset = Group.objects.filter(course=course)
         serializer = GroupSerializer(queryset, many=True, context={'user': request.user, 'course': course})
 
         return response.success({'groups': serializer.data})

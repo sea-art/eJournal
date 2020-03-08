@@ -5,7 +5,7 @@ from test.utils.response import in_response
 from django.test import TestCase
 
 import VLE.factory as nfac
-from VLE.models import Group
+from VLE.models import Group, Participation
 
 
 class GroupAPITest(TestCase):
@@ -35,6 +35,56 @@ class GroupAPITest(TestCase):
                       create_params=self.create_params, get_status=405, get_is_create=False,
                       create_status=403,
                       user=factory.Student())
+
+    def test_list_limited(self):
+        empty_group = self.group
+
+        test_student = factory.TestUser()
+        journal = factory.Journal(user=test_student, assignment__courses=[self.course])
+        assignment = journal.assignment
+
+        test_student_group = factory.Group(course=self.course)
+        test_participation = Participation.objects.get(user=test_student)
+        test_participation.groups.add(test_student_group)
+
+        student = factory.Journal(assignment=assignment).user
+        student_group = factory.Group(course=self.course)
+        student_in_group = Participation.objects.get(user=student)
+        student_in_group.groups.add(student_group)
+
+        test_and_student_group = factory.Group(course=self.course)
+        student_in_group.groups.add(test_and_student_group)
+        test_participation.groups.add(test_and_student_group)
+
+        teacher_group = factory.Group(course=self.course)
+        teacher_participation = Participation.objects.get(user=self.teacher)
+        teacher_participation.groups.add(teacher_group)
+
+        other_student = factory.Journal(assignment=assignment).user
+        other_group = factory.Group(course=self.course)
+        other_student_participation = Participation.objects.get(user=other_student)
+        other_student_participation.groups.add(other_group)
+
+        all_group = factory.Group(course=self.course)
+        student_in_group.groups.add(all_group)
+        test_participation.groups.add(all_group)
+        teacher_participation.groups.add(all_group)
+        other_student_participation.groups.add(all_group)
+
+        groups = api.get(
+            self, 'groups', params={'course_id': self.course.pk, 'assignment_id': assignment.pk},
+            user=self.teacher)['groups']
+
+        ids = [g['id'] for g in groups]
+        assert empty_group.pk not in ids, 'empty groups should not be shown'
+        assert test_student_group.pk not in ids, 'groups with only test student should not be shown'
+        assert teacher_group.pk not in ids, 'groups with only teacher should not be shown'
+
+        assert student_group.pk in ids, 'groups with student should be shown'
+        assert other_group.pk in ids, 'groups with student should be shown'
+        assert test_and_student_group.pk in ids, 'groups with student and test student should be shown'
+
+        assert all_group.pk not in ids, 'groups with all students should not be shown'
 
     def test_get(self):
         # Test all groups from course

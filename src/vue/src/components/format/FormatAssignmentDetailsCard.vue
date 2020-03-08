@@ -69,7 +69,7 @@
             <theme-select
                 v-model="assignmentDetails.assigned_groups"
                 label="name"
-                trackBy="name"
+                trackBy="id"
                 :options="assignmentDetails.all_groups !== undefined ? assignmentDetails.all_groups : []"
                 :multiple="true"
                 :searchable="true"

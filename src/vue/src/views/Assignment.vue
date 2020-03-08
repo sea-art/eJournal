@@ -348,7 +348,7 @@ export default {
 
             const initialCalls = []
             initialCalls.push(assignmentAPI.get(this.aID, this.cID))
-            initialCalls.push(groupAPI.getAllFromCourse(this.cID))
+            initialCalls.push(groupAPI.getFromAssignment(this.cID, this.aID))
             /* Superuser does not have any participation, this should not redict to error, nor give an error toast */
             initialCalls.push(
                 participationAPI.get(this.cID, { redirect: !this.isSuperuser, customErrorToast: '' }).catch(() => {}))
