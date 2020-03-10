@@ -73,7 +73,7 @@ export default {
             formData.append('file', this.file)
             formData.append('assignment_id', this.aID)
             formData.append('content_id', this.contentID)
-
+            this.$emit('uploadingFile')
             auth.uploadFile(this.endpoint, formData, { customSuccessToast: 'File upload success.' })
                 .then((resp) => {
                     this.$emit('fileUploadSuccess', resp.data)
