@@ -5,6 +5,8 @@ This file contains functions to easily generate common HTTP error responses
 using JsonResponses. These functions should be used whenever the client needs
 to receive the appropriate error code.
 """
+from urllib import parse
+
 from django.conf import settings
 from django.http import FileResponse, HttpResponse, JsonResponse
 from sentry_sdk import capture_exception, capture_message
@@ -198,6 +200,8 @@ def file(file_path, filename):
         # Note that the following headers are not modified by nginx:
         # Content-Type, Content-Disposition, Accept-Ranges, Set-Cookie, Cache-Control, Expires
         response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
-        response['X-Accel-Redirect'] = '/{}'.format(file_path[file_path.find('media'):])
+        # Note we need to encode the URI, as the internal redirect is handled as HTTP header
+        # for which only ASCII is guaranteed to work.
+        response['X-Accel-Redirect'] = '/{}'.format(parse.quote(file_path[file_path.find('media'):]))
 
     return response
