@@ -23,6 +23,10 @@
             <h2 class="theme-h2 mb-2">
                 {{ entryNode.entry.template.name }}
             </h2>
+            <sandboxed-iframe
+                v-if="entryNode.description"
+                :content="entryNode.description"
+            />
             <entry-fields
                 :template="entryNode.entry.template"
                 :completeContent="completeContent"
@@ -134,6 +138,7 @@
 </template>
 
 <script>
+import sandboxedIframe from '@/components/assets/SandboxedIframe.vue'
 import commentCard from '@/components/entry/CommentCard.vue'
 import entryFields from '@/components/entry/EntryFields.vue'
 
@@ -141,6 +146,7 @@ export default {
     components: {
         commentCard,
         entryFields,
+        sandboxedIframe,
     },
     props: ['entryNode', 'cID', 'journal'],
     data () {

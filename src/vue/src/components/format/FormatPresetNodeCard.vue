@@ -75,10 +75,13 @@
         <h2 class="theme-h2 field-heading">
             Description
         </h2>
-        <b-textarea
+        <text-editor
+            :id="`preset-description-${currentPreset.id}`"
+            :key="`preset-description-${currentPreset.id}`"
             v-model="currentPreset.description"
-            class="multi-form theme-input"
+            class="multi-form"
             placeholder="Description"
+            footer="false"
         />
 
         <div v-if="currentPreset.type === 'd'">
@@ -164,6 +167,7 @@
 </template>
 
 <script>
+import textEditor from '@/components/assets/TextEditor.vue'
 import templatePreview from '@/components/template/TemplatePreview.vue'
 import tooltip from '@/components/assets/Tooltip.vue'
 
@@ -171,6 +175,7 @@ export default {
     components: {
         templatePreview,
         tooltip,
+        textEditor,
     },
     props: ['newPreset', 'currentPreset', 'templates', 'assignmentDetails'],
     data () {
