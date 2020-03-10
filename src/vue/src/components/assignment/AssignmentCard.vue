@@ -13,7 +13,7 @@
                 class="text-grey"
             >
                 <icon
-                    name="clock-o"
+                    name="clock"
                     scale="0.8"
                     class="fill-grey shift-up-2"
                 />

@@ -361,7 +361,7 @@ class Preferences(models.Model):
         default=False
     )
     hide_version_alert = models.TextField(
-        max_length=10,
+        max_length=20,
         null=True,
     )
     SAVE = 's'

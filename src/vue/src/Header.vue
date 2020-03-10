@@ -14,7 +14,7 @@
                 class="spinner shadow"
             >
                 <icon
-                    name="circle-o-notch"
+                    name="circle-notch"
                     spin
                     scale="1.1"
                 />
@@ -91,7 +91,7 @@
                     &nbsp;Profile
                 </b-button>
                 <b-button :to="{ name: 'Logout' }">
-                    <icon name="sign-out"/>
+                    <icon name="sign-out-alt"/>
                     Log out
                 </b-button>
             </b-nav-dropdown>
@@ -113,7 +113,7 @@
                 class="spinner shadow"
             >
                 <icon
-                    name="circle-o-notch"
+                    name="circle-notch"
                     spin
                     scale="1.3"
                 />
@@ -145,7 +145,7 @@
                 >
                     <icon
                         name="user"
-                        scale="2.5"
+                        scale="2"
                     />
                 </div>
                 <b-button
@@ -157,7 +157,7 @@
                     Register
                 </b-button>
                 <b-button :to="{ name: 'Login' }">
-                    <icon name="sign-in"/>
+                    <icon name="sign-in-alt"/>
                     Log in
                 </b-button>
             </b-nav-dropdown>
@@ -266,9 +266,6 @@ export default {
 
         a.nav-link
             text-align: right !important
-
-#nav-collapse
-    background-color: $theme-dark-blue
 
 .dropdown-menu
     @extend .shadow

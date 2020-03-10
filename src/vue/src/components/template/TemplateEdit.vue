@@ -161,7 +161,7 @@
                             <div class="handle d-inline d-sm-block">
                                 <icon
                                     class="move-icon"
-                                    name="arrows"
+                                    name="arrows-alt"
                                     scale="1.75"
                                 />
                             </div>

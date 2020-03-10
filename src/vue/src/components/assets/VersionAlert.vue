@@ -5,7 +5,6 @@
         @dismissed="hideVersionAlert"
     >
         A new version of eJournal has been released: <b>{{ version }}</b>.
-        {{ message }}
         Read the changelog
         <a
             href="https://www.ejournal.app/changelog.html"
@@ -22,15 +21,11 @@ export default {
     data () {
         return {
             version: CurrentRelease.version,
-            message: CurrentRelease.message,
-            date: CurrentRelease.date,
         }
     },
     computed: {
         showVersionAlert () {
-            return this.message !== ''
-                && this.$store.getters['preferences/hideVersionAlert'] !== this.version
-                && this.$moment().diff(this.$moment(this.date), 'days') < 7
+            return this.$store.getters['preferences/hideVersionAlert'] !== this.version
         },
     },
     methods: {
