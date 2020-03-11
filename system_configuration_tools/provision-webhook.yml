@@ -13,8 +13,8 @@
 
   roles:
     - base
-    - flask
     - webhook
     - nginx
+    - flask
     - security
     # - certbot

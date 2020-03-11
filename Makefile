@@ -133,7 +133,7 @@ run-ansible-preset_db:
 
 run-ansible-webhook-test:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-webhook.yml'
+	ansible-playbook ./system_configuration_tools/provision-webhook.yml ${become} ${ansible_use}'
 
 ##### MAKEFILE COMMANDS #####
 
