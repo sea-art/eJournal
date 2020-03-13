@@ -355,8 +355,11 @@ class AssignmentView(viewsets.ViewSet):
 
         # Guess which encoding is used.
         encoding = chardet.detect(request.FILES['file'].read())['encoding']
-        # Go back to first line of the file, then read and decode lines.
-        csv_file = request.FILES['file'].open().read().decode(encoding).splitlines()
+        try:
+            # Go back to first line of the file, then read and decode lines.
+            csv_file = request.FILES['file'].open().read().decode(encoding).splitlines()
+        except (TypeError, UnicodeDecodeError):
+            return response.bad_request({'general': 'Not a valid csv file.'})
         # Initialize csv reader to parse file.
         csv_reader = csv.reader(csv_file, delimiter=',')
 
@@ -374,8 +377,6 @@ class AssignmentView(viewsets.ViewSet):
                     duplicates[line_nr] = username
                 else:
                     bonuses[journal] = bonus
-            except UnicodeDecodeError:
-                return response.bad_request({'general': 'Not a valid csv file.'})
             except ValueError:
                 incorrect_format_lines[line_nr] = ','.join(row)
             except User.DoesNotExist:
