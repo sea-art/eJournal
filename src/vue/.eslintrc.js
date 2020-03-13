@@ -67,6 +67,7 @@ module.exports = {
         },
     },
     globals: {
+        SupportedBrowsers: true,
         CurrentRelease: true,
         CustomEnv: true,
     },

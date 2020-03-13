@@ -22,7 +22,10 @@ import ThemeSelect from './components/assets/ThemeSelect.vue'
 import connection from '@/api/connection.js'
 
 Vue.config.productionTip = false
-Vue.use(Toasted, { position: 'top-center', duration: 4000 })
+Vue.use(Toasted, {
+    position: 'top-center',
+    duration: 4000,
+})
 Vue.use(BootstrapVue)
 Vue.use(flatPickr)
 Vue.use(VueIntro)

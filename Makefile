@@ -86,7 +86,7 @@ setup-venv:
 		source ./venv/bin/activate && \
 		pip install -r requirements/$(requirements_file) && \
 		isort -rc src/django/ && \
-		ansible-playbook ./system_configuration_tools/provision-local.yml --ask-become-pass --ask-vault-pass && \
+		ansible-playbook ./config/provision-local.yml --ask-become-pass --ask-vault-pass && \
 		deactivate'
 
 ##### DEPLOY COMMANDS ######
@@ -95,22 +95,22 @@ ansible-test-connection:
 	@bash -c 'source ./venv/bin/activate && ansible -m ping all --ask-become-pass && deactivate'
 
 run-ansible-provision:
-	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --ask-become-pass --ask-vault-pass && deactivate'
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./config/provision-servers.yml --ask-become-pass --ask-vault-pass && deactivate'
 
 run-ansible-deploy:
-	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy_back,deploy_front" --ask-become-pass --ask-vault-pass && deactivate'
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./config/provision-servers.yml --tags "deploy_back,deploy_front" --ask-become-pass --ask-vault-pass && deactivate'
 
 run-ansible-deploy-front:
-	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy_front" --ask-become-pass --ask-vault-pass && deactivate'
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./config/provision-servers.yml --tags "deploy_front" --ask-become-pass --ask-vault-pass && deactivate'
 
 run-ansible-deploy-back:
-	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy_back" --ask-become-pass --ask-vault-pass && deactivate'
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./config/provision-servers.yml --tags "deploy_back" --ask-become-pass --ask-vault-pass && deactivate'
 
 run-ansible-backup:
-	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "backup" --ask-become-pass --ask-vault-pass && deactivate'
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./config/provision-servers.yml --tags "backup" --ask-become-pass --ask-vault-pass && deactivate'
 
 run-ansible-preset_db:
-	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "run_preset_db" --ask-become-pass --ask-vault-pass && deactivate'
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./config/provision-servers.yml --tags "run_preset_db" --ask-become-pass --ask-vault-pass && deactivate'
 
 ##### MAKEFILE COMMANDS #####
 
