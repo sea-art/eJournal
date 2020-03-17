@@ -451,6 +451,7 @@ class AssignmentView(viewsets.ViewSet):
         format.save()
 
         assignment = assignment_source
+        assignment.is_published = False
         assignment.pk = None
         set_assignment_dates(assignment, months_offset)
 

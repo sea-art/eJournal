@@ -296,6 +296,7 @@ class AssignmentAPITest(TestCase):
         assert before_source_preset_nodes.count() == PresetNode.objects.filter(
             format=created_assignment.format).count(), 'All preset nodes should be imported along.'
         assert created_assignment.active_lti_id is None, 'Imported assignment should not be linked to LTI'
+        assert not created_assignment.is_published, 'Imported assignment should not be published'
         assert created_assignment.lti_id_set == [], 'Imported assignment should not be linked to LTI'
         assert created_assignment.courses.count() == 1 and course in created_assignment.courses.all(), \
             'Only the course where we call import from should be part of the created assignment course set'
@@ -308,6 +309,7 @@ class AssignmentAPITest(TestCase):
         created_assignment = Assignment.objects.get(pk=resp['assignment_id'])
         created_format = created_assignment.format
         assert created_assignment.author == teacher
+        assert not created_assignment.is_published, 'Imported assignment should not be published'
         assert created_assignment.active_lti_id == 'test', 'Imported assignment should not be linked to LTI'
         assert created_assignment.lti_id_set == ['test'], 'Imported assignment should not be linked to LTI'
 
