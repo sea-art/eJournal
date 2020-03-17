@@ -7,6 +7,9 @@
             <b-form @submit.prevent="recoverPassword()">
                 <h2 class="theme-h2 field-heading">
                     New password
+                    <tooltip
+                        tip="Should contain at least 8 characters, a capital letter and a special character"
+                    />
                 </h2>
                 <b-input
                     v-model="password"
@@ -40,6 +43,7 @@
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import tooltip from '@/components/assets/Tooltip.vue'
 
 import authAPI from '@/api/auth.js'
 import validation from '@/utils/validation.js'
@@ -48,6 +52,7 @@ export default {
     name: 'PasswordRecovery',
     components: {
         contentSingleColumn,
+        tooltip,
     },
     props: ['username', 'recoveryToken'],
     data () {

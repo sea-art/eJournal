@@ -1,6 +1,10 @@
 <template>
     <content-single-column>
-        <bread-crumb/>
+        <h1 class="theme-h1">
+            <span>
+                Register
+            </span>
+        </h1>
         <b-card
             class="no-hover"
         >
@@ -35,7 +39,6 @@
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import registerUser from '@/components/account/RegisterUser.vue'
 import userAPI from '@/api/user.js'
 
@@ -43,7 +46,6 @@ export default {
     name: 'Register',
     components: {
         contentSingleColumn,
-        breadCrumb,
         registerUser,
     },
     data () {

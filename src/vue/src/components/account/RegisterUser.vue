@@ -34,6 +34,9 @@
             />
             <h2 class="theme-h2 field-heading required">
                 New password
+                <tooltip
+                    tip="Should contain at least 8 characters, a capital letter and a special character"
+                />
             </h2>
             <b-input
                 v-model="form.password"
@@ -85,12 +88,17 @@
 </template>
 
 <script>
+import tooltip from '@/components/assets/Tooltip.vue'
+
 import authAPI from '@/api/auth.js'
 import validation from '@/utils/validation.js'
 import statuses from '@/utils/constants/status_codes.js'
 
 export default {
     name: 'RegisterUser',
+    components: {
+        tooltip,
+    },
     props: ['lti'],
     data () {
         return {
