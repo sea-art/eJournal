@@ -116,6 +116,10 @@ export default {
                 max_height: 500,
                 autoresize_bottom_margin: 10,
 
+                /* Link handling */
+                link_assume_external_targets: true,
+                default_link_target: '_blank',
+
                 placeholder_attrs: {
                     style: {
                         position: 'absolute',
