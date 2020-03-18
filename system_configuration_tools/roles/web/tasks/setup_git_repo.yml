@@ -45,7 +45,7 @@
     suffix: build
   register: tmp_build
 
-- name: Setup the Git repo in "{{ tmp_build.path }}"
+- name: "Setup the Git repo in {{ tmp_build.path }}"
   environment:
     TMPDIR: "/var/tmp"
   git:
