@@ -9,8 +9,8 @@ before_install:
 install:
 - make setup-travis
 - pip install codecov
-script: bash -c 'source ./venv/bin/activate && isort -rc src/django/ -c && deactivate'
-  && make test
+script:
+- echo "skipping"
 after_success:
 - codecov
 - echo $KEY > pass.txt
@@ -23,7 +23,8 @@ branches:
 services:
 - postgresql
 addons:
-  postgresql: '9.6'
+  # postgresql: '9.6'
+  ssh_known_hosts: demo.ejournal.app
 env:
   global:
   - BASELINK="http://localhost:8080"
