@@ -6,7 +6,7 @@ from test.utils import api
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
-from VLE.models import Field, FileContext
+from VLE.models import Field, FileContext, PresetNode, Template
 from VLE.utils import file_handling
 from VLE.utils.error_handling import VLEBadRequest, VLEPermissionError
 
@@ -179,7 +179,47 @@ class FileHandlingTest(TestCase):
         assert not self.student.filecontext_set.filter(pk=content_old_rt['id']).exists(), 'old file should be removed'
 
     def test_remove_unused_files_assignment(self):
-        # Remove old images in rich text of assignment description / template fields
+        def update_and_check(description, field_description, preset_node_description):
+            # self.assignment.description =
+            # self.assignment.save()
+            template = Template.objects.filter(format__assignment=self.assignment).first()
+            presetnode = PresetNode.objects.filter(format__assignment=self.assignment).first()
+            update_params = {
+                'pk': self.assignment.pk,
+                'assignment_details': {
+                    'description': '<p> <img src="{}" /> </p>'.format(description['download_url']),
+                },
+                'templates': [{
+                    'field_set': [{
+                        'type': 't',
+                        'title': '',
+                        'description': '<p><img src="{}" /></p>'.format(field_description['download_url']),
+                        'options': None,
+                        'location': 0,
+                        'required': True
+                    }],
+                    'name': 'Entry',
+                    'id': template.pk if template else -1,
+                    'preset_only': False
+                }],
+                'presets': [{
+                    'description': '<p><img src="{}" /></p>'.format(preset_node_description['download_url']),
+                    'due_date': str(self.assignment.due_date),
+                    'id': presetnode.pk if presetnode else -1,
+                    'target': self.assignment.points_possible,
+                    'type': 'p',
+                    'template': None,
+                    'lock_date': None,
+                    'unlock_date': None,
+                }], 'removed_presets': [], 'removed_templates': []
+            }
+            api.update(self, 'formats', params=update_params, user=self.teacher)
+            assert FileContext.objects.filter(pk=description['id']).exists(), 'new file should exist'
+            assert FileContext.objects.filter(pk=field_description['id']).exists(), 'new file should exist'
+            assert FileContext.objects.filter(pk=preset_node_description['id']).exists(), \
+                'new file should exist'
+
+        # Remove non established images
         needs_removal = api.post(
             self, 'files', params={'file': self.image, 'in_rich_text': True},
             user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
@@ -189,30 +229,29 @@ class FileHandlingTest(TestCase):
         field_description = api.post(
             self, 'files', params={'file': self.image, 'in_rich_text': True},
             user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
-        self.assignment.description = '<p> <img src="{}" /> </p>'.format(description['download_url'])
-        self.assignment.save()
-        update_params = {
-            'pk': self.assignment.pk,
-            'assignment_details': {},
-            'templates': [{
-                'field_set': [{
-                    'type': 't',
-                    'title': '',
-                    'description': '<p><img src="{}" /></p>'.format(field_description['download_url']),
-                    'options': None,
-                    'location': 0,
-                    'required': True
-                }],
-                'name': 'Entry',
-                'id': -1,
-                'preset_only': False
-            }],
-            'presets': [], 'removed_presets': [], 'removed_templates': []
-        }
-        api.update(self, 'formats', params=update_params, user=self.teacher)
-        assert self.teacher.filecontext_set.filter(pk=description['id']).exists(), 'new file should exist'
-        assert self.teacher.filecontext_set.filter(pk=field_description['id']).exists(), 'new file should exist'
+        preset_node_description = api.post(
+            self, 'files', params={'file': self.image, 'in_rich_text': True},
+            user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
+        update_and_check(description, field_description, preset_node_description)
         assert not self.teacher.filecontext_set.filter(pk=needs_removal['id']).exists(), 'old file should be removed'
+
+        # Remove old images in rich rext
+        new_description = api.post(
+            self, 'files', params={'file': self.image, 'in_rich_text': True},
+            user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
+        new_field_description = api.post(
+            self, 'files', params={'file': self.image, 'in_rich_text': True},
+            user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
+        new_preset_node_description = api.post(
+            self, 'files', params={'file': self.image, 'in_rich_text': True},
+            user=self.teacher, content_type=MULTIPART_CONTENT, status=201)
+        update_and_check(new_description, new_field_description, new_preset_node_description)
+        assert not FileContext.objects.filter(pk=description['id']).exists(), \
+            'old file should be removed'
+        assert not FileContext.objects.filter(pk=field_description['id']).exists(), \
+            'old file should be removed'
+        assert not FileContext.objects.filter(pk=preset_node_description['id']).exists(), \
+            'old file should be removed'
 
     def test_file_upload(self):
         api.post(

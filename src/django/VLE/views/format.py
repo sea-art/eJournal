@@ -7,7 +7,7 @@ from rest_framework import viewsets
 
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
-from VLE.models import Assignment, Field, Group
+from VLE.models import Assignment, Field, Group, PresetNode
 from VLE.serializers import AssignmentDetailsSerializer, FormatSerializer
 from VLE.utils import file_handling
 
@@ -107,6 +107,9 @@ class FormatView(viewsets.ViewSet):
         file_handling.establish_rich_text(request.user, assignment.description, assignment=assignment)
         for field in Field.objects.filter(template__format=format):
             file_handling.establish_rich_text(request.user, field.description, assignment=assignment)
+        for node in PresetNode.objects.filter(format=format):
+            file_handling.establish_rich_text(request.user, node.description, assignment=assignment)
+
         file_handling.remove_unused_user_files(request.user)
         serializer = FormatSerializer(format)
         assignment_details = AssignmentDetailsSerializer(assignment, context={'user': request.user})

@@ -125,7 +125,7 @@ def establish_file(author, identifier, course=None, assignment=None, journal=Non
 
 def get_files_from_rich_text(rich_text):
     re_access_ids = re.compile(r'\/files\/[0-9]+\?access_id=([a-zA-Z0-9]+)')
-    return [(VLE.models.FileContext.objects.get(access_id=access_id), print(access_id))[0]
+    return [VLE.models.FileContext.objects.get(access_id=access_id)
             for access_id in re.findall(re_access_ids, rich_text)]
 
 
@@ -163,5 +163,10 @@ def remove_unused_user_files(user):
                 if field.description and str(file.access_id) in field.description:  # Nor is it in a field
                     found = True
                     break
+            if not found:
+                for node in VLE.models.PresetNode.objects.filter(format__assignment=file.assignment):
+                    if node.description and str(file.access_id) in node.description:  # Nor is it in a field
+                        found = True
+                        break
             if not found:  # Only then delete the file
                 file.delete()
