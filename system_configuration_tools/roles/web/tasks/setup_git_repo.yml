@@ -45,13 +45,14 @@
     suffix: build
   register: tmp_build
 
-- name: Setup the Git repo in {{ tmp_build.path }}
+- name: Setup the Git repo in "{{ tmp_build.path }}"
   environment:
     TMPDIR: "/var/tmp"
-  git: repo={{ git_repo }}
-       version={{ git_branch }}
-       dest={{ tmp_build.path }}
-       accept_hostkey=yes
+  git:
+    - repo: "{{ git_repo }}"
+    - version: "{{ git_branch }}"
+    - dest: "{{ tmp_build.path }}"
+    - accept_hostkey: yes
   when: setup_git_repo is defined and setup_git_repo
   notify: restart application
   tags:
