@@ -4,7 +4,7 @@ python:
 sudo: enabled
 before_install:
 - openssl aes-256-cbc -K $encrypted_e6cc0fb2b8da_key -iv $encrypted_e6cc0fb2b8da_iv
-  -in travis.enc -out $HOME/.ssh/id_travis -d
+  -in travis.enc -out travis -d
 - npm install -g npm@latest
 install:
 - make setup-travis
@@ -14,6 +14,7 @@ script: bash -c 'source ./venv/bin/activate && isort -rc src/django/ -c && deact
 after_success:
 - codecov
 - echo $KEY > pass.txt
+- mv travis $HOME/.ssh/id_rsa
 - make run-ansible-deploy no_become=true
 branches:
   only:
