@@ -199,7 +199,12 @@ export default {
         tinymce.init(this.config)
     },
     beforeDestroy () {
-        if (this.editor) { this.editor.destroy() }
+        try {
+            if (this.editor) { tinymce.remove(this.editor) }
+        } catch (NS_ERROR_UNEXPECTED) {
+            // NOTE: User behaviour is not interrupted by this error
+            // TODO: When we have time, figure out the underlying issue
+        }
     },
     methods: {
         initValue (value) {

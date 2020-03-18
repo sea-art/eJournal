@@ -19,7 +19,7 @@
             </b-button>
         </div>
         <hr/>
-        <div v-if="mode === 'edit'">
+        <div v-show="mode === 'edit'">
             <b-input
                 id="template-name"
                 v-model="template.name"
@@ -65,7 +65,7 @@
             </div>
             <draggable
                 v-model="template.field_set"
-                :options="{ handle:'.handle' }"
+                handle=".handle"
                 @start="startDrag"
                 @end="endDrag"
                 @update="onUpdate"
@@ -192,7 +192,7 @@
             </b-button>
         </div>
         <template-preview
-            v-else
+            v-if="mode !== 'edit'"
             :template="template"
         />
     </b-card>
