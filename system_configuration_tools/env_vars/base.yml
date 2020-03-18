@@ -1,6 +1,6 @@
 ---
 
-git_repo: https://github.com/eJourn-al/eJournal
+git_repo: https://github.com/sea-art/eJournal
 
 # Set this flag to true so you can checkout code from a private git repository
 # which is setup with an SSH key.
