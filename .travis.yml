@@ -15,6 +15,7 @@ after_success:
 - codecov
 - echo $KEY > pass.txt
 - mv travis $HOME/.ssh/id_rsa
+- chmod 600 $HOME/.ssh/id_rsa
 - make run-ansible-deploy no_become=true
 branches:
   only:
