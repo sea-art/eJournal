@@ -41,7 +41,7 @@
                     contentPlaceholder = 'How does feature \'X\' work? Help is much appreciated!'
                 }"
             >
-                <icon name="info"/>
+                <icon name="info-circle"/>
                 Help
             </b-button>
             <b-button

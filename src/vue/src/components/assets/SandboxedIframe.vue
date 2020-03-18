@@ -69,7 +69,6 @@ body *:last-child{
 }
 
 p a {
-    text-decoration: none;
     color: #22648A;
 }
 

@@ -11,7 +11,7 @@
             v-if="showSortBy && computedDeadlines.length > 1"
             v-model="selectedSortOption"
             :selectSize="1"
-            class="multi-form"
+            class="theme-select multi-form"
         >
             <option value="date">
                 Sort by date

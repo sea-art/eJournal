@@ -30,13 +30,14 @@
                 >
                     <icon
                         v-intro="'That\'s it! If you have any more questions, do not hesitate to contact us via the \
-                        feedback button below. This tutorial can be consulted again by clicking the info sign.'"
+                        support button at the bottom of any page. This tutorial can be consulted again by clicking \
+                        the info sign.'"
                         v-intro-step="4"
                         v-b-tooltip.hover
-                        name="info"
+                        name="info-circle"
                         scale="1.5"
                         title="Click to start a tutorial for this page"
-                        class="info-icon"
+                        class="info-icon shift-up-5 ml-1"
                         @click.native="startTour"
                     />
                 </bread-crumb>
@@ -72,13 +73,14 @@
                 >
                     <icon
                         v-intro="'That\'s it! If you have any more questions, do not hesitate to contact us via the \
-                        feedback button below. This tutorial can be consulted again by clicking the info sign.'"
+                        support button at the bottom of any page. This tutorial can be consulted again by clicking \
+                        the info sign.'"
                         v-intro-step="4"
                         v-b-tooltip.hover
-                        name="info"
+                        name="info-circle"
                         scale="1.75"
                         title="Click to start a tutorial for this page"
-                        class="info-icon"
+                        class="info-icon shift-up-5 ml-1"
                         @click.native="startTour"
                     />
                 </bread-crumb>
@@ -92,7 +94,7 @@
 
                 <preset-node-card
                     v-else-if="presets.length > 0 && currentNode !== -1 && currentNode < presets.length"
-                    ref="entry-template-card"
+                    :key="`preset-node-${currentNode}`"
                     :class="{ 'input-disabled' : saveRequestInFlight }"
                     :currentPreset="presets[currentNode]"
                     :templates="templates"
@@ -282,7 +284,6 @@ export default {
             let presetDueAfterDue = false
             let presetDueAfterLock = false
             let presetLockBeforeUnlock = false
-            let presetLockAfterDue = false
             let presetLockAfterLock = false
             let presetUnlockAfterPresetDue = false
             let presetUnlockAfterPresetLock = false
@@ -449,12 +450,6 @@ export default {
                     this.$toasted.error('One or more presets have a lock date before the assignment unlock date. '
                         + 'Please check the timeline and try again.')
                 }
-                if (!presetLockAfterDue && this.assignmentDetails.due_date
-                    && Date.parse(preset.lock_date) > Date.parse(this.assignmentDetails.due_date)) {
-                    presetLockAfterDue = true
-                    this.$toasted.error('One or more presets have a lock date after the assignment due date. '
-                        + 'Please check the timeline and try again.')
-                }
                 if (!presetLockAfterLock && this.assignmentDetails.lock_date
                     && Date.parse(preset.lock_date) > Date.parse(this.assignmentDetails.lock_date)) {
                     presetLockAfterLock = true
@@ -466,9 +461,8 @@ export default {
             if (missingAssignmentName || missingPointMax || unlockAfterDue || unlockAfterLock
                 || dueAfterLock || presetUnlockBeforeUnlock || presetUnlockAfterDue
                 || presetUnlockAfterLock || presetDueBeforeUnlock || presetDueAfterDue
-                || presetDueAfterLock || presetLockBeforeUnlock || presetLockAfterDue
-                || presetUnlockAfterPresetDue || presetUnlockAfterPresetLock
-                || presetDueAfterPresetLock || presetLockAfterLock || presetInvalidDue
+                || presetDueAfterLock || presetLockBeforeUnlock || presetUnlockAfterPresetDue
+                || presetUnlockAfterPresetLock || presetDueAfterPresetLock || presetLockAfterLock || presetInvalidDue
                 || presetInvalidLock || presetInvalidUnlock || presetInvalidTemplate
                 || presetInvalidTarget || targetsOutOfOrder || targetTooHigh || untitledTemplates) {
                 return

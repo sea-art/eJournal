@@ -35,11 +35,9 @@
                         </h2>
                         <flat-pickr
                             v-model="course.startdate"
-                            class="multi-form multi-date-input theme-input full-width"
+                            class="multi-form full-width"
                             :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
-                            :config="{
-                                maxDate: course.enddate
-                            }"
+                            :config="startDateConfig"
                         />
                     </b-col>
                     <b-col cols="6">
@@ -49,11 +47,9 @@
                         </h2>
                         <flat-pickr
                             v-model="course.enddate"
-                            class="multi-form multi-date-input theme-input full-width"
+                            class="multi-form full-width"
                             :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
-                            :config="{
-                                minDate: course.startdate
-                            }"
+                            :config="endDateConfig"
                         />
                     </b-col>
                 </b-row>
@@ -82,6 +78,22 @@ export default {
     props: {
         course: {
             required: true,
+        },
+    },
+    computed: {
+        startDateConfig () {
+            const additionalConfig = {}
+            if (this.course.enddate) {
+                additionalConfig.maxDate = new Date(this.course.enddate)
+            }
+            return Object.assign({}, additionalConfig, this.$root.flatPickrConfig)
+        },
+        endDateConfig () {
+            const additionalConfig = {}
+            if (this.course.starttdate) {
+                additionalConfig.minDate = new Date(this.course.startdate)
+            }
+            return Object.assign({}, additionalConfig, this.$root.flatPickrConfig)
         },
     },
     methods: {

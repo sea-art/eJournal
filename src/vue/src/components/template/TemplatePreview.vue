@@ -60,6 +60,7 @@
             <text-editor
                 v-else-if="field.type == 'rt'"
                 :id="'rich-text-editor-preview-field-' + i"
+                :key="'rich-text-editor-preview-field-' + i"
                 class="input-disabled"
             />
             <url-input
@@ -68,17 +69,19 @@
             />
             <flat-pickr
                 v-else-if="field.type == 'd'"
-                class="input-disabled theme-input full-width"
+                :config="$root.flatpickrConfig"
+                class="input-disabled full-width"
             />
             <flat-pickr
                 v-else-if="field.type == 'dt'"
-                class="input-disabled theme-input full-width"
+                :config="$root.flatpickrTimeConfig"
+                class="input-disabled full-width"
             />
             <b-form-select
                 v-else-if="field.type == 's'"
                 :value="null"
                 :options="parseSelectionOptions(field.options)"
-                class="input-disabled"
+                class="theme-select input-disabled"
             />
         </div>
     </div>

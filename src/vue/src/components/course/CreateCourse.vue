@@ -30,8 +30,8 @@
                     </h2>
                     <flat-pickr
                         v-model="form.startdate"
-                        class="multi-form multi-date-input theme-input full-width"
-                        :config="{ maxDate: form.enddate }"
+                        class="multi-form full-width"
+                        :config="startDateConfig"
                     />
                 </b-col>
                 <b-col cols="6">
@@ -41,8 +41,8 @@
                     </h2>
                     <flat-pickr
                         v-model="form.enddate"
-                        class="multi-form multi-date-input theme-input full-width"
-                        :config="{ minDate: form.startdate }"
+                        class="multi-form full-width"
+                        :config="endDateConfig"
                     />
                 </b-col>
             </b-row>
@@ -85,6 +85,22 @@ export default {
                 lti_id: '',
             },
         }
+    },
+    computed: {
+        startDateConfig () {
+            const additionalConfig = {}
+            if (this.form.enddate) {
+                additionalConfig.maxDate = new Date(this.form.enddate)
+            }
+            return Object.assign({}, additionalConfig, this.$root.flatPickrConfig)
+        },
+        endDateConfig () {
+            const additionalConfig = {}
+            if (this.form.starttdate) {
+                additionalConfig.minDate = new Date(this.form.startdate)
+            }
+            return Object.assign({}, additionalConfig, this.$root.flatPickrConfig)
+        },
     },
     mounted () {
         if (this.lti !== undefined) {

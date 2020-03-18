@@ -65,6 +65,7 @@
                     <div v-else>
                         <text-editor
                             :id="'comment-text-editor-' + index"
+                            :key="'comment-text-editor-' + index"
                             v-model="editCommentTemp[index]"
                             :basic="true"
                             :footer="false"
@@ -105,6 +106,7 @@
             >
                 <text-editor
                     :id="'comment-text-editor'"
+                    :key="'comment-text-editor-new-comment'"
                     ref="comment-text-editor-ref"
                     v-model="tempComment"
                     :basic="true"

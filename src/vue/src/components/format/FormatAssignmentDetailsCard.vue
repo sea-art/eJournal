@@ -42,6 +42,7 @@
             </h2>
             <text-editor
                 :id="'text-editor-assignment-edit-description'"
+                :key="'text-editor-assignment-edit-description'"
                 v-model="assignmentDetails.description"
                 :footer="false"
                 class="multi-form"
@@ -50,7 +51,7 @@
             <h2 class="theme-h2 field-heading">
                 Points possible
                 <tooltip
-                    tip="The amount of points that represents a perfect score for this assignment, excluding \
+                    tip="The amount of points that represents a perfect score for this assignment, excluding
                     bonus points"
                 />
             </h2>
@@ -60,7 +61,7 @@
                 placeholder="Points"
                 type="number"
             />
-            <h2 class="field-heading">
+            <h2 class="theme-h2 field-heading">
                 Assign to
                 <tooltip
                     tip="Assign the assignment only to specific course groups"
@@ -86,7 +87,7 @@
                     </h2>
                     <flat-pickr
                         v-model="assignmentDetails.unlock_date"
-                        class="multi-form theme-input full-width"
+                        class="multi-form full-width"
                         :config="unlockDateConfig"
                     />
                 </b-col>
@@ -94,13 +95,13 @@
                     <h2 class="theme-h2 field-heading">
                         Due date
                         <tooltip
-                            tip="Students are expected to have finished their assignment by this date, but new \
-                            entries can still be added until the lock date"
+                            tip="Students are expected to have finished their assignment by this date, but new
+                                  entries can still be added until the lock date"
                         />
                     </h2>
                     <flat-pickr
                         v-model="assignmentDetails.due_date"
-                        class="multi-form theme-input full-width"
+                        class="multi-form full-width"
                         :config="dueDateConfig"
                     />
                 </b-col>
@@ -111,7 +112,7 @@
                     </h2>
                     <flat-pickr
                         v-model="assignmentDetails.lock_date"
-                        class="multi-form theme-input full-width"
+                        class="multi-form full-width"
                         :config="lockDateConfig"
                     />
                 </b-col>
@@ -152,84 +153,95 @@ export default {
         },
     },
     computed: {
+        // Ensure the unlock date cannot be later than any preset date or the assignment due or lock date.
         unlockDateConfig () {
-            let maxDate
+            const additionalConfig = {}
 
             this.presetNodes.forEach((node) => {
-                if (new Date(node.due_date) < new Date(maxDate) || !maxDate) {
-                    maxDate = node.due_date
-                }
-
-                if (node.type !== 'p') {
-                    if ((node.unlock_date && new Date(node.unlock_date) < new Date(maxDate))
-                        || !maxDate) {
-                        maxDate = node.unlock_date
-                    }
-
-                    if ((node.lock_date && new Date(node.lock_date) < new Date(maxDate))
-                        || !maxDate) {
-                        maxDate = node.lock_date
-                    }
+                if (node.unlock_date && (!additionalConfig.maxDate
+                    || new Date(node.unlock_date) < additionalConfig.maxDate)) {
+                    // Preset has unlock date earlier than current max.
+                    additionalConfig.maxDate = new Date(node.unlock_date)
+                } else if (node.due_date && (!additionalConfig.maxDate
+                    || new Date(node.due_date) < additionalConfig.maxDate)) {
+                    // Preset has due date earlier than current max.
+                    additionalConfig.maxDate = new Date(node.due_date)
+                } else if (node.lock_date && (!additionalConfig.maxDate
+                    || new Date(node.lock_date) < additionalConfig.maxDate)) {
+                    // Preset has lock date earlier than current max.
+                    additionalConfig.maxDate = node.lock_date
                 }
             })
 
-            if ((this.assignmentDetails.due_date && new Date(this.assignmentDetails.due_date) < new Date(maxDate))
-                || !maxDate) {
-                maxDate = this.assignmentDetails.due_date
+            if (this.assignmentDetails.due_date && (!additionalConfig.maxDate
+                || new Date(this.assignmentDetails.due_date) < additionalConfig.maxDate)) {
+                // Assignment has due date earlier than current max.
+                additionalConfig.maxDate = new Date(this.assignmentDetails.due_date)
+            } else if (this.assignmentDetails.lock_date && (!additionalConfig.maxDate
+                || new Date(this.assignmentDetails.lock_date) < additionalConfig.maxDate)) {
+                // Assignment has lock date earlier than current max.
+                additionalConfig.maxDate = new Date(this.assignmentDetails.lock_date)
             }
 
-            if (!maxDate) {
-                maxDate = this.assignmentDetails.lock_date
-            }
-
-            return Object.assign({}, { maxDate }, this.$root.flatPickrTimeConfig)
+            return Object.assign({}, additionalConfig, this.$root.flatPickrTimeConfig)
         },
+        // Ensure the due date cannot be earlier than any preset date or the assignment unlock date, and no later than
+        // the assignnment lock date.
         dueDateConfig () {
-            let minDate
+            const additionalConfig = {}
 
             this.presetNodes.forEach((node) => {
-                if (new Date(node.due_date) > new Date(minDate) || !minDate) {
-                    minDate = node.due_date
+                if (node.due_date && (!additionalConfig.minDate
+                    || new Date(node.due_date) > additionalConfig.minDate)) {
+                    // Preset has due date later than current min.
+                    additionalConfig.minDate = new Date(node.due_date)
                 }
             })
 
-            if (!minDate) {
-                minDate = this.assignmentDetails.unlock_date
+            if (this.assignmentDetails.unlock_date && (!additionalConfig.minDate
+                || new Date(this.assignmentDetails.unlock_date) > additionalConfig.minDate)) {
+                // Assignment has unlock date later than current min.
+                additionalConfig.minDate = new Date(this.assignmentDetails.unlock_date)
             }
 
-            return Object.assign({}, {
-                minDate,
-                maxDate: this.assignmentDetails.lock_date,
-            }, this.$root.flatPickrTimeConfig)
+            if (this.assignmentDetails.lock_date) {
+                // Assignment has lock date, due date cannot be later.
+                additionalConfig.maxDate = new Date(this.assignmentDetails.lock_date)
+            }
+
+            return Object.assign({}, additionalConfig, this.$root.flatPickrTimeConfig)
         },
+        // Ensure the lock date cannot be earlier than any preset date or the assignment due or unlock date.
         lockDateConfig () {
-            let minDate
+            const additionalConfig = {}
 
             this.presetNodes.forEach((node) => {
-                if (new Date(node.due_date) > new Date(minDate) || !minDate) {
-                    minDate = node.due_date
-                }
-
-                if (node.type !== 'p') {
-                    if (new Date(node.unlock_date) > new Date(minDate) || !minDate) {
-                        minDate = node.unlock_date
-                    }
-
-                    if (new Date(node.lock_date) > new Date(minDate) || !minDate) {
-                        minDate = node.lock_date
-                    }
+                if (node.unlock_date && (!additionalConfig.minDate
+                    || new Date(node.unlock_date) > additionalConfig.minDate)) {
+                    // Preset has unlock date later than current min.
+                    additionalConfig.minDate = new Date(node.unlock_date)
+                } else if (node.due_date && (!additionalConfig.maxDate
+                    || new Date(node.due_date) > additionalConfig.maxDate)) {
+                    // Preset has due date later than current min.
+                    additionalConfig.minDate = new Date(node.due_date)
+                } else if (node.lock_date && (!additionalConfig.minDate
+                    || new Date(node.lock_date) > additionalConfig.minDate)) {
+                    // Preset has lock date later than current min.
+                    additionalConfig.minDate = node.lock_date
                 }
             })
 
-            if (new Date(this.assignmentDetails.due_date) > new Date(minDate) || !minDate) {
-                minDate = this.assignmentDetails.due_date
+            if (this.assignmentDetails.due_date && (!additionalConfig.minDate
+                || new Date(this.assignmentDetails.due_date) > additionalConfig.minDate)) {
+                // Assignment has due date later than current min.
+                additionalConfig.minDate = new Date(this.assignmentDetails.due_date)
+            } else if (this.assignmentDetails.unlock_date && (!additionalConfig.minDate
+                || new Date(this.assignmentDetails.unlock_date) > additionalConfig.minDate)) {
+                // Assignment has unlock date later than current min.
+                additionalConfig.minDate = new Date(this.assignmentDetails.unlock_date)
             }
 
-            if (!minDate) {
-                minDate = this.assignmentDetails.lock_date
-            }
-
-            return Object.assign({}, { minDate }, this.$root.flatPickrTimeConfig)
+            return Object.assign({}, additionalConfig, this.$root.flatPickrTimeConfig)
         },
     },
     methods: {

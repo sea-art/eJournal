@@ -361,12 +361,29 @@ export default {
 </script>
 
 <style lang="sass">
+@import '~sass/partials/shadows.sass'
+
 .editor-container
     border-radius: 5px !important
     padding-right: 1px
     width: 100%
-    div
+    .tox-tinymce
         border-radius: 5px !important
+    .tox
+        font-family: 'Roboto Condensed', sans-serif
+    .tox-edit-area
+        border-radius: 0px !important
+        &::before
+            @extend .small-inner-shadow
+            content: ''
+            position: absolute
+            z-index: 2
+            top: 0
+            right: 0
+            bottom: 0
+            left: 0
+            pointer-events: none
+
 
 div.mce-fullscreen
     padding-top: 70px

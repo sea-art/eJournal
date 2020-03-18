@@ -11,7 +11,7 @@
             <b-form-select
                 v-model="selectedSortOption"
                 :selectSize="1"
-                class="multi-form mr-2"
+                class="theme-select multi-form mr-2"
             >
                 <option value="date">
                     Sort by date

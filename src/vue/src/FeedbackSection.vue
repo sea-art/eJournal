@@ -79,6 +79,4 @@ export default {
         &:hover
             background-color: $theme-dark-blue
             color: white
-            svg
-                fill: white
 </style>

@@ -21,23 +21,20 @@
 
 @import '~sass/vendor/fonts.sass'
 
-*
-    border-radius: 0px !important
-    text-decoration: none !important
-    color: $theme-dark-blue
-    text-align: left
-
 body
+    color: $theme-dark-blue
     /* Background pattern from Toptal Subtle Patterns */
     background-image: url(/background.png)
 
 a, select, input
     outline: 0
+    text-decoration: none
 
 a
-    color: $theme-blue
-    &:hover
+    color: $theme-dark-blue
+    &:hover, &:after
         color: $theme-dark-blue
+        text-decoration: none
 
 .min-height-100
     min-height: 100%

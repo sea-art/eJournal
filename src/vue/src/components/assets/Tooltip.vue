@@ -1,8 +1,8 @@
 <template>
     <icon
         v-b-tooltip.hover
-        :title="tip"
-        name="info"
+        :title="title"
+        name="info-circle"
         class="info-icon no-hover help-cursor shift-up-3"
     />
 </template>
@@ -10,6 +10,11 @@
 
 export default {
     props: ['tip'],
+    computed: {
+        title () {
+            return this.tip.replace(/\s+/g, ' ')
+        },
+    },
 }
 
 </script>

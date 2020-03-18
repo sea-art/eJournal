@@ -32,6 +32,7 @@
                         v-if="$hasPermission('can_edit_course_roles')"
                         v-model="selectedRole"
                         :selectSize="1"
+                        class="theme-select"
                     >
                         <option
                             v-for="r in roles"

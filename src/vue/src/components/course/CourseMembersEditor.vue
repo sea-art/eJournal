@@ -50,7 +50,7 @@
             <b-form-select
                 v-model="selectedSortOption"
                 :selectSize="1"
-                class="multi-form mr-2"
+                class="theme-select multi-form mr-2"
             >
                 <option value="name">
                     Sort by name
@@ -62,7 +62,7 @@
             <b-form-select
                 v-model="groupFilter"
                 :selectSize="1"
-                class="multi-form mr-2"
+                class="theme-select multi-form mr-2"
             >
                 <option :value="null">
                     Filter on group...

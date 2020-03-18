@@ -3,7 +3,6 @@
     <!-- eslint-disable vue/attribute-hyphenation -->
     <multiselect
         v-model="valueCopy"
-        class="theme-select"
         :label="label"
         :trackBy="trackBy ? trackBy : label"
         :maxHeight="500"
@@ -130,7 +129,7 @@ export default {
 @import '~sass/modules/breakpoints.sass'
 @import '~sass/partials/shadows.sass'
 
-.multiselect.theme-select
+.multiselect
     color: $theme-dark-blue
     .multiselect__tags
         @extend .shadow
@@ -143,9 +142,9 @@ export default {
         cursor: default
         height: 1.575rem
         font-family: 'Roboto Condensed', sans-serif
-        font-size: 1.2em
-        border-radius: 5px !important
-        border: 1px solid $theme-dark-grey !important
+        font-size: 1.1em
+        border-radius: 5px
+        border: 1px solid $theme-dark-grey
         padding: 0.375rem 0.75rem
         z-index: 20
         white-space: nowrap
@@ -205,8 +204,9 @@ export default {
             padding-bottom: 10px
             padding-top: 0px
             transform: translateY(10px)
-    .multiselect__option--highlight, .multiselect__option--highlight::after
+    span.multiselect__option--highlight, span.multiselect__option--highlight::after
         background: $theme-medium-grey !important
+        color: $theme-dark-blue
     .multiselect__option--selected
         font-weight: 400
     .multiselect__option--selected::before

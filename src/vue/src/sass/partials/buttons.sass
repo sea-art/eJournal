@@ -11,7 +11,7 @@
     justify-content: center
     display: inline-flex
     align-items: center
-    font-size: 1.2em
+    font-size: 1.1em
     border: none
     border-radius: 5px !important
     svg
@@ -20,9 +20,8 @@
     &:hover:not(.no-hover), &.active
         background-color: $theme-blue !important
         border-color: $theme-blue !important
-        color: white !important
-        svg
-            fill: white !important
+        &, svg
+            color: white !important
     &.no-hover:hover
         background-color: white
     &.fab
@@ -35,8 +34,8 @@
         right: 30px
         width: 60px
         height: 60px
-        svg
-            fill: white !important
+        &, svg
+            color: white !important
 
 .add-card
     opacity: 0.5
@@ -45,21 +44,21 @@
 
 .add-button
     svg
-        fill: $theme-green !important
+        color: $theme-green !important
     &:hover:not(.no-hover), &.active, &.fab
         background-color: $theme-green !important
         border-color: $theme-green !important
 
 .delete-button
     svg
-        fill: $theme-red !important
+        color: $theme-red !important
     &:hover:not(.no-hover), &.active, &.fab
         background-color: $theme-red !important
         border-color: $theme-red !important
 
 .change-button
     svg
-        fill: $theme-orange !important
+        color: $theme-orange !important
     &:hover:not(.no-hover), &.active, &.fab
         background-color: $theme-orange !important
         border-color: $theme-orange !important
@@ -75,7 +74,7 @@
     border-radius: 50% !important
     &.selected
         svg
-            fill: white !important
+            color: white !important
         background-color: $theme-dark-blue !important
         border-color: $theme-dark-blue !important
 

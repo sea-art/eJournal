@@ -13,7 +13,10 @@
             New entry
         </h2>
         <div v-if="addNode.templates.length > 1">
-            <b-form-select v-model="selectedTemplate">
+            <b-form-select
+                v-model="selectedTemplate"
+                class="theme-select"
+            >
                 <option
                     :value="null"
                     disabled

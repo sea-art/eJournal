@@ -145,6 +145,7 @@
                 >
                     <icon
                         name="user"
+                        class="fill-dark-blue"
                         scale="2"
                     />
                 </div>

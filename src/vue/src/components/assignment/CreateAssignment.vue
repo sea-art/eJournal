@@ -67,9 +67,7 @@
                     </h2>
                     <flat-pickr
                         v-model="form.unlockDate"
-                        :config="Object.assign({}, {
-                            maxDate: form.dueDate ? form.dueDate : form.lockDate
-                        }, $root.flatPickrTimeConfig)"
+                        :config="unlockDateConfig"
                     />
                 </b-col>
                 <b-col xl="4">
@@ -82,10 +80,7 @@
                     </h2>
                     <flat-pickr
                         v-model="form.dueDate"
-                        :config="Object.assign({}, {
-                            minDate: form.unlockDate,
-                            maxDate: form.lockDate,
-                        }, $root.flatPickrTimeConfig)"
+                        :config="dueDateConfig"
                     />
                 </b-col>
                 <b-col xl="4">
@@ -95,9 +90,7 @@
                     </h2>
                     <flat-pickr
                         v-model="form.lockDate"
-                        :config="Object.assign({}, {
-                            minDate: form.dueDate ? form.dueDate : form.unlockDate
-                        }, $root.flatPickrTimeConfig)"
+                        :config="lockDateConfig"
                     />
                 </b-col>
             </b-row>
@@ -146,6 +139,36 @@ export default {
                 isPublished: false,
             },
         }
+    },
+    computed: {
+        unlockDateConfig () {
+            const additionalConfig = {}
+            if (this.form.dueDate) {
+                additionalConfig.maxDate = new Date(this.form.dueDate)
+            } else if (this.form.lockDate) {
+                additionalConfig.maxDate = new Date(this.form.lockDate)
+            }
+            return Object.assign({}, additionalConfig, this.$root.flatPickrTimeConfig)
+        },
+        dueDateConfig () {
+            const additionalConfig = {}
+            if (this.form.unlockDate) {
+                additionalConfig.minDate = new Date(this.form.unlockDate)
+            }
+            if (this.form.lockDate) {
+                additionalConfig.maxDate = new Date(this.form.lockDate)
+            }
+            return Object.assign({}, additionalConfig, this.$root.flatPickrTimeConfig)
+        },
+        lockDateConfig () {
+            const additionalConfig = {}
+            if (this.form.dueDate) {
+                additionalConfig.minDate = new Date(this.form.dueDate)
+            } else if (this.form.unlockDate) {
+                additionalConfig.minDate = new Date(this.form.unlockDate)
+            }
+            return Object.assign({}, additionalConfig, this.$root.flatPickrTimeConfig)
+        },
     },
     mounted () {
         if (this.lti !== undefined) {

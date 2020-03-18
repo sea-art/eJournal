@@ -30,7 +30,7 @@
                 <b-form-select
                     v-model="selectedSortOption"
                     :selectSize="1"
-                    class="multi-form mr-2"
+                    class="theme-select multi-form mr-2"
                 >
                     <option value="name">
                         Sort by name
@@ -151,7 +151,7 @@
 
                     <b-form-select
                         v-model="newActiveLTICourse"
-                        class="full-width mt-2 mb-2"
+                        class="theme-select full-width mt-2 mb-2"
                     >
                         <option
                             v-for="(name, id) in assignment.lti_courses"

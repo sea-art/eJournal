@@ -26,13 +26,13 @@
             <flat-pickr
                 v-if="field.type == 'd'"
                 v-model="completeContent[i].data"
-                class="theme-input full-width"
+                class="full-width"
                 :config="$root.flatPickrConfig"
             />
             <flat-pickr
                 v-if="field.type == 'dt'"
                 v-model="completeContent[i].data"
-                class="theme-input full-width"
+                class="full-width"
                 :config="$root.flatPickrTimeConfig"
             />
             <file-upload-input
@@ -80,6 +80,7 @@
             <text-editor
                 v-else-if="field.type == 'rt'"
                 :id="'rich-text-editor-field-' + i"
+                :key="'rich-text-editor-field-' + i"
                 v-model="completeContent[i].data"
             />
             <url-input
@@ -91,6 +92,7 @@
                 v-else-if="field.type == 's'"
                 v-model="completeContent[i].data"
                 :options="parseSelectionOptions(field.options)"
+                class="theme-select"
             />
         </div>
     </div>

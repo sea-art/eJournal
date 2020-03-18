@@ -4,18 +4,21 @@
         &copy; 2020 - eJournal
         <a
             href="https://www.eJournal.app/changelog"
+            target="_blank"
             class="text-grey"
         >
             {{ version }}</a>
         -
         <a
             href="mailto:support@eJournal.app"
+            target="_blank"
             class="text-grey"
         >
             support@eJournal.app</a>
         -
         <a
             href="/eJournal-privacy-notice.pdf"
+            target="_blank"
             class="text-grey"
         >
             Privacy notice
