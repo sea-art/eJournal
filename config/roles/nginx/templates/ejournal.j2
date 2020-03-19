@@ -29,6 +29,9 @@ server {
     add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
     # NOTE: Remove this header to allow Canvas to load ejournal in an iframe
     add_header X-Frame-Options DENY;
+    {% if csp_frame_ancestors_whitelist %}
+    add_header Content-Security-Policy "frame-ancestors {{ csp_frame_ancestors_whitelist }};";
+    {% endif %}
     add_header X-Content-Type-Options "nosniff";
     # Enable XSS Protection in case user's browser has disabled it
     add_header X-XSS-Protection "1; mode=block";
