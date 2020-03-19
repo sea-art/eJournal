@@ -29,7 +29,7 @@
                 />
                 <b-row>
                     <b-col cols="6">
-                        <h2 class="theme-h2 field-heading required">
+                        <h2 class="theme-h2 field-heading">
                             Start date
                             <tooltip tip="Start date of the course"/>
                         </h2>
@@ -41,7 +41,7 @@
                         />
                     </b-col>
                     <b-col cols="6">
-                        <h2 class="theme-h2 field-heading required">
+                        <h2 class="theme-h2 field-heading">
                             End date
                             <tooltip tip="End date of the course"/>
                         </h2>
@@ -98,7 +98,7 @@ export default {
     },
     methods: {
         formFilled () {
-            return this.course.name && this.course.abbreviation && this.course.startdate && this.course.enddate
+            return this.course.name && this.course.abbreviation
         },
         onSubmit () {
             if (this.formFilled()) {

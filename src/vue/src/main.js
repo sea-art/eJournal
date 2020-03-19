@@ -68,7 +68,7 @@ new Vue({
     store,
     components: { App },
     data: {
-        colors: ['pink-border', 'purple-border', 'yellow-border', 'blue-border'],
+        colors: ['border-pink', 'border-purple', 'border-yellow', 'border-blue'],
         previousPage: null,
         windowWidth: 0,
         maxFileSizeBytes: 10485760,
@@ -114,8 +114,8 @@ new Vue({
         this.windowWidth = window.innerWidth
     },
     methods: {
-        getBorderClass (cID) {
-            return this.colors[cID % this.colors.length]
+        getBorderClass (id) {
+            return this.colors[id % this.colors.length]
         },
         beautifyDate (date, displayDate = true, displayTime = true) {
             if (!date) {
@@ -136,6 +136,30 @@ new Vue({
                 s += time
             }
             return s
+        },
+        assignmentRoute (assignment, course = null) {
+            const route = {
+                params: {
+                    cID: course === null ? assignment.course.id : course.id,
+                    aID: assignment.id,
+                },
+            }
+
+            if (this.$hasPermission('can_view_all_journals', 'assignment', assignment.id)) {
+                if (!assignment.is_published) { // Teacher not published route
+                    route.name = 'FormatEdit'
+                } else { // Teacher published route
+                    route.name = 'Assignment'
+                }
+            } else if (assignment.is_group_assignment && assignment.journal === null) {
+                // Student new group assignment route
+                route.name = 'JoinJournal'
+            } else { // Student with journal route
+                route.name = 'Journal'
+                route.params.jID = assignment.journal
+            }
+
+            return route
         },
     },
     render: h => h(App),

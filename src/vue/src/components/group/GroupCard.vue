@@ -69,10 +69,10 @@
                         :multiSelectText="`user${participantsToAdd &&
                             participantsToAdd.length === 1 ? '' : 's'} selected`"
                         placeholder="Select users to add"
-                        class="multi-form mr-2"
+                        class="multi-form no-right-radius"
                     />
                     <b-button
-                        class="add-button multi-form"
+                        class="add-button multi-form no-left-radius"
                         @click.prevent.stop="addToGroup()"
                     >
                         <icon name="user-plus"/>
@@ -103,7 +103,6 @@
     </div>
 </template>
 
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style lang="sass">
 .member-list
     padding: 0

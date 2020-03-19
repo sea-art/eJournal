@@ -126,7 +126,6 @@ export default {
                         top: '0px',
                         left: 0,
                         color: '#888',
-                        fontsize: '1.2em',
                         padding: '13px 0 0 6px',
                         overflow: 'hidden',
                         'font-family': 'Roboto',
@@ -269,7 +268,7 @@ export default {
             const formData = new FormData()
 
             if (file.size > this.$root.maxFileSizeBytes) {
-                failure(`The selected file exceeds the maximum file size of: ${this.maxSizeBytes} bytes.`)
+                failure(`The selected file exceeds the maximum file size of: ${this.$root.maxSizeBytes} bytes.`)
             } else {
                 formData.append('in_rich_text', true)
                 formData.append('file', file)

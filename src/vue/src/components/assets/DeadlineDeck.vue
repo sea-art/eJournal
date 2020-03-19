@@ -26,7 +26,7 @@
             :key="i"
         >
             <b-link
-                :to="assignmentRoute(d.course.id, d.id, d.journal, d.is_published)"
+                :to="$root.assignmentRoute(d)"
                 tag="b-button"
             >
                 <todo-card
@@ -106,24 +106,6 @@ export default {
         ...mapMutations({
             setSortBy: 'preferences/SET_TODO_SORT_BY',
         }),
-        assignmentRoute (cID, aID, jID, isPublished) {
-            const route = {
-                params: {
-                    cID,
-                    aID,
-                },
-            }
-
-            if (!isPublished) {
-                route.name = 'FormatEdit'
-            } else if (this.$hasPermission('can_view_all_journals', 'assignment', aID)) {
-                route.name = 'Assignment'
-            } else {
-                route.name = 'Journal'
-                route.params.jID = jID
-            }
-            return route
-        },
     },
 }
 </script>

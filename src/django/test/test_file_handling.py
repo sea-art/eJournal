@@ -16,8 +16,8 @@ MULTIPART_CONTENT = 'multipart/form-data; boundary=%s' % BOUNDARY
 
 class FileHandlingTest(TestCase):
     def setUp(self):
-        self.student = factory.Student()
-        self.journal = factory.Journal(user=self.student)
+        self.journal = factory.Journal()
+        self.student = self.journal.authors.first().user
         self.assignment = self.journal.assignment
         self.format = self.journal.assignment.format
         self.teacher = self.journal.assignment.courses.first().author
@@ -25,9 +25,9 @@ class FileHandlingTest(TestCase):
         self.video = SimpleUploadedFile('file.mp4', b'file_content', content_type='video/mp4')
         self.image = SimpleUploadedFile('file.png', b'image_content', content_type='image/png')
         self.template = factory.TemplateAllTypes(format=self.format)
-        self.img_field = Field.objects.get(type=Field.IMG)
-        self.rt_field = Field.objects.get(type=Field.RICH_TEXT)
-        self.file_field = Field.objects.get(type=Field.FILE)
+        self.img_field = Field.objects.get(template=self.template, type=Field.IMG)
+        self.rt_field = Field.objects.get(template=self.template, type=Field.RICH_TEXT)
+        self.file_field = Field.objects.get(template=self.template, type=Field.FILE)
 
         self.create_params = {
             'journal_id': self.journal.pk,
@@ -180,9 +180,7 @@ class FileHandlingTest(TestCase):
 
     def test_remove_unused_files_assignment(self):
         def update_and_check(description, field_description, preset_node_description):
-            # self.assignment.description =
-            # self.assignment.save()
-            template = Template.objects.filter(format__assignment=self.assignment).first()
+            template = Template.objects.filter(format__assignment=self.assignment).order_by('pk').last()
             presetnode = PresetNode.objects.filter(format__assignment=self.assignment).first()
             update_params = {
                 'pk': self.assignment.pk,
@@ -191,16 +189,20 @@ class FileHandlingTest(TestCase):
                 },
                 'templates': [{
                     'field_set': [{
-                        'type': 't',
+                        'type': 'rt',
                         'title': '',
                         'description': '<p><img src="{}" /></p>'.format(field_description['download_url']),
                         'options': None,
                         'location': 0,
+                        'template': template.pk,
+                        'id': template.field_set.first().pk,
                         'required': True
                     }],
                     'name': 'Entry',
-                    'id': template.pk if template else -1,
-                    'preset_only': False
+                    'id': template.pk,
+                    'format': self.assignment.format.pk,
+                    'preset_only': False,
+                    'archived': False
                 }],
                 'presets': [{
                     'description': '<p><img src="{}" /></p>'.format(preset_node_description['download_url']),
@@ -211,7 +213,7 @@ class FileHandlingTest(TestCase):
                     'template': None,
                     'lock_date': None,
                     'unlock_date': None,
-                }], 'removed_presets': [], 'removed_templates': []
+                }], 'removed_presets': [], 'removed_templates': [],
             }
             api.update(self, 'formats', params=update_params, user=self.teacher)
             assert FileContext.objects.filter(pk=description['id']).exists(), 'new file should exist'

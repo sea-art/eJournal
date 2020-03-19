@@ -103,20 +103,23 @@
                 :template="entryNode.entry.template"
                 :completeContent="completeContent"
                 :displayMode="true"
-                :authorUID="journal.student.id"
+                :journalID="journal.id"
                 :entryID="entryNode.entry.id"
             />
             <hr class="full-width"/>
             <div>
                 <span class="timestamp">
-                    <span
-                        v-if="$root.beautifyDate(entryNode.entry.last_edited)
-                            === $root.beautifyDate(entryNode.entry.creation_date)"
-                    >
+                    <span v-if="entryNode.entry.last_edited_by == null">
                         Submitted on: {{ $root.beautifyDate(entryNode.entry.creation_date) }}
+                        <template v-if="assignment && assignment.is_group_assignment">
+                            by {{ entryNode.entry.author }}
+                        </template>
                     </span>
                     <span v-else>
                         Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}
+                        <template v-if="assignment && assignment.is_group_assignment">
+                            by {{ entryNode.entry.last_edited_by }}
+                        </template>
                     </span>
                     <b-badge
                         v-if="entryNode.due_date
@@ -148,7 +151,7 @@ export default {
         entryFields,
         sandboxedIframe,
     },
-    props: ['entryNode', 'cID', 'journal'],
+    props: ['entryNode', 'cID', 'journal', 'assignment'],
     data () {
         return {
             saveEditMode: 'Edit',

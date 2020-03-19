@@ -72,11 +72,11 @@ export default {
         border: 2px solid $theme-dark-grey
         border-bottom-width: 0px
         border-radius: 10px 10px 0px 0px !important
-        transition: all 0.3s cubic-bezier(.25,.8,.25,1) !important
-        svg
+        &, svg
+            color: $theme-dark-blue
             transition: all 0.3s cubic-bezier(.25,.8,.25,1) !important
-            fill: $theme-dark-blue
         &:hover
             background-color: $theme-dark-blue
-            color: white
+            &, svg
+                color: white
 </style>

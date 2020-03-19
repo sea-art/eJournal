@@ -132,16 +132,19 @@ def convertUserFiles(apps, schema_editor):
     for f in UserFile.objects.all():
         # Works once per file retrieval
         try:
+            content = Content.objects.get(pk=f.content.pk)
+            journal = Journal.all_objects.get(pk=content.entry.node.journal.pk)
+            assignment = Assignment.objects.get(pk=journal.assignment.pk)
             FileContext.objects.create(
                 file=ContentFile(f.file.file.read(), name=f.file_name),
                 file_name=f.file_name,
                 author=User.objects.get(pk=f.author.pk),
-                journal=Journal.all_objects.get(pk=f.content.entry.node.journal.pk),
-                assignment=Assignment.objects.get(pk=f.content.entry.node.journal.assignment.pk),
+                journal=journal,
+                assignment=assignment,
                 is_temp=False,
                 creation_date=f.creation_date,
                 last_edited=f.last_edited,
-                content=Content.objects.get(pk=f.content.pk),
+                content=content,
             )
             f.delete()
         except OSError:

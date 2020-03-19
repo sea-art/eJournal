@@ -27,6 +27,7 @@ BASELINK = os.environ['BASELINK']
 API_URL = os.environ['API_URL']
 
 STATIC_URL = '/static/'
+DEFAULT_PROFILE_PICTURE = '/unknown-profile.png'
 # NOTE: Public media directory (not used as such, should probably be renamed.)
 MEDIA_URL = 'media/'
 

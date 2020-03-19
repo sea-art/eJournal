@@ -47,7 +47,7 @@ def check_fields(template, content_list):
             raise VLEMissingRequiredField(field)
 
 
-def add_entry_to_node(node, template):
+def add_entry_to_node(node, template, author):
     if not (node.preset and node.preset.forced_template == template):
         raise VLEBadRequest('Invalid template for preset node.')
 
@@ -60,7 +60,7 @@ def add_entry_to_node(node, template):
     if node.preset.is_locked():
         raise VLEBadRequest('The lock date for this node has passed.')
 
-    entry = factory.make_entry(template)
+    entry = factory.make_entry(template, author)
     node.entry = entry
     node.save()
     return entry

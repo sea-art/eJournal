@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
-from VLE.models import Course, Group, Journal, Participation, Role, User
+from VLE.models import Course, Group, Participation, Role, User
 from VLE.serializers import ParticipationSerializer, UserSerializer
 
 
@@ -33,7 +33,7 @@ class ParticipationView(viewsets.ViewSet):
 
         request.user.check_permission('can_view_course_users', course)
 
-        users = UserSerializer(course.users, context={'course': course}, many=True).data
+        users = UserSerializer(course.users, context={'user': request.user, 'course': course}, many=True).data
         return response.success({'participants': users})
 
     def retrieve(self, request, pk=None):
@@ -92,11 +92,6 @@ class ParticipationView(viewsets.ViewSet):
         role = Role.objects.get(name=role_name, course=course)
 
         factory.make_participation(user, course, role)
-
-        assignments = course.assignment_set.all()
-        for assignment in assignments:
-            if not Journal.objects.filter(assignment=assignment, user=user).exists():
-                factory.make_journal(assignment, user)
 
         serializer = UserSerializer(user, context={'course': course})
         return response.created({'participant': serializer.data}, description='Successfully added student to course.')

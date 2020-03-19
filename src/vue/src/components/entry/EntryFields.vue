@@ -126,18 +126,10 @@
                 v-else-if="field.type == 'i'"
                 :id="'image-display-field-' + field.location"
                 :file="completeContent[field.location].data"
-                :authorUID="authorUID"
-                :entryID="entryID"
-                :nodeID="nodeID"
-                :contentID="completeContent[field.location].contentID"
             />
             <file-download-button
                 v-else-if="field.type == 'f'"
                 :file="completeContent[field.location].data"
-                :authorUID="authorUID"
-                :entryID="entryID"
-                :nodeID="nodeID"
-                :contentID="completeContent[field.location].contentID"
             />
             <b-embed
                 v-else-if="field.type == 'v'"
@@ -149,10 +141,6 @@
             <pdf-display
                 v-else-if="field.type == 'p'"
                 :file="completeContent[field.location].data"
-                :authorUID="authorUID"
-                :entryID="entryID"
-                :nodeID="nodeID"
-                :contentID="completeContent[field.location].contentID"
             />
             <sandboxed-iframe
                 v-else-if="field.type == 'rt'"
@@ -200,7 +188,7 @@ export default {
         nodeID: {
             required: true,
         },
-        authorUID: {
+        journalID: {
             default: null,
             required: false,
         },

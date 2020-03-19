@@ -14,7 +14,7 @@
                 :key="a.id"
             >
                 <b-link
-                    :to="assignmentRoute(cID, a.id, a.journal, a.is_published)"
+                    :to="$root.assignmentRoute(a)"
                     tag="b-button"
                 >
                     <assignment-card
@@ -46,7 +46,7 @@
                 @click="showModal('createAssignmentRef')"
             >
                 <icon name="plus"/>
-                Create New Assignment
+                Create new assignment
             </b-button>
             <b-button
                 v-if="$hasPermission('can_add_assignment', 'course', cID)"
@@ -158,24 +158,6 @@ export default {
         },
         showModal (ref) {
             this.$refs[ref].show()
-        },
-        assignmentRoute (cID, aID, jID, isPublished) {
-            const route = {
-                params: {
-                    cID,
-                    aID,
-                },
-            }
-
-            if (!isPublished) {
-                route.name = 'FormatEdit'
-            } else if (this.$hasPermission('can_view_all_journals', 'assignment', aID)) {
-                route.name = 'Assignment'
-            } else {
-                route.name = 'Journal'
-                route.params.jID = jID
-            }
-            return route
         },
     },
 }

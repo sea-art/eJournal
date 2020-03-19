@@ -152,13 +152,13 @@ class UserView(viewsets.ViewSet):
 
         user = factory.make_user(username=username, email=email, lti_id=lti_id, full_name=full_name,
                                  is_teacher=is_teacher, verified_email=bool(lti_id) and bool(email), password=password,
-                                 profile_picture=user_image if user_image else '/unknown-profile.png',
+                                 profile_picture=user_image if user_image else settings.DEFAULT_PROFILE_PICTURE,
                                  is_test_student=is_test_student)
 
         if lti_id is None:
             send_email_verification_link.delay(user.pk)
 
-        return response.created({'user': UserSerializer(user).data})
+        return response.created({'user': OwnUserSerializer(user).data})
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing user.
@@ -306,7 +306,7 @@ class UserView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to view this user\'s data.')
 
         profile = UserSerializer(user).data
-        journals = Journal.objects.filter(user=pk)
+        journals = Journal.objects.filter(authors__user=user).distinct()
         journal_dict = {}
         for journal in journals:
             # Select the nodes of this journal but only the ones with entries.

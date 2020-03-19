@@ -101,6 +101,18 @@ export default {
                 }
             },
         },
+        options: {
+            immediate: true,
+            handler (newValue) {
+                if (newValue !== null && newValue !== undefined) {
+                    this.valueCopy = this.valueCopy.filter(
+                        selectedElement => newValue.includes(selectedElement))
+                }
+                if (!this.isOpen) {
+                    this.sortOptions()
+                }
+            },
+        },
     },
     methods: {
         updateSelection (newValue) {
@@ -140,7 +152,6 @@ export default {
         user-select: none
         position: relative
         cursor: default
-        height: 1.575rem
         font-family: 'Roboto Condensed', sans-serif
         font-size: 1.1em
         border-radius: 5px
@@ -151,6 +162,7 @@ export default {
         overflow: hidden
         .multiselect__placeholder, .multiselect__single
             color: inherit
+            text-transform: capitalize
             font-size: inherit
             margin: 0px
             padding: 0px
@@ -158,6 +170,10 @@ export default {
             display: none
         span
             display: none
+    &.no-right-radius
+        .multiselect__tags
+            border-top-right-radius: 0 !important
+            border-bottom-right-radius: 0 !important
     &.show-limit .multiselect__tags span
         display: inline-block
     &.show-search .multiselect__tags
@@ -198,6 +214,7 @@ export default {
     &.multiselect--active
         .multiselect__tags
             box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23) !important
+            max-height: 1.575em
     &.multiselect--above
         .multiselect__content-wrapper
             border-radius: 5px 5px 0px 0px !important

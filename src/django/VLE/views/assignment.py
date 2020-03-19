@@ -13,13 +13,12 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.factory as factory
-import VLE.lti_grade_passback as lti_grade
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
 from VLE.models import Assignment, Course, Field, Journal, PresetNode, Template, User
 from VLE.serializers import AssignmentDetailsSerializer, AssignmentSerializer, CourseSerializer
-from VLE.utils import file_handling
+from VLE.utils import file_handling, grading
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
 
@@ -108,19 +107,26 @@ class AssignmentView(viewsets.ViewSet):
             success -- with the assignment data
 
         """
-        name, description, course_id = utils.required_params(request.data, "name", "description", "course_id")
-        points_possible, unlock_date, due_date, lock_date, lti_id, is_published = \
-            utils.optional_params(request.data, "points_possible", "unlock_date", "due_date", "lock_date", "lti_id",
-                                  "is_published")
+        name, description, course_id = utils.required_typed_params(
+            request.data, (str, 'name'), (str, 'description'), (int, 'course_id'))
+        unlock_date, due_date, lock_date, lti_id, is_published, points_possible, is_group_assignment, \
+            can_set_journal_name, can_set_journal_image, can_lock_journal, remove_grade_upon_leaving_group = \
+            utils.optional_typed_params(
+                request.data, (str, 'unlock_date'), (str, 'due_date'), (str, 'lock_date'), (str, 'lti_id'),
+                (bool, 'is_published'), (float, 'points_possible'), (bool, 'is_group_assignment'),
+                (bool, 'can_set_journal_name'), (bool, 'can_set_journal_image'), (bool, 'can_lock_journal'),
+                (bool, 'remove_grade_upon_leaving_group'))
         course = Course.objects.get(pk=course_id)
 
         request.user.check_permission('can_add_assignment', course)
 
-        assignment = factory.make_assignment(name, description, courses=[course],
-                                             author=request.user, active_lti_id=lti_id,
-                                             points_possible=points_possible,
-                                             unlock_date=unlock_date, due_date=due_date,
-                                             lock_date=lock_date, is_published=is_published)
+        assignment = factory.make_assignment(
+            name, description, courses=[course], author=request.user, active_lti_id=lti_id,
+            points_possible=points_possible, unlock_date=unlock_date, due_date=due_date,
+            lock_date=lock_date, is_published=is_published, is_group_assignment=is_group_assignment or False,
+            can_set_journal_name=can_set_journal_name or False, can_set_journal_image=can_set_journal_image or False,
+            can_lock_journal=can_lock_journal or False,
+            remove_grade_upon_leaving_group=remove_grade_upon_leaving_group or False)
 
         # Add new lti id to assignment
         if lti_id is not None:
@@ -130,8 +136,6 @@ class AssignmentView(viewsets.ViewSet):
                 factory.make_journal(assignment, user)
             request.data.pop('lti_id')
 
-        for user in course.users.all():
-            factory.make_journal(assignment, user)
         file_handling.establish_rich_text(request.user, assignment.description, assignment=assignment)
         file_handling.remove_unused_user_files(request.user)
         serializer = AssignmentSerializer(
@@ -210,10 +214,10 @@ class AssignmentView(viewsets.ViewSet):
         if not (request.user.is_superuser or request.user == assignment.author):
             req_data.pop('author', None)
 
-        # Check if the assignment can be unpublished
-        is_published, = utils.optional_params(request.data, 'is_published')
-        if not assignment.can_unpublish() and is_published is False:
-            return response.bad_request('You cannot unpublish an assignment that already has submissions.')
+        is_published, can_set_journal_name, can_set_journal_image, can_lock_journal = \
+            utils.optional_typed_params(
+                request.data, (bool, 'is_published'),
+                (bool, 'can_set_journal_name'), (bool, 'can_set_journal_image'), (bool, 'can_lock_journal'))
 
         # Set active lti course
         active_lti_course, = utils.optional_typed_params(request.data, (int, 'active_lti_course'))
@@ -228,8 +232,6 @@ class AssignmentView(viewsets.ViewSet):
             course = Course.objects.get(pk=course_id)
             request.user.check_permission('can_add_assignment', course)
             assignment.add_lti_id(lti_id, course)
-            for user in course.users.all():
-                factory.make_journal(assignment, user)
             request.data.pop('lti_id')
 
         # Update the other data
@@ -372,7 +374,7 @@ class AssignmentView(viewsets.ViewSet):
                 username, bonus = row
                 bonus = float(bonus)
                 user = User.objects.get(username=str(username))
-                journal = Journal.objects.get(assignment=assignment, user=user)
+                journal = Journal.objects.get(assignment=assignment, authors__user=user)
                 if journal in bonuses:
                     duplicates[line_nr] = username
                 else:
@@ -384,7 +386,7 @@ class AssignmentView(viewsets.ViewSet):
             except Journal.DoesNotExist:
                 non_participants[line_nr] = username
 
-        if unknown_users or incorrect_format_lines or duplicates:
+        if unknown_users or incorrect_format_lines or duplicates or non_participants:
             errors = dict()
 
             if incorrect_format_lines:
@@ -401,7 +403,7 @@ class AssignmentView(viewsets.ViewSet):
         for j, b in bonuses.items():
             j.bonus_points = b
             j.save()
-            lti_grade.replace_result(journal)
+            grading.task_journal_status_to_LMS.delay(journal.pk)
 
         return response.success()
 
@@ -460,7 +462,8 @@ class AssignmentView(viewsets.ViewSet):
         assignment.save()
 
         # Many to many field requires manual update, only set the course we are importing into
-        assignment.courses.set([course])
+        assignment.courses.set([])
+        assignment.add_course(course)
         assignment.save()
 
         template_dict = {}
@@ -477,6 +480,7 @@ class AssignmentView(viewsets.ViewSet):
                 field.template = template
                 field.save()
 
+        journals = assignment.journal_set.all()
         for preset in PresetNode.objects.filter(format=source_format_id):
             preset.pk = None
             preset.format = format
@@ -488,17 +492,36 @@ class AssignmentView(viewsets.ViewSet):
             if preset.forced_template:
                 preset.forced_template = Template.objects.get(pk=template_dict[preset.forced_template.pk])
             preset.save()
+            utils.update_journals(journals, preset)
 
         # Add new lti id to new assignment
         lti_id, = utils.optional_typed_params(request.data, (str, 'lti_id'))
         if lti_id is not None:
             assignment.add_lti_id(lti_id, course)
             request.data.pop('lti_id')
-        for user in course.users.all():
-            factory.make_journal(assignment, user)
 
         # Update author also
         assignment.author = request.user
         assignment.save()
 
         return response.success({'assignment_id': assignment.pk})
+
+    @action(methods=['get'], detail=True)
+    def participants_without_journal(self, request, pk):
+        """Get all assignment participants that are not yet a member of a journal.
+
+        Returns a list of users."""
+        assignment = Assignment.objects.get(pk=pk)
+
+        request.user.check_permission('can_manage_journals', assignment)
+
+        participants_without_journal = []
+        for participant_without_journal in User.objects.filter(assignmentparticipation__assignment__pk=pk,
+                                                               assignmentparticipation__journal=None):
+            if participant_without_journal.has_permission('can_have_journal', assignment):
+                participants_without_journal.append({
+                    'full_name': participant_without_journal.full_name,
+                    'id': participant_without_journal.pk
+                })
+
+        return response.success({'participants': participants_without_journal})

@@ -5,6 +5,15 @@
             slot="main-content-column"
             @edit-click="handleEdit()"
         />
+        <b-alert
+            v-if="LTILeftJournal"
+            slot="main-content-column"
+            show
+            dismissible
+        >
+            <b>Warning:</b> The author of the submission you viewed in the LMS (Canvas) is no longer a member of any
+            journal for this assignment.
+        </b-alert>
 
         <div slot="main-content-column">
             <input
@@ -184,31 +193,27 @@
         >
             <div
                 v-for="journal in filteredJournals"
-                :key="journal.student.id"
+                :key="journal.id"
             >
-                <b-link
-                    :to="{
+                <journal-card
+                    :journal="journal"
+                    :assignment="assignment"
+                    @click.native="$router.push({
                         name: 'Journal',
                         params: {
-                            cID: cID,
-                            aID: aID,
+                            cID: $route.params.cID,
+                            aID: assignment.id,
                             jID: journal.id
                         }
-                    }"
-                    tag="b-button"
-                >
-                    <student-card
-                        :listView="true"
-                        :student="journal.student"
-                        :stats="journal.stats"
-                        :assignment="assignment"
-                    />
-                </b-link>
+                    })"
+                    @journal-deleted="journalDeleted(journal)"
+                />
             </div>
             <main-card
                 v-if="assignmentJournals.length === 0"
-                line1="No participants with a journal"
-                line2="There are no journals for this assignment."
+                line1="No journals for this assignment"
+                :line2="assignment.is_group_assignment ? 'Create journals by using the button below.' :
+                    'No participants with a journal'"
                 class="no-hover border-dark-grey"
             />
             <main-card
@@ -217,6 +222,91 @@
                 line2="There are no journals that match your search query."
                 class="no-hover border-dark-grey"
             />
+            <b-button
+                v-if="$hasPermission('can_manage_journals') && assignment.is_group_assignment"
+                class="multi-form add-button"
+                @click="showModal('createJournalModal')"
+            >
+                <icon name="plus"/>
+                Create new journals
+            </b-button>
+
+            <b-modal
+                v-if="$hasPermission('can_manage_journals') && assignment.is_group_assignment"
+                ref="createJournalModal"
+                title="Create new journals"
+                size="lg"
+                hideFooter
+                @show="resetNewJournals"
+            >
+                <b-card class="no-hover">
+                    <b-form @submit.prevent="createNewJournals">
+                        <h2 class="theme-h2 field-heading multi-form">
+                            Name
+                        </h2>
+                        <b-input
+                            v-model="newJournalName"
+                            placeholder="Journal"
+                            class="theme-input multi-form"
+                        />
+                        <h2 class="theme-h2 field-heading">
+                            Member limit
+                        </h2>
+                        <b-input
+                            v-model="newJournalMemberLimit"
+                            type="number"
+                            placeholder="No member limit"
+                            min="2"
+                            class="theme-input multi-form"
+                        />
+
+                        <b-button
+                            v-if="!repeatCreateJournal"
+                            class="multi-form mr-3"
+                            @click="repeatCreateJournal = true"
+                        >
+                            <icon name="book"/>
+                            Create multiple journals
+                        </b-button>
+                        <b-button
+                            v-else
+                            class="multi-form mr-3"
+                            @click="repeatCreateJournal = false"
+                        >
+                            <icon name="book"/>
+                            Create single journal
+                        </b-button>
+
+                        <div
+                            v-if="repeatCreateJournal"
+                            class="shift-deadlines-input"
+                        >
+                            <icon
+                                v-b-tooltip.hover="'All journals created will be numbered sequentially'"
+                                name="info-circle"
+                            />
+                            Repeat
+                            <b-form-input
+                                v-model="newJournalCount"
+                                type="number"
+                                min="2"
+                                class="theme-input"
+                                required
+                            />
+                            times
+                        </div>
+
+                        <b-button
+                            type="submit"
+                            class="add-button d-block float-right"
+                            :class="{'input-disabled': newJournalRequestInFlight}"
+                        >
+                            <icon name="plus-square"/>
+                            Create
+                        </b-button>
+                    </b-form>
+                </b-card>
+            </b-modal>
         </load-wrapper>
 
         <div
@@ -238,7 +328,7 @@ import contentColumns from '@/components/columns/ContentColumns.vue'
 import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import statisticsCard from '@/components/assignment/StatisticsCard.vue'
-import studentCard from '@/components/assignment/StudentCard.vue'
+import journalCard from '@/components/assignment/JournalCard.vue'
 
 import store from '@/Store.vue'
 import assignmentAPI from '@/api/assignment.js'
@@ -257,7 +347,7 @@ export default {
         loadWrapper,
         mainCard,
         statisticsCard,
-        studentCard,
+        journalCard,
     },
     props: {
         cID: {
@@ -276,6 +366,12 @@ export default {
             loadingJournals: true,
             newActiveLTICourse: null,
             filteredGroups: null,
+            newJournalName: null,
+            newJournalMemberLimit: null,
+            repeatCreateJournal: false,
+            newJournalCount: null,
+            newJournalRequestInFlight: false,
+            LTILeftJournal: false,
         }
     },
     computed: {
@@ -330,6 +426,15 @@ export default {
                 this.$router.push({ name: 'Home' })
             }
             return
+        }
+
+        /* Check query to see if the LTI submission corresponds to a left journal. Remove query param to prevent
+         * showing an alert on subsequent page visits / refreshes. */
+        if (this.$route.query.left_journal) {
+            const query = Object.assign({}, this.$route.query)
+            delete query.left_journal
+            this.$router.replace({ query })
+            this.LTILeftJournal = true
         }
 
         this.init()
@@ -405,7 +510,7 @@ export default {
                 const allJournals = []
                 this.filteredJournals.forEach((journal) => {
                     allJournals.push(journalAPI.update(journal.id, { published: true }, {
-                        customErrorToast: `Error while publishing grades for ${journal.student}.`,
+                        customErrorToast: `Error while publishing grades for ${journal.name}.`,
                     }))
                 })
                 Promise.all(allJournals).then(() => {
@@ -446,6 +551,49 @@ export default {
             this.stats.unpublished = unpublished - needsMarking
             this.stats.averagePoints = points / filteredJournals.length
         },
+        resetNewJournals () {
+            this.newJournalName = null
+            this.newJournalMemberLimit = null
+            this.repeatCreateJournal = false
+            this.newJournalCount = null
+        },
+        createNewJournals () {
+            this.newJournalRequestInFlight = true
+            if (!this.newJournalCount) {
+                this.newJournalCount = 1
+            }
+            journalAPI.create({
+                name: this.newJournalName,
+                amount: this.newJournalCount,
+                author_limit: this.newJournalMemberLimit > 1 ? this.newJournalMemberLimit : 0,
+                assignment_id: this.assignment.id,
+            })
+                .then((journals) => {
+                    this.assignment.journals = journals
+                    this.assignmentJournals = journals
+                    this.hideModal('createJournalModal')
+                    this.newJournalRequestInFlight = false
+                })
+                .catch(() => { this.newJournalRequestInFlight = false })
+        },
+        journalDeleted (journal) {
+            this.assignment.journals.splice(this.assignment.journals.indexOf(journal), 1)
+            this.assignmentJournals = this.assignment.journals
+        },
     },
 }
 </script>
+
+<style lang="sass">
+.create-journals-repeat
+    font-weight: bold
+    color: grey
+    margin-bottom: 10px
+    display: inline-block
+    .theme-input
+        display: inline-block
+        width: 4em
+    svg
+        margin-top: -5px
+        fill: grey
+</style>

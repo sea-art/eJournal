@@ -53,7 +53,7 @@ class CommentView(viewsets.ViewSet):
         else:
             comments = Comment.objects.filter(entry=entry, published=True)
 
-        serializer = CommentSerializer(comments, many=True)
+        serializer = CommentSerializer(comments, context={'user': request.user}, many=True)
         return response.success({'comments': serializer.data})
 
     def create(self, request):
@@ -90,7 +90,7 @@ class CommentView(viewsets.ViewSet):
         comment = factory.make_comment(entry, request.user, text, published)
         file_handling.establish_rich_text(request.user, text, comment=comment)
         file_handling.remove_unused_user_files(request.user)
-        return response.created({'comment': CommentSerializer(comment).data})
+        return response.created({'comment': CommentSerializer(comment, context={'user': request.user}).data})
 
     def retrieve(self, request, pk=None):
         """Retrieve a comment.
@@ -112,7 +112,7 @@ class CommentView(viewsets.ViewSet):
         comment = Comment.objects.get(pk=pk)
         request.user.check_can_view(comment)
 
-        serializer = CommentSerializer(comment)
+        serializer = CommentSerializer(comment, context={'user': request.user})
         return response.success({'comment': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
@@ -149,7 +149,7 @@ class CommentView(viewsets.ViewSet):
         comment.save()
         text, = utils.required_params(request.data, 'text')
         serializer = CommentSerializer(
-            comment, data={'text': text}, partial=True)
+            comment, data={'text': text}, context={'user': request.user}, partial=True)
         if not serializer.is_valid():
             return response.bad_request()
         serializer.save()

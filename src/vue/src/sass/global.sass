@@ -46,6 +46,7 @@ a
     margin-bottom: 10px !important
 
 .input-disabled
+    @extend .unselectable
     opacity: 0.5
     pointer-events: none
 
@@ -71,16 +72,16 @@ a
     -o-user-select: none
     user-select: none
 
-.error
+.error, .red
     background-color: $theme-red !important
 
-.success
+.success, .green
     background-color: $theme-green !important
 
-.warning
+.warning, .orange
     background-color: $theme-orange !important
 
-.info
+.info, .blue
     background-color: $theme-blue !important
 
 .badge, .toasted
@@ -98,3 +99,24 @@ a
   transition: opacity .5s
 .fade-enter, .fade-leave-to
   opacity: 0
+
+.max-one-line
+    display: block
+    width: auto
+    max-width: 100%
+    text-overflow: ellipsis
+    white-space: nowrap
+    overflow: hidden
+
+ul
+    padding-top: 5px
+    padding-bottom: 5px
+    margin-bottom: 0px
+
+.no-left-radius
+    border-top-left-radius: 0 !important
+    border-bottom-left-radius: 0 !important
+
+.no-right-radius
+    border-top-right-radius: 0 !important
+    border-bottom-right-radius: 0 !important

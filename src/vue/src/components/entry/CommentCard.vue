@@ -105,8 +105,8 @@
                 class="no-hover new-comment"
             >
                 <text-editor
-                    :id="'comment-text-editor'"
-                    :key="'comment-text-editor-new-comment'"
+                    id="comment-text-editor"
+                    key="comment-text-editor-new-comment"
                     ref="comment-text-editor-ref"
                     v-model="tempComment"
                     :basic="true"
@@ -203,7 +203,8 @@ export default {
     methods: {
         canEditComment (comment) {
             return this.$store.getters['user/uID'] === comment.author.id
-                || (this.$hasPermission('can_edit_staff_comment') && comment.author.id !== this.journal.student.id)
+                || (this.$hasPermission('can_edit_staff_comment')
+                    && !this.journal.authors.filter(author => author.id === comment.author.id))
         },
         setComments () {
             commentAPI.getFromEntry(this.eID)

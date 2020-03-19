@@ -19,6 +19,8 @@ def required_params(post, *keys):
     result = []
     for key in keys:
         try:
+            if post[key] == '':
+                VLEMissingRequiredKey(key)
             result.append(post[key])
         except KeyError:
             raise VLEMissingRequiredKey(key)
@@ -47,7 +49,11 @@ def required_typed_params(post, *keys):
     result = []
     for func, key in keys:
         try:
-            if post[key] is not None:
+            if post[key] == '':
+                VLEMissingRequiredKey(key)
+            if isinstance(post[key], list):
+                result.append([func(elem) for elem in post[key]])
+            elif post[key] is not None:
                 result.append(func(post[key]))
             else:
                 result.append(None)
@@ -65,7 +71,7 @@ def optional_typed_params(post, *keys):
 
     result = []
     for func, key in keys:
-        if key in post and post[key] != '':
+        if key and key in post and post[key] != '':
             try:
                 if post[key] is not None:
                     result.append(func(post[key]))
@@ -264,7 +270,7 @@ def update_presets(assignment, presets, new_ids):
                 preset_node.forced_template = Template.objects.get(pk=template['id'])
         preset_node.save()
         if id < 0:
-            update_journals(Journal.objects.filter(assignment=assignment), preset_node)
+            update_journals(Journal.all_objects.filter(assignment=assignment), preset_node)
 
 
 def delete_presets(presets):

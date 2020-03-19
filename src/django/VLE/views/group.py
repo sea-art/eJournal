@@ -51,7 +51,9 @@ class GroupView(viewsets.ViewSet):
             assignment = Assignment.objects.get(pk=assignment_id)
             journals = Journal.objects.filter(assignment=assignment)
             participations = Participation.objects.filter(
-                user__in=journals.values('user'), course=course).exclude(user__is_test_student=True)
+                user__in=journals.values('authors__user'),
+                course=course
+            ).exclude(user__is_test_student=True)
             groups = Group.objects.filter(
                 course=course, participation__in=participations
             ).annotate(
@@ -60,7 +62,6 @@ class GroupView(viewsets.ViewSet):
                 matched=len(participations)
             )
             queryset = groups.distinct()
-            # TODO GROUPS: make sure group journal get correctly filtered
         else:
             queryset = Group.objects.filter(course=course)
         serializer = GroupSerializer(queryset, many=True, context={'user': request.user, 'course': course})
@@ -90,7 +91,7 @@ class GroupView(viewsets.ViewSet):
         request.user.check_permission('can_add_course_user_group', course)
 
         if lti_id and Group.objects.filter(lti_id=lti_id, course=course).exists():
-            return response.bad_request('Course group with the desired name already exists.')
+            return response.bad_request('Course group with the desired lti id already exists.')
 
         course_group = factory.make_course_group(name, course, lti_id)
         serializer = GroupSerializer(course_group, many=False)

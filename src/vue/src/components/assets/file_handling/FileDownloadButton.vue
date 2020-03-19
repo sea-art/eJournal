@@ -3,8 +3,13 @@
         class="file-controls"
         @click="fileDownload"
     >
-        <icon name="download"/>
-        <i><span>{{ file.file_name }}</span></i>
+        <icon
+            name="download"
+            class="shift-up-2"
+        />
+        <b class="ml-1">
+            {{ file.file_name }}
+        </b>
     </div>
 </template>
 
@@ -15,22 +20,6 @@ export default {
     props: {
         file: {
             required: true,
-        },
-        authorUID: {
-            required: true,
-            String,
-        },
-        entryID: {
-            required: true,
-            String,
-        },
-        nodeID: {
-            required: true,
-            String,
-        },
-        contentID: {
-            required: true,
-            String,
         },
     },
     methods: {
@@ -58,8 +47,6 @@ export default {
 .file-controls
     &:hover
         cursor: pointer
-    span
+    b
         text-decoration: underline !important
-    svg
-        margin-bottom: -4px
 </style>

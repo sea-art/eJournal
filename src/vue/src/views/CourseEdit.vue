@@ -123,8 +123,8 @@ export default {
             const copyCourse = {
                 name: course.name,
                 abbreviation: course.abbreviation,
-                startdate: course.startdate,
-                enddate: course.enddate,
+                startdate: course.startdate ? course.startdate : '',
+                enddate: course.enddate ? course.enddate : '',
             }
 
             return copyCourse

@@ -46,7 +46,7 @@ export default {
         },
         onReset (evt) {
             evt.preventDefault()
-            /* Reset our form values */
+            /* Reset form values */
             this.instituteName = ''
 
             /* Trick to reset/clear native browser form validation state */

@@ -103,7 +103,7 @@ export default {
                 })
         },
         resetFormInput () {
-            /* Reset our form values */
+            /* Reset form values */
             this.form.groupName = ''
         },
         deleteGroup (group) {

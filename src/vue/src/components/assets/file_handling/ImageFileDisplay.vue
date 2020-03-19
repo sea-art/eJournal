@@ -4,8 +4,13 @@
             class="image-controls mb-2 unselectable"
             @click="handleDownload"
         >
-            <icon name="image"/>
-            <i><span>{{ file.file_name }}</span></i>
+            <icon
+                name="image"
+                class="shift-up-2"
+            />
+            <b class="ml-1">
+                {{ file.file_name }}
+            </b>
         </div>
         <transition name="fade">
             <img
@@ -26,24 +31,8 @@ export default {
         file: {
             required: true,
         },
-        authorUID: {
-            required: true,
-            String,
-        },
         display: {
             default: false,
-        },
-        entryID: {
-            required: true,
-            String,
-        },
-        nodeID: {
-            required: true,
-            String,
-        },
-        contentID: {
-            required: true,
-            String,
         },
     },
     data () {
@@ -102,8 +91,6 @@ export default {
     .image-controls
         &:hover
             cursor: pointer
-        span
+        b
             text-decoration: underline !important
-        svg
-            margin-bottom: -2px
 </style>

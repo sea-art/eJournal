@@ -5,6 +5,11 @@ export default {
         return auth.downloadFile(`users/${id}/GDPR/`, null, connArgs)
     },
 
+    update (id, data, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.update(`users/${id}`, data, connArgs)
+            .then(response => response.data.user)
+    },
+
     /* Upload an image that is base64 encoded. */
     updateProfilePictureBase64 (file, connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.post('users/set_profile_picture/', { file }, connArgs)

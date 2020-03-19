@@ -154,6 +154,7 @@ preset-db:
 	@read -r a
 	make preset-db-no-input
 preset-db-no-input:
+	rm -rf src/django/media/*
 	make postgres-reset
 	make postgres-init-development
 	make migrate-back

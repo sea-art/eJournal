@@ -31,7 +31,7 @@
                     @click="showModal('createCourseRef')"
                 >
                     <icon name="plus"/>
-                    Create New Course
+                    Create new course
                 </b-button>
             </div>
             <main-card

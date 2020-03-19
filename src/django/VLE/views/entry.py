@@ -7,13 +7,13 @@ from rest_framework import viewsets
 
 import VLE.factory as factory
 import VLE.serializers as serialize
-import VLE.tasks.lti as lti_tasks
 import VLE.timeline as timeline
 import VLE.utils.entry_utils as entry_utils
 import VLE.utils.file_handling as file_handling
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 from VLE.models import Entry, Field, FileContext, Journal, Node, Template
+from VLE.utils import grading
 
 
 class EntryView(viewsets.ViewSet):
@@ -40,7 +40,7 @@ class EntryView(viewsets.ViewSet):
             request.data, "journal_id", "template_id", "content")
         node_id, = utils.optional_params(request.data, "node_id")
 
-        journal = Journal.objects.get(pk=journal_id, user=request.user)
+        journal = Journal.objects.get(pk=journal_id, authors__user=request.user)
         assignment = journal.assignment
         template = Template.objects.get(pk=template_id)
 
@@ -62,10 +62,10 @@ class EntryView(viewsets.ViewSet):
         # Node specific entry
         if node_id:
             node = Node.objects.get(pk=node_id, journal=journal)
-            entry = entry_utils.add_entry_to_node(node, template)
+            entry = entry_utils.add_entry_to_node(node, template, request.user)
         # Template specific entry
         else:
-            entry = factory.make_entry(template)
+            entry = factory.make_entry(template, request.user)
             node = factory.make_node(journal, entry)
 
         try:
@@ -108,8 +108,7 @@ class EntryView(viewsets.ViewSet):
                 request.user, file.access_id, content=content, in_rich_text=content.field.type == Field.RICH_TEXT)
 
         # Notify teacher on new entry
-        if (node.journal.sourcedid and node.entry.vle_coupling == Entry.NEED_SUBMISSION):
-            lti_tasks.needs_grading.delay(node.pk)
+        grading.task_journal_status_to_LMS.delay(journal.pk)
 
         # Delete old user files
         file_handling.remove_unused_user_files(request.user)
@@ -139,19 +138,18 @@ class EntryView(viewsets.ViewSet):
             success -- with the new entry data
 
         """
-        content_list, = utils.required_typed_params(request.data, (list, 'content'))
+        content_list, = utils.required_params(request.data, 'content')
         entry_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         entry = Entry.objects.get(pk=entry_id)
-        graded = entry.is_graded()
         journal = entry.node.journal
         assignment = journal.assignment
 
         if assignment.is_locked():
             return response.forbidden('The assignment is locked, entries can no longer be edited/changed.')
         request.user.check_permission('can_have_journal', assignment)
-        if not (journal.user == request.user or request.user.is_superuser):
+        if not (journal.authors.filter(user=request.user).exists() or request.user.is_superuser):
             return response.forbidden('You are not allowed to edit someone else\'s entry.')
-        if graded:
+        if entry.is_graded():
             return response.bad_request('You are not allowed to edit graded entries.')
         if entry.is_locked():
             return response.bad_request('You are not allowed to edit locked entries.')
@@ -207,6 +205,9 @@ class EntryView(viewsets.ViewSet):
                 request.user, file.access_id, content=content, in_rich_text=content.field.type == Field.RICH_TEXT)
 
         file_handling.remove_unused_user_files(request.user)
+        grading.task_journal_status_to_LMS.delay(journal.pk)
+        entry.last_edited_by = request.user
+        entry.save()
 
         return response.success({'entry': serialize.EntrySerializer(entry, context={'user': request.user}).data})
 
@@ -231,7 +232,7 @@ class EntryView(viewsets.ViewSet):
         journal = entry.node.journal
         assignment = journal.assignment
 
-        if journal.user == request.user:
+        if journal.authors.filter(user=request.user).exists():
             request.user.check_permission('can_have_journal', assignment, 'You are not allowed to delete entries.')
             if entry.is_graded():
                 return response.forbidden('You are not allowed to delete graded entries.')

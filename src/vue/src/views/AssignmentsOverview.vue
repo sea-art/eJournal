@@ -52,7 +52,7 @@
             >
                 <b-link
                     v-if="d.course"
-                    :to="assignmentRoute(d.course.id, d.id, d.journal, d.is_published)"
+                    :to="$root.assignmentRoute(d)"
                     tag="b-button"
                 >
                     <todo-card
@@ -64,7 +64,7 @@
                     v-for="(course, j) in d.courses"
                     v-else
                     :key="`${i}-${j}`"
-                    :to="assignmentRoute(course.id, d.id, d.journal, d.is_published)"
+                    :to="$root.assignmentRoute(d, course)"
                     tag="b-button"
                 >
                     <todo-card
@@ -176,24 +176,6 @@ export default {
             setAssignmentSearchValue: 'preferences/SET_ASSIGNMENT_OVERVIEW_SEARCH_VALUE',
             setAssignmentOverviewSortBy: 'preferences/SET_ASSIGNMENT_OVERVIEW_SORT_BY',
         }),
-        assignmentRoute (cID, aID, jID, isPublished) {
-            const route = {
-                params: {
-                    cID,
-                    aID,
-                },
-            }
-
-            if (!isPublished) {
-                route.name = 'FormatEdit'
-            } else if (this.$hasPermission('can_view_all_journals', 'assignment', aID)) {
-                route.name = 'Assignment'
-            } else {
-                route.name = 'Journal'
-                route.params.jID = jID
-            }
-            return route
-        },
         compare (a, b) {
             if (a < b) { return this.order ? 1 : -1 }
             if (a > b) { return this.order ? -1 : 1 }
