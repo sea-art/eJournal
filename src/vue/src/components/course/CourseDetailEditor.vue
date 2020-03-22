@@ -33,24 +33,28 @@
                             Start date
                             <tooltip tip="Start date of the course"/>
                         </h2>
-                        <flat-pickr
-                            v-model="course.startdate"
-                            class="multi-form full-width"
-                            :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
-                            :config="startDateConfig"
-                        />
+                        <reset-wrapper v-model="course.startdate">
+                            <flat-pickr
+                                v-model="course.startdate"
+                                class="multi-form full-width"
+                                :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
+                                :config="startDateConfig"
+                            />
+                        </reset-wrapper>
                     </b-col>
                     <b-col cols="6">
                         <h2 class="theme-h2 field-heading">
                             End date
                             <tooltip tip="End date of the course"/>
                         </h2>
-                        <flat-pickr
-                            v-model="course.enddate"
-                            class="multi-form full-width"
-                            :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
-                            :config="endDateConfig"
-                        />
+                        <reset-wrapper v-model="course.enddate">
+                            <flat-pickr
+                                v-model="course.enddate"
+                                class="multi-form full-width"
+                                :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
+                                :config="endDateConfig"
+                            />
+                        </reset-wrapper>
                     </b-col>
                 </b-row>
                 <b-button
@@ -90,7 +94,7 @@ export default {
         },
         endDateConfig () {
             const additionalConfig = {}
-            if (this.course.starttdate) {
+            if (this.course.startdate) {
                 additionalConfig.minDate = new Date(this.course.startdate)
             }
             return Object.assign({}, additionalConfig, this.$root.flatPickrConfig)

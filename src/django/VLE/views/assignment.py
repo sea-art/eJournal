@@ -334,6 +334,8 @@ class AssignmentView(viewsets.ViewSet):
         [username1], [bonus_points1]
         [username2], [bonus_points2]
 
+        NOTE: Also possible to use semicolon instead of comma.
+
         Arguments:
         request
             file -- list of all the bonus points
@@ -359,11 +361,15 @@ class AssignmentView(viewsets.ViewSet):
         encoding = chardet.detect(request.FILES['file'].read())['encoding']
         try:
             # Go back to first line of the file, then read and decode lines.
-            csv_file = request.FILES['file'].open().read().decode(encoding).splitlines()
+            csv_file = request.FILES['file'].open().read().decode(encoding)
         except (TypeError, UnicodeDecodeError):
             return response.bad_request({'general': 'Not a valid csv file.'})
         # Initialize csv reader to parse file.
-        csv_reader = csv.reader(csv_file, delimiter=',')
+        try:
+            dialect = csv.Sniffer().sniff(csv_file, delimiters=';')
+            csv_reader = csv.reader(csv_file.splitlines(), dialect)
+        except Exception:
+            csv_reader = csv.reader(csv_file.splitlines())
 
         for line_nr, row in enumerate(csv_reader, 1):
             try:

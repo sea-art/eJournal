@@ -33,10 +33,9 @@
                         support button at the bottom of any page. This tutorial can be consulted again by clicking \
                         the info sign.'"
                         v-intro-step="4"
-                        v-b-tooltip.hover
+                        v-b-tooltip:hover="'Click to start a tutorial for this page'"
                         name="info-circle"
                         scale="1.5"
-                        title="Click to start a tutorial for this page"
                         class="info-icon shift-up-5 ml-1"
                         @click.native="startTour"
                     />
@@ -77,10 +76,9 @@
                         support button at the bottom of any page. This tutorial can be consulted again by clicking \
                         the info sign.'"
                         v-intro-step="4"
-                        v-b-tooltip.hover
+                        v-b-tooltip:hover="'Click to start a tutorial for this page'"
                         name="info-circle"
                         scale="1.75"
-                        title="Click to start a tutorial for this page"
                         class="info-icon shift-up-5 ml-1"
                         @click.native="startTour"
                     />

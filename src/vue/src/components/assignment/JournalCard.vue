@@ -33,29 +33,27 @@
                     >
                         <b-badge
                             v-if="journal.author_limit > 1"
-                            v-b-tooltip.hover
-                            :title="`This journal currently has ${ journal.authors.length } of max `
+                            v-b-tooltip:hover="`This journal currently has ${ journal.authors.length } of max `
                                 + `${ journal.author_limit } members`"
                             class="text-white mr-1"
                         >
-                            ({{ journal.authors.length }}/{{ journal.author_limit }})
+                            {{ journal.authors.length }}/{{ journal.author_limit }}
                         </b-badge>
                         <b-badge
                             v-if="journal.author_limit === 0"
-                            v-b-tooltip.hover
-                            :title="`This journal currently has ${ journal.authors.length } members `
+                            v-b-tooltip:hover="`This journal currently has ${ journal.authors.length } members `
                                 + 'and no member limit'"
                             class="text-white mr-1"
                         >
-                            ({{ journal.authors.length }})
+                            {{ journal.authors.length }}
                         </b-badge>
                         <b-badge
                             v-if="journal.locked"
                             class="background-red"
                         >
                             <icon
-                                v-b-tooltip.hover
-                                title="Members are locked: it is not possible to join or leave this journal"
+                                v-b-tooltip:hover="
+                                    'Members are locked: it is not possible to join or leave this journal'"
                                 name="lock"
                                 class="fill-white"
                                 scale="0.65"

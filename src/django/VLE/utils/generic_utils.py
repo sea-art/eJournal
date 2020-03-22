@@ -3,6 +3,11 @@ Utilities.
 
 A library with useful functions.
 """
+import base64
+import re
+from mimetypes import guess_extension
+
+from django.core.files.base import ContentFile
 from django.db.models import Case, When
 
 import VLE.factory as factory
@@ -241,9 +246,10 @@ def update_presets(assignment, presets, new_ids):
     format = assignment.format
     for preset in presets:
         id, template = required_typed_params(preset, (int, 'id'), (dict, 'template'))
-        target, = optional_typed_params(preset, (float, 'target'))
-        type, description, unlock_date, due_date, lock_date = \
-            required_params(preset, 'type', 'description', 'unlock_date', 'due_date', 'lock_date')
+        target, unlock_date, lock_date = optional_typed_params(
+            preset, (float, 'target'), (str, 'unlock_date'), (str, 'lock_date'))
+        type, description, due_date = required_params(
+            preset, 'type', 'description', 'due_date')
 
         if id > 0:
             preset_node = PresetNode.objects.get(pk=id)
@@ -292,3 +298,10 @@ def archive_templates(templates):
         ids.append(template['id'])
 
     Template.objects.filter(pk__in=ids).update(archived=True)
+
+
+def base64ToContentFile(string, filename):
+    matches = re.findall(r'data:(.*);base64,(.*)', string)[0]
+    mimetype = matches[0]
+    extension = guess_extension(mimetype)
+    return ContentFile(base64.b64decode(matches[1]), name='{}{}'.format(filename, extension))

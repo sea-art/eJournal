@@ -178,6 +178,34 @@ class FileHandlingTest(TestCase):
         assert self.student.filecontext_set.filter(pk=content_new_rt2['id']).exists(), 'new file should exist'
         assert not self.student.filecontext_set.filter(pk=content_old_rt['id']).exists(), 'old file should be removed'
 
+    def test_remove_profile_picture(self):
+        user = factory.Student()
+        blank_image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAYAAADL1t+KAAAD30lEQVR4nO3BAQEAAACC' + \
+                      'IP+vbkhAAQ{}8GJFFQABGYPuoAAAAABJRU5ErkJggg=='.format('A'*1290)
+        resp = api.post(
+            self, 'users/set_profile_picture', params={'file': blank_image},
+            content_type=MULTIPART_CONTENT, user=user, status=201)
+        deleted = resp['download_url'].split('access_id=')[1]
+        resp = api.post(
+            self, 'users/set_profile_picture', params={'file': blank_image},
+            content_type=MULTIPART_CONTENT, user=user, status=201)
+        new = resp['download_url'].split('access_id=')[1]
+        assert not FileContext.objects.filter(access_id=deleted).exists(), 'old journal image should be deleted'
+        assert FileContext.objects.filter(access_id=new).exists(), 'new journal image should not be deleted'
+
+    def test_remove_journal_image(self):
+        journal = factory.GroupJournal(assignment__can_set_journal_image=True)
+        blank_image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAYAAADL1t+KAAAD30lEQVR4nO3BAQEAAACC' + \
+                      'IP+vbkhAAQ{}8GJFFQABGYPuoAAAAABJRU5ErkJggg=='.format('A'*1290)
+        resp = api.update(
+            self, 'journals', params={'image': blank_image, 'pk': journal.pk}, user=journal.authors.first().user)
+        deleted = resp['journal']['image'].split('access_id=')[1]
+        resp = api.update(
+            self, 'journals', params={'image': blank_image, 'pk': journal.pk}, user=journal.authors.first().user)
+        new = resp['journal']['image'].split('access_id=')[1]
+        assert not FileContext.objects.filter(access_id=deleted).exists(), 'old journal image should be deleted'
+        assert FileContext.objects.filter(access_id=new).exists(), 'new journal image should not be deleted'
+
     def test_remove_unused_files_assignment(self):
         def update_and_check(description, field_description, preset_node_description):
             template = Template.objects.filter(format__assignment=self.assignment).order_by('pk').last()

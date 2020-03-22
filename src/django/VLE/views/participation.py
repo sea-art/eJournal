@@ -93,7 +93,7 @@ class ParticipationView(viewsets.ViewSet):
 
         factory.make_participation(user, course, role)
 
-        serializer = UserSerializer(user, context={'course': course})
+        serializer = UserSerializer(user, context={'course': course, 'user': request.user})
         return response.created({'participant': serializer.data}, description='Successfully added student to course.')
 
     def partial_update(self, request, pk):
@@ -189,11 +189,15 @@ class ParticipationView(viewsets.ViewSet):
         if len(unenrolled_query) < 5:
             user = users.filter(username=unenrolled_query)
             if user:
-                return response.success({'participants': UserSerializer(user, many=True).data})
+                return response.success({
+                    'participants': UserSerializer(user, context={'user': request.user}, many=True).data
+                })
             else:
                 return response.success({'participants': []})
 
         found_users = users.filter(Q(username__contains=unenrolled_query) |
                                    Q(full_name__contains=unenrolled_query))
 
-        return response.success({'participants': UserSerializer(found_users, many=True).data})
+        return response.success({
+            'participants': UserSerializer(found_users, context={'user': request.user}, many=True).data
+        })

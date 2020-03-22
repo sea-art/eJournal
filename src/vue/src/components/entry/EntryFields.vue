@@ -23,18 +23,26 @@
                 class="theme-input"
                 rows="1"
             />
-            <flat-pickr
+            <reset-wrapper
                 v-if="field.type == 'd'"
                 v-model="completeContent[i].data"
-                class="full-width"
-                :config="$root.flatPickrConfig"
-            />
-            <flat-pickr
+            >
+                <flat-pickr
+                    v-model="completeContent[i].data"
+                    class="full-width"
+                    :config="$root.flatPickrConfig"
+                />
+            </reset-wrapper>
+            <reset-wrapper
                 v-if="field.type == 'dt'"
                 v-model="completeContent[i].data"
-                class="full-width"
-                :config="$root.flatPickrTimeConfig"
-            />
+            >
+                <flat-pickr
+                    v-model="completeContent[i].data"
+                    class="full-width"
+                    :config="$root.flatPickrTimeConfig"
+                />
+            </reset-wrapper>
             <file-upload-input
                 v-else-if="field.type == 'i'"
                 :placeholder="completeContent[i].data ? completeContent[i].data.file_name : null"

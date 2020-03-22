@@ -17,9 +17,12 @@
                 />
             </div>
         </h2>
-        Hi {{ this.$store.getters['user/fullName'] }}, thanks for reaching out to eJournal support.
+        Hi {{ $store.getters['user/fullName'] }}, thanks for reaching out to eJournal support.
         Please select the support category that best fits your situation:
-        <div class="full-width d-flex justify-content-center mt-2">
+        <div
+            :class="{ 'input-disabled': !$store.getters['user/verifiedEmail'] }"
+            class="full-width d-flex justify-content-center mt-2"
+        >
             <b-button
                 class="delete-button mr-2 flex-grow-1"
                 :class="{'active': type === 'bug'}"
@@ -57,6 +60,19 @@
                 Feedback
             </b-button>
         </div>
+        <b-alert
+            v-if="!$store.getters['user/verifiedEmail']"
+            show
+            class="mt-3 mb-0"
+        >
+            Support is only available for users with a verified email address.
+            Please verify your email address on your
+            <a
+                href="/Profile"
+            >
+                <b>profile</b>
+            </a>.
+        </b-alert>
         <div v-if="type">
             <hr/>
             <b-input

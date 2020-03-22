@@ -109,6 +109,12 @@ export default {
         courseAPI.get(this.cID)
             .then((course) => {
                 this.course = course
+                if (!this.course.startdate) {
+                    this.course.startdate = ''
+                }
+                if (!this.course.enddate) {
+                    this.course.enddate = ''
+                }
                 this.originalCourse = this.deepCopyCourse(course)
             })
     },
@@ -123,8 +129,8 @@ export default {
             const copyCourse = {
                 name: course.name,
                 abbreviation: course.abbreviation,
-                startdate: course.startdate ? course.startdate : '',
-                enddate: course.enddate ? course.enddate : '',
+                startdate: course.startdate,
+                enddate: course.enddate,
             }
 
             return copyCourse

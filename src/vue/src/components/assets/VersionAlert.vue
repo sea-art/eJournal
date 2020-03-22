@@ -15,7 +15,7 @@
     </b-alert>
 </template>
 <script>
-import preferencesAPI from '@/api/preferences'
+import preferencesAPI from '@/api/preferences.js'
 
 export default {
     data () {

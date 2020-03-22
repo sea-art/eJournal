@@ -79,7 +79,7 @@
                         class="shift-deadlines-input"
                     >
                         <icon
-                            v-b-tooltip.hover="'The weekdays of the deadlines will be kept intact'"
+                            v-b-tooltip:hover="'The weekdays of the deadlines will be kept intact'"
                             name="info-circle"
                         />
                         Dates will be shifted by

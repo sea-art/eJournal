@@ -3,12 +3,7 @@ user.py.
 
 In this file are all the user api requests.
 """
-import base64
-import re
-from mimetypes import guess_extension
-
 from django.conf import settings
-from django.core.files.base import ContentFile
 from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -65,7 +60,7 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_superuser:
             return response.forbidden('Only administrators are allowed to request all user data.')
 
-        serializer = UserSerializer(User.objects.all(), many=True)
+        serializer = UserSerializer(User.objects.all(), context={'user': request.user}, many=True)
         return response.success({'users': serializer.data})
 
     def retrieve(self, request, pk):
@@ -88,9 +83,9 @@ class UserView(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         if request.user == user or request.user.is_superuser:
-            serializer = OwnUserSerializer(user, many=False)
+            serializer = OwnUserSerializer(user, context={'user': request.user}, many=False)
         elif permissions.is_user_supervisor_of(request.user, user):
-            serializer = UserSerializer(user, many=False)
+            serializer = UserSerializer(user, context={'user': request.user}, many=False)
         else:
             return response.forbidden('You are not allowed to view this users information.')
 
@@ -158,7 +153,7 @@ class UserView(viewsets.ViewSet):
         if lti_id is None:
             send_email_verification_link.delay(user.pk)
 
-        return response.created({'user': OwnUserSerializer(user).data})
+        return response.created({'user': OwnUserSerializer(user, context={'user': request.user}).data})
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing user.
@@ -305,7 +300,7 @@ class UserView(viewsets.ViewSet):
         if not (request.user.is_superuser or request.user.id == pk):
             return response.forbidden('You are not allowed to view this user\'s data.')
 
-        profile = UserSerializer(user).data
+        profile = OwnUserSerializer(user, context={'user': request.user}).data
         journals = Journal.objects.filter(authors__user=user).distinct()
         journal_dict = {}
         for journal in journals:
@@ -340,14 +335,8 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- a zip file of all the userdata with all their files
         """
-        def base64ToContentFile(string, filename):
-            matches = re.findall(r'data:(.*);base64,(.*)', string)[0]
-            mimetype = matches[0]
-            extension = guess_extension(mimetype)
-            return ContentFile(base64.b64decode(matches[1]), name='{}{}'.format(filename, extension))
-
         file_data, = utils.required_params(request.data, 'file')
-        content_file = base64ToContentFile(file_data, 'profile_picture')
+        content_file = utils.base64ToContentFile(file_data, 'profile_picture')
         validators.validate_user_file(content_file, request.user)
 
         file = FileContext.objects.create(
@@ -359,6 +348,7 @@ class UserView(viewsets.ViewSet):
         )
         request.user.profile_picture = file.download_url(access_id=True)
         request.user.save()
+        file_handling.remove_unused_user_files(request.user)
 
         return response.created(FileSerializer(file).data)
 

@@ -38,7 +38,7 @@ def send_email_verification_link(user_pk):
     email = EmailMultiAlternatives(
         subject='eJournal email verification',
         body=text_content,
-        from_email='noreply@{}'.format(settings.EMAIL_SENDER_DOMAIN),
+        from_email='eJournal | Noreply<noreply@{}>'.format(settings.EMAIL_SENDER_DOMAIN),
         headers={'Content-Type': 'text/plain'},
         to=[user.email]
     )
@@ -71,7 +71,7 @@ def send_password_recovery_link(user_pk):
     email = EmailMultiAlternatives(
         subject='eJournal password recovery',
         body=text_content,
-        from_email='noreply@{}'.format(settings.EMAIL_SENDER_DOMAIN),
+        from_email='eJournal | Noreply<noreply@{}>'.format(settings.EMAIL_SENDER_DOMAIN),
         headers={'Content-Type': 'text/plain'},
         to=[user.email]
     )
@@ -101,7 +101,7 @@ def send_email_feedback(user_pk, topic, ftype, feedback, user_agent, url, file_c
     r_html_content = render_to_string('feedback.html', {'email_data': r_email_data})
     r_text_content = strip_tags(r_html_content)
 
-    from_email = 'eJournal | Support<' + 'support@{}'.format(settings.EMAIL_SENDER_DOMAIN) + '>'
+    from_email = 'eJournal | Support<support@{}>'.format(settings.EMAIL_SENDER_DOMAIN)
 
     attachments = []
     if user.feedback_file:

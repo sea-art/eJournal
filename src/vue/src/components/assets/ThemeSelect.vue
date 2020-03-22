@@ -2,15 +2,15 @@
 <template>
     <!-- eslint-disable vue/attribute-hyphenation -->
     <multiselect
-        v-model="valueCopy"
+        :value="value"
         :label="label"
         :trackBy="trackBy ? trackBy : label"
         :maxHeight="500"
         :class="{
             'hide-single': multiple,
-            'force-show-placeholder': multiple && !isOpen && (valueCopy === null || valueCopy.length === 0),
+            'force-show-placeholder': multiple && !isOpen && (!value || !value.length),
             'show-search': isOpen && searchable,
-            'show-limit': valueCopy && valueCopy.length > 0,
+            'show-limit': value && value.length,
         }"
         :options="sortedOptions"
         :multiple="multiple"
@@ -23,15 +23,12 @@
         :showLabels="false"
         :placeholder="placeholder"
         open-direction="bottom"
-        @input="updateSelection"
-        @open="() => {
-            isOpen = true
-            sortOptions()
-        }"
+        @input="newValue => $emit('input', newValue)"
+        @open="() => { isOpen = true }"
         @close="() => { isOpen = false }"
     >
         <span slot="limit">
-            {{ valueCopy.length > 0 ? valueCopy.length : 'No' }} {{ multiSelectText }}
+            {{ (value && value.length) ? value.length : 'No' }} {{ multiSelectText }}
         </span>
         <template slot="placeholder">
             {{ placeholder }}
@@ -84,52 +81,21 @@ export default {
     },
     data () {
         return {
-            valueCopy: [],
-            sortedOptions: [],
             isOpen: false,
         }
     },
-    watch: {
-        value: {
-            immediate: true,
-            handler (newValue) {
-                if (newValue !== null && newValue !== undefined) {
-                    this.valueCopy = newValue.slice()
-                }
-                if (!this.isOpen) {
-                    this.sortOptions()
-                }
-            },
-        },
-        options: {
-            immediate: true,
-            handler (newValue) {
-                if (newValue !== null && newValue !== undefined) {
-                    this.valueCopy = this.valueCopy.filter(
-                        selectedElement => newValue.includes(selectedElement))
-                }
-                if (!this.isOpen) {
-                    this.sortOptions()
-                }
-            },
-        },
-    },
-    methods: {
-        updateSelection (newValue) {
-            this.$emit('input', newValue)
-        },
-        sortOptions () {
-            this.sortedOptions = this.options.slice()
-            this.sortedOptions.sort((a, b) => {
-                const indexA = this.valueCopy.indexOf(a)
-                const indexB = this.valueCopy.indexOf(b)
-                if (indexA >= 0 && indexB === -1) {
-                    return -1
-                }
-                if (indexA === -1 && indexB >= 0) {
-                    return 1
-                }
-                return this.options.indexOf(a) - this.options.indexOf(b)
+    computed: {
+        sortedOptions () {
+            if (!Array.isArray(this.options)) return []
+
+            const optionsCopy = this.options.slice()
+            return optionsCopy.sort((option1, option2) => {
+                const selected1 = this.value && this.value.includes(option1)
+                const selected2 = this.value && this.value.includes(option2)
+                if (selected1 && !selected2) return -1
+                if (!selected1 && selected2) return 1
+                if (option1.name < option2.name) return -1
+                return 1
             })
         },
     },

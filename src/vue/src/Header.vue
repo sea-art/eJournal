@@ -284,6 +284,7 @@ export default {
 
 .spinner
     background: white
+    color: $theme-dark-blue
     position: fixed
     bottom: 0px
     left: 0px

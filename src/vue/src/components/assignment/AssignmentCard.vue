@@ -33,18 +33,15 @@
         </b-badge>
         <b-badge
             v-if="assignment.lti_couples > 0"
-            v-b-tooltip.hover
+            v-b-tooltip:hover="'Linked via LTI'"
             class="info align-middle mr-1"
-            title="Linked via LTI"
         >
             LTI
         </b-badge>
         <b-badge
             v-if="!assignment.is_published"
-            v-b-tooltip.hover
+            v-b-tooltip:hover="'Not visible to students: click to edit'"
             class="align-middle"
-            title="Not visible to students:
-            click to edit"
         >
             Unpublished
         </b-badge>

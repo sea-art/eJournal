@@ -282,7 +282,7 @@
                             class="shift-deadlines-input"
                         >
                             <icon
-                                v-b-tooltip.hover="'All journals created will be numbered sequentially'"
+                                v-b-tooltip:hover="'All journals created will be numbered sequentially'"
                                 name="info-circle"
                             />
                             Repeat
@@ -466,9 +466,10 @@ export default {
                 const participant = results[2]
 
                 /* If the group filter has not been set, set it to the
-                   group of the user provided that yields journals. */
+                   groups of the user provided that yields journals. */
                 if (!this.getSelfSetGroupFilter && participant && participant.groups) {
-                    this.setJournalGroupFilter(participant.groups)
+                    this.setJournalGroupFilter(participant.groups.filter(
+                        participantGroup => this.groups.some(group => group.id === participantGroup.id)))
                 }
 
                 /* If there are no groups or the current group filter yields no journals, remove the filter. */

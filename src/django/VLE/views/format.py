@@ -85,8 +85,9 @@ class FormatView(viewsets.ViewSet):
                 req_data[key] = None
 
         # Update the assignment details
-        assigned_groups = req_data.get('assigned_groups', [])
+        assigned_groups = req_data.pop('assigned_groups', [])
         if len(assigned_groups) > 0:
+            assignment.assigned_groups.set([])
             for group in assigned_groups:
                 assignment.assigned_groups.add(Group.objects.get(pk=group['id']))
         else:

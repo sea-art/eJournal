@@ -32,7 +32,7 @@ def _send_deadline_mail(deadline, journal):
         email = EmailMultiAlternatives(
             subject='Upcoming deadline in {}'.format(assignment.name),
             body=text_content,
-            from_email='noreply@{}'.format(settings.EMAIL_SENDER_DOMAIN),
+            from_email='eJournal | Noreply<noreply@{}>'.format(settings.EMAIL_SENDER_DOMAIN),
             headers={'Content-Type': 'text/plain'},
             to=[author.user.email]
         )

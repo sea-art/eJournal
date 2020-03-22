@@ -28,22 +28,26 @@
                         Start date
                         <tooltip tip="Start date of the course"/>
                     </h2>
-                    <flat-pickr
-                        v-model="form.startdate"
-                        class="multi-form full-width"
-                        :config="startDateConfig"
-                    />
+                    <reset-wrapper v-model="form.startdate">
+                        <flat-pickr
+                            v-model="form.startdate"
+                            class="multi-form full-width"
+                            :config="startDateConfig"
+                        />
+                    </reset-wrapper>
                 </b-col>
                 <b-col cols="6">
                     <h2 class="theme-h2 field-heading">
                         End date
                         <tooltip tip="End date of the course"/>
                     </h2>
-                    <flat-pickr
-                        v-model="form.enddate"
-                        class="multi-form full-width"
-                        :config="endDateConfig"
-                    />
+                    <reset-wrapper v-model="form.enddate">
+                        <flat-pickr
+                            v-model="form.enddate"
+                            class="multi-form full-width"
+                            :config="endDateConfig"
+                        />
+                    </reset-wrapper>
                 </b-col>
             </b-row>
             <b-button
@@ -96,7 +100,7 @@ export default {
         },
         endDateConfig () {
             const additionalConfig = {}
-            if (this.form.starttdate) {
+            if (this.form.startdate) {
                 additionalConfig.minDate = new Date(this.form.startdate)
             }
             return Object.assign({}, additionalConfig, this.$root.flatPickrConfig)

@@ -774,8 +774,10 @@ class AssignmentAPITest(TestCase):
         assert t1.user.pk not in ids, 'check if teacher is not in response'
         assert t2.pk not in ids, 'check if author of assignment is not in response'
 
-    def test_bonus(self):
-        def test_bonus(content, status=200, user=self.teacher):
+    def test_bonus_helper(self):
+        def test_bonus_helper(content, status=200, user=self.teacher, delimiter=','):
+            if delimiter != ',':
+                content = content.replace(',', delimiter)
             BOUNDARY = 'BoUnDaRyStRiNg'
             MULTIPART_CONTENT = 'multipart/form-data; boundary=%s' % BOUNDARY
             bonus_file = SimpleUploadedFile('bonus.csv', str.encode(content), content_type='text/csv')
@@ -788,38 +790,47 @@ class AssignmentAPITest(TestCase):
         assignment = journal.assignment
         student_bonus = journal.authors.first().user
 
-        resp = test_bonus('{},2\n{},3'.format(student_bonus.username, assignment.author.username), status=400)
-        assert 'non_participants' in resp and len(resp['non_participants']) == 1, \
-            'Teacher should not be able to get bonus points'
+        for d in [',', ';']:
+            resp = test_bonus_helper(
+                '{},2\n{},3'.format(student_bonus.username, assignment.author.username), status=400, delimiter=d)
+            assert 'non_participants' in resp and len(resp['non_participants']) == 1, \
+                'Teacher should not be able to get bonus points'
 
-        resp = test_bonus('{},2\n{},,3'.format(student_bonus.username, assignment.author.username), status=400)
+            resp = test_bonus_helper(
+                '{},2\n{},3'.format(student_bonus.username, student_bonus.username), status=400, delimiter=d)
+            assert 'duplicates' in resp and len(resp['duplicates']) == 1, \
+                'Duplicates should not be able to work, even with different numbers'
+
+            resp = test_bonus_helper(
+                '{},2\n{},3'.format(student_bonus.username, factory.Student().username), status=400, delimiter=d)
+            assert 'non_participants' in resp and len(resp['non_participants']) == 1, \
+                'Users that are not participating should not be able to get bonus points'
+
+            resp = test_bonus_helper(
+                '{},2\n{},3'.format(student_bonus.username, 'non_exiting_student_hgfdswjhgq'), status=400, delimiter=d)
+            assert 'unknown_users' in resp and len(resp['unknown_users']) == 1, \
+                'Users that are not registerd should not be able to get bonus points'
+
+            resp = test_bonus_helper(
+                '{},2\n{},3\n{},4\n{},5\n{},3\nasdf,asdf'.format(
+                    student_bonus.username, 'non_exiting_student_hgfdswjhgq', factory.Student().username,
+                    assignment.author.username, student_bonus.username), status=400, delimiter=d)
+            assert 'unknown_users' in resp and 'non_participants' in resp and 'duplicates' in resp and \
+                'incorrect_format_lines' in resp, \
+                'Multiple errors should be returned at once'
+
+            test_bonus_helper(
+                '{},2'.format(student_bonus.username), status=200, delimiter=d)
+            assert Journal.objects.get(pk=journal.pk).get_grade() == 2 + journal.get_grade(), \
+                'Bonus points should be added'
+
+        # With ; this would return 2 lines as it cannot find the correct delimiter, therefor this test is only once
+        resp = test_bonus_helper(
+            '{},2\n{},,3'.format(student_bonus.username, assignment.author.username), status=400)
         assert 'incorrect_format_lines' in resp and len(resp['incorrect_format_lines']) == 1, \
             'Incorrect formatted lines should return error'
 
-        resp = test_bonus('{},2\n{},3'.format(student_bonus.username, student_bonus.username), status=400)
-        assert 'duplicates' in resp and len(resp['duplicates']) == 1, \
-            'Duplicates should not be able to work, even with different numbers'
-
-        resp = test_bonus('{},2\n{},3'.format(student_bonus.username, factory.Student().username), status=400)
-        assert 'non_participants' in resp and len(resp['non_participants']) == 1, \
-            'Users that are not participating should not be able to get bonus points'
-
-        resp = test_bonus('{},2\n{},3'.format(student_bonus.username, 'non_exiting_student_hgfdswjhgq'), status=400)
-        assert 'unknown_users' in resp and len(resp['unknown_users']) == 1, \
-            'Users that are not registerd should not be able to get bonus points'
-
-        resp = test_bonus('{},2\n{},3\n{},4\n{},5\n{},3\n,,,'.format(
-            student_bonus.username, 'non_exiting_student_hgfdswjhgq', factory.Student().username,
-            assignment.author.username, student_bonus.username), status=400)
-        assert 'unknown_users' in resp and 'non_participants' in resp and 'duplicates' in resp and \
-            'incorrect_format_lines' in resp, \
-            'Multiple errors should be returned at once'
-
-        test_bonus('{},2'.format(student_bonus.username), status=200)
-        assert Journal.objects.get(pk=journal.pk).get_grade() == 2 + journal.get_grade(), \
-            'Bonus points should be added'
-
         # Non related teachers should not be able to update the bonus points
-        test_bonus('{},2'.format(student_bonus.username), user=factory.Teacher(), status=403)
+        test_bonus_helper('{},2'.format(student_bonus.username), user=factory.Teacher(), status=403)
         # Nor should students
-        test_bonus('{},2'.format(student_bonus.username), user=student_bonus, status=403)
+        test_bonus_helper('{},2'.format(student_bonus.username), user=student_bonus, status=403)

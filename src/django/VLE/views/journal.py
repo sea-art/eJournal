@@ -3,14 +3,17 @@ journal.py.
 
 In this file are all the journal api requests.
 """
+from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.utils.generic_utils as utils
 import VLE.utils.grading as grading
 import VLE.utils.responses as response
-from VLE.models import Assignment, AssignmentParticipation, Course, Journal, User
+import VLE.validators as validators
+from VLE.models import Assignment, AssignmentParticipation, Course, FileContext, Journal, User
 from VLE.serializers import JournalSerializer
+from VLE.utils import file_handling
 
 
 class JournalView(viewsets.ViewSet):
@@ -53,7 +56,8 @@ class JournalView(viewsets.ViewSet):
 
         users = course.participation_set.filter(role__can_have_journal=True).values('user')
         journals = JournalSerializer(
-            Journal.objects.filter(assignment=assignment, authors__user__in=users).distinct().order_by('pk'),
+            Journal.objects.filter(assignment=assignment).filter(
+                Q(authors__user__in=users) | Q(authors__isnull=True)).distinct().order_by('pk'),
             many=True,
             context={
                 'user': request.user,
@@ -203,8 +207,20 @@ class JournalView(viewsets.ViewSet):
                 if not request.user.has_permission('can_manage_journals', journal.assignment):
                     if not journal.assignment.can_set_journal_image:
                         return response.forbidden('You are not allowed to change the journal image.')
-                journal.image = image
+
+                content_file = utils.base64ToContentFile(image, 'profile_picture')
+                validators.validate_user_file(content_file, request.user)
+                file = FileContext.objects.create(
+                    file=content_file,
+                    file_name=content_file.name,
+                    author=request.user,
+                    journal=journal,
+                    is_temp=False,
+                    in_rich_text=True,
+                )
+                journal.image = file.download_url(access_id=True)
                 journal.save()
+                file_handling.remove_unused_user_files(request.user)
             # Update author_limit if allowed
             if author_limit is not None:
                 if not request.user.has_permission('can_manage_journals', journal.assignment):

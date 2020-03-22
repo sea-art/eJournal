@@ -12,9 +12,8 @@
             />
             <b-button
                 v-if="assignmentDetails.is_published"
-                v-b-tooltip.hover
+                v-b-tooltip:hover="'This assignment is visible to students'"
                 class="add-button multi-form ml-2"
-                title="This assignment is visible to students"
                 @click="assignmentDetails.is_published = false"
             >
                 <icon name="check"/>
@@ -22,9 +21,9 @@
             </b-button>
             <b-button
                 v-if="!assignmentDetails.is_published"
-                v-b-tooltip.hover
+                v-b-tooltip:hover="'This assignment is not visible to students'"
+
                 class="delete-button multi-form ml-2"
-                title="This assignment is not visible to students"
                 @click="assignmentDetails.is_published = true"
             >
                 <icon name="times"/>
@@ -37,6 +36,7 @@
         <text-editor
             :id="`text-editor-assignment-edit-description-${assignmentDetails.id}`"
             :key="`text-editor-assignment-edit-description-${assignmentDetails.id}`"
+            ref="text-editor-assignment-edit-description"
             v-model="assignmentDetails.description"
             :footer="false"
             class="multi-form"
@@ -57,35 +57,41 @@
             min="0"
             required
         />
-        <h2 class="theme-h2 field-heading">
-            Assign to
-            <tooltip
-                tip="Assign the assignment only to specific course groups"
+        <template
+            v-if="assignmentDetails.id && assignmentDetails.all_groups"
+        >
+            <h2 class="theme-h2 field-heading">
+                Assign to
+                <tooltip
+                    tip="This setting determines for which course groups the assignment is visible"
+                />
+            </h2>
+            <theme-select
+                v-model="assignmentDetails.assigned_groups"
+                label="name"
+                trackBy="id"
+                :options="assignmentDetails.all_groups !== undefined ? assignmentDetails.all_groups : []"
+                :multiple="true"
+                :searchable="true"
+                :multiSelectText="`group${assignmentDetails.assigned_groups &&
+                    assignmentDetails.assigned_groups.length === 1 ? '' : 's'} assigned`"
+                placeholder="Everyone"
+                class="multi-form mr-2"
             />
-        </h2>
-        <theme-select
-            v-model="assignmentDetails.assigned_groups"
-            label="name"
-            trackBy="id"
-            :options="assignmentDetails.all_groups !== undefined ? assignmentDetails.all_groups : []"
-            :multiple="true"
-            :searchable="true"
-            :multiSelectText="`assigned to group${assignmentDetails.assigned_groups &&
-                assignmentDetails.assigned_groups.length === 1 ? '' : 's'}`"
-            placeholder="Everyone"
-            class="multi-form mr-2"
-        />
+        </template>
         <b-row class="multi-form">
             <b-col xl="4">
                 <h2 class="theme-h2 field-heading">
                     Unlock date
                     <tooltip tip="Students will be able to work on the assignment from this date onwards"/>
                 </h2>
-                <flat-pickr
-                    v-model="assignmentDetails.unlock_date"
-                    class="multi-form"
-                    :config="unlockDateConfig"
-                />
+                <reset-wrapper v-model="assignmentDetails.unlock_date">
+                    <flat-pickr
+                        v-model="assignmentDetails.unlock_date"
+                        class="multi-form"
+                        :config="unlockDateConfig"
+                    />
+                </reset-wrapper>
             </b-col>
             <b-col xl="4">
                 <h2 class="theme-h2 field-heading">
@@ -95,22 +101,26 @@
                         can still be added until the lock date"
                     />
                 </h2>
-                <flat-pickr
-                    v-model="assignmentDetails.due_date"
-                    class="multi-form"
-                    :config="dueDateConfig"
-                />
+                <reset-wrapper v-model="assignmentDetails.due_date">
+                    <flat-pickr
+                        v-model="assignmentDetails.due_date"
+                        class="multi-form"
+                        :config="dueDateConfig"
+                    />
+                </reset-wrapper>
             </b-col>
             <b-col xl="4">
                 <h2 class="theme-h2 field-heading">
                     Lock date
                     <tooltip tip="No more entries can be added after this date"/>
                 </h2>
-                <flat-pickr
-                    v-model="assignmentDetails.lock_date"
-                    class="multi-form"
-                    :config="lockDateConfig"
-                />
+                <reset-wrapper v-model="assignmentDetails.lock_date">
+                    <flat-pickr
+                        v-model="assignmentDetails.lock_date"
+                        class="multi-form"
+                        :config="lockDateConfig"
+                    />
+                </reset-wrapper>
             </b-col>
         </b-row>
         <b-card

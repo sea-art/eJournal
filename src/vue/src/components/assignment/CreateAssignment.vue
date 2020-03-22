@@ -121,6 +121,8 @@ export default {
             /* Reset form values */
             this.form.name = ''
             this.form.description = ''
+            /* Due to defensive programming, resetting the rich text content does not work directly */
+            this.$refs.assignmentDetails.$refs['text-editor-assignment-edit-description'].clearContent()
             this.form.course_id = ''
             this.form.points_possible = null
             this.form.unlock_date = null

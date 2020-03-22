@@ -32,9 +32,9 @@ export default {
             if (this.$root.previousPage === null || this.$root.previousPage.name === null
                 || routerConstraints.PERMISSIONLESS_CONTENT.has(this.$root.previousPage.name)) {
                 this.$router.push({ name: 'Home' })
+            } else {
+                this.$router.push({ name: this.$root.previousPage.name, params: this.$root.previousPage.params })
             }
-
-            this.$router.push({ name: this.$root.previousPage.name, params: this.$root.previousPage.params })
         },
     },
 }

@@ -2,12 +2,12 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 
-import connection from './modules/connection'
-import content from './modules/content'
-import permissions from './modules/permissions'
-import preferences from './modules/preferences'
-import sentry from './modules/sentry'
-import user from './modules/user'
+import connection from './modules/connection.js'
+import content from './modules/content.js'
+import permissions from './modules/permissions.js'
+import preferences from './modules/preferences.js'
+import sentry from './modules/sentry.js'
+import user from './modules/user.js'
 
 Vue.use(Vuex)
 

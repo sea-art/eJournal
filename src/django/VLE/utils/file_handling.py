@@ -105,14 +105,14 @@ def establish_file(author, identifier, course=None, assignment=None, journal=Non
     new_path = os.path.join(settings.MEDIA_ROOT, file_context.file.name)
 
     # Prevent potential name clash on filesystem
-    while os.path.exists(new_path):
+    while os.path.exists(str(new_path)):
         p = pathlib.Path(new_path)
         random_file_name = '{}-{}{}'.format(p.stem, uuid.uuid4(), p.suffix)
         file_context.file.name = str(pathlib.Path(file_context.file.name).with_name(random_file_name))
         new_path = p.with_name(random_file_name)
 
     os.makedirs(new_folder, exist_ok=True)
-    os.rename(initial_path, new_path)
+    os.rename(initial_path, str(new_path))
 
     file_context.save()
 
@@ -125,16 +125,14 @@ def establish_file(author, identifier, course=None, assignment=None, journal=Non
 
 def get_files_from_rich_text(rich_text):
     re_access_ids = re.compile(r'\/files\/[0-9]+\?access_id=([a-zA-Z0-9]+)')
-    return [VLE.models.FileContext.objects.get(access_id=access_id)
-            for access_id in re.findall(re_access_ids, rich_text)]
+    return VLE.models.FileContext.objects.filter(access_id__in=re.findall(re_access_ids, rich_text), is_temp=True)
 
 
 def establish_rich_text(author, rich_text, course=None, assignment=None, journal=None, comment=None, content=None):
     if rich_text is None or len(rich_text) < 128:
         return
     for file in get_files_from_rich_text(rich_text):
-        if file.is_temp:
-            establish_file(author, file.access_id, course, assignment, journal, content, comment, in_rich_text=True)
+        establish_file(author, file.access_id, course, assignment, journal, content, comment, in_rich_text=True)
 
 
 def remove_unused_user_files(user):
@@ -154,6 +152,16 @@ def remove_unused_user_files(user):
     for file in VLE.models.FileContext.objects.filter(author=user, comment__isnull=False):
         # Check if url is not in comment anymore
         if not file.comment.text or str(file.access_id) not in file.comment.text:
+            file.delete()
+    for file in VLE.models.FileContext.objects.filter(
+       author=user, journal__isnull=False, comment__isnull=True, content__isnull=True):
+        # Check if url is not the journal image anymore
+        if not file.journal.image or str(file.access_id) not in file.journal.image:
+            file.delete()
+    for file in VLE.models.FileContext.objects.filter(
+       author=user, course__isnull=True, assignment__isnull=True, journal__isnull=True):
+        # Check if url is not the profile picture
+        if not file.author.profile_picture or str(file.access_id) not in file.author.profile_picture:
             file.delete()
     for file in VLE.models.FileContext.objects.filter(author=user, assignment__isnull=False, journal__isnull=True):
         # Check if url is not in assignment anymore

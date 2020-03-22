@@ -14,6 +14,7 @@ The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 */
 
+/* eslint-disable import/extensions */
 import 'vue-awesome/icons/eye'
 import 'vue-awesome/icons/eye-slash'
 import 'vue-awesome/icons/caret-up'
@@ -79,6 +80,7 @@ import 'vue-awesome/icons/bug'
 import 'vue-awesome/icons/book'
 import 'vue-awesome/icons/desktop'
 import 'vue-awesome/icons/play'
+/* eslint-enable import/extensions */
 
 import Icon from 'vue-awesome/components/Icon.vue'
 

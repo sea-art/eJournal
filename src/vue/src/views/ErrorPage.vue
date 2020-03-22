@@ -2,7 +2,7 @@
     <content-single-column>
         <h1 class="theme-h1 mb-2">
             <span>
-                Error {{ code }}: <span class="text-dark-grey">{{ reasonPhrase }}</span>
+                Error {{ code }}: {{ reasonPhrase }}
             </span>
         </h1>
         <b-card

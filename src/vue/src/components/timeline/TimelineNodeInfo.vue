@@ -14,18 +14,16 @@
         >
             <icon
                 v-if="new Date(nodeDate) > new Date()"
-                v-b-tooltip.hover
+                v-b-tooltip:hover="'Upcoming deadline'"
                 :name="nodeIcon"
                 class="mb-1 mr-1"
-                title="Upcoming deadline"
             />
             {{ nodeTitle }}
         </span>
 
         <span
             v-if="nodeDate"
-            v-b-tooltip.hover
-            :title="deadlineRange"
+            v-b-tooltip:hover="deadlineRange"
             class="node-date"
         >
             {{ $root.beautifyDate(nodeDate) }}
@@ -47,6 +45,8 @@ export default {
                 return 'Progress goal'
             case 'n':
                 return 'End of assignment'
+            case 's':
+                return 'Assignment details'
             default:
                 return null
             }

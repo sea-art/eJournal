@@ -6,11 +6,9 @@ export default {
         filteredJournals: [],
     },
     setCachedMap (cachedMap) {
-        if (this.debug) { console.log('setCachedMap triggered with', cachedMap) }
         this.state.cachedMap = cachedMap
     },
     setFilteredJournals (journals, order = true, groups = null, searchValue = null, sortBy = 'name') {
-        if (this.debug) { console.log('setFilteredJournals triggered with', journals) }
         function compare (a, b) {
             if (a < b) { return order ? 1 : -1 }
             if (a > b) { return order ? -1 : 1 }

@@ -29,9 +29,7 @@ class FileView(viewsets.ViewSet):
         elif file.assignment:
             request.user.check_can_view(file.assignment)
         else:
-            if not (request.user == file.author or
-                    request.user.is_supervisor_of(file.author) or
-                    file.author.is_supervisor_of(request.user)):
+            if not request.user.can_view(file.author):
                 return response.forbidden('You are not allowed to view this file')
 
         return response.file(file, file.file_name)

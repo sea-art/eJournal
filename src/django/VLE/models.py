@@ -274,6 +274,8 @@ class User(AbstractUser):
                 return True
             if permissions.is_user_supervisor_of(self, obj):
                 return True
+            if permissions.is_user_supervisor_of(obj, self):
+                return True
             if Journal.objects.filter(authors__user__in=[self]).filter(authors__user__in=[obj]).exists():
                 return True
 
@@ -1012,9 +1014,10 @@ class Journal(models.Model):
         + 'eJournal from an updated LMS connection.'
 
     def get_grade(self):
-        return self.bonus_points + (self.node_set.filter(entry__grade__published=True)
-                                    .values('entry__grade__grade')
-                                    .aggregate(Sum('entry__grade__grade'))['entry__grade__grade__sum'] or 0)
+        return round(self.bonus_points + (
+            self.node_set.filter(entry__grade__published=True)
+            .values('entry__grade__grade')
+            .aggregate(Sum('entry__grade__grade'))['entry__grade__grade__sum'] or 0), 2)
 
     def needs_lti_link(self):
         return any(author.needs_lti_link() for author in self.authors.all())

@@ -15,12 +15,13 @@ import VueIntro from 'vue-introjs'
 import Icon from 'vue-awesome/components/Icon.vue'
 import VueMoment from 'vue-moment'
 
-import App from './App.vue'
-import router from './router'
-import store from './store'
-import ThemeSelect from './components/assets/ThemeSelect.vue'
-
 import connection from '@/api/connection.js'
+
+import ResetWrapper from '@/components/assets/ResetWrapper.vue'
+import App from './App.vue'
+import router from './router/index.js'
+import store from './store/index.js'
+import ThemeSelect from './components/assets/ThemeSelect.vue'
 
 Vue.config.productionTip = false
 Vue.use(Toasted, {
@@ -34,6 +35,7 @@ Vue.use(VueMoment)
 
 Vue.component('icon', Icon)
 Vue.component('theme-select', ThemeSelect)
+Vue.component('reset-wrapper', ResetWrapper)
 
 initSentry(Vue)
 
@@ -81,12 +83,14 @@ new Vue({
             altInput: true,
             altFormat: 'D d M Y H:i',
             dateFormat: 'Y-m-dTH:i:S',
+            disableMobile: true,
         },
         flatPickrConfig: {
             enableTime: false,
             altInput: true,
             altFormat: 'D d M Y',
             dateFormat: 'Y-m-d',
+            disableMobile: true,
         },
     },
     computed: {
@@ -146,7 +150,7 @@ new Vue({
             }
 
             if (this.$hasPermission('can_view_all_journals', 'assignment', assignment.id)) {
-                if (!assignment.is_published) { // Teacher not published route
+                if (!assignment.is_published && !assignment.is_group_assignment) { // Teacher not published route
                     route.name = 'FormatEdit'
                 } else { // Teacher published route
                     route.name = 'Assignment'

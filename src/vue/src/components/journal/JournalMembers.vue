@@ -3,9 +3,7 @@
         <div class="members-header">
             <div @click="lockJournal">
                 <icon
-                    v-b-tooltip.hover
-                    class="lock-members-icon fill-grey"
-                    :title="`Journal members are ${ journal.locked ? '' : 'not ' }locked, this journal can`
+                    v-b-tooltip:hover="`Journal members are ${ journal.locked ? '' : 'not ' }locked, this journal can`
                         + `${ journal.locked ? 'not' : '' } be joined or left${ (assignment.can_lock_journal
                             || $hasPermission('can_manage_journals')) ? ': click to toggle' : ''}`"
                     :name="journal.locked ? 'lock' : 'unlock'"
@@ -15,6 +13,7 @@
                         'trash-icon': journal.locked && (assignment.can_lock_journal
                             || $hasPermission('can_manage_journals'))
                     }"
+                    class="lock-members-icon fill-grey"
                 />
             </div>
             <b class="member-count">
@@ -39,16 +38,15 @@
                 @click="$hasPermission('can_manage_journals') ? kickFromJournal(author.user) : leaveJournal()"
             >
                 <icon
-                    name="sign-out"
+                    name="sign-out-alt"
                     class="trash-icon"
                 />
             </div>
             <b class="max-one-line">
                 <b-badge
                     v-if="author.needs_lti_link"
-                    v-b-tooltip.hover
+                    v-b-tooltip:hover="'This user has not yet visited the assignment in the LMS (Canvas) yet'"
                     class="background-red"
-                    title="This user has not yet visited the assignment in the LMS (Canvas) yet"
                 >
                     LTI
                     <icon

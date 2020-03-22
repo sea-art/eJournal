@@ -58,7 +58,7 @@ export default {
             case 'add':
                 return 'plus'
             case 'start':
-                return 'flag'
+                return 'info-circle'
             case 'end':
                 return 'flag-checkered'
             default:

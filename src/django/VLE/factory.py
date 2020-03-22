@@ -333,7 +333,7 @@ def make_role_ta(name, course):
     """Make a default teacher assitant role."""
     return make_role_default_no_perms(name, course, can_view_course_users=True, can_edit_course_user_group=True,
                                       can_view_all_journals=True, can_grade=True, can_publish_grades=True,
-                                      can_comment=True, can_view_unpublished_assignment=True)
+                                      can_comment=True, can_view_unpublished_assignment=True, can_manage_journals=True)
 
 
 def make_role_observer(name, course):

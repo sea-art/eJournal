@@ -1,6 +1,6 @@
 @import '~sass/partials/shadows.sass'
 
-.btn
+.btn, .btn-secondary
     @extend .shadow
     border: 1px solid $theme-dark-grey !important
     position: relative
@@ -18,7 +18,7 @@
         color: $theme-dark-blue
     svg
         margin: 5px
-    &:hover:not(.no-hover), &.active
+    &:hover:not(.no-hover), &.active, &:focus
         background-color: $theme-blue !important
         border-color: $theme-blue !important
         &, svg
@@ -42,34 +42,29 @@
         @include sm-max
             width: 100%
 
-.add-card
-    opacity: 0.5
-    &:hover:not(.no-hover), &.active
-        opacity: 1
-
 .add-button
     svg
         color: $theme-green !important
-    &:hover:not(.no-hover), &.active, &.fab
+    &:hover:not(.no-hover), &.active, &.fab, &:focus
         background-color: $theme-green !important
         border-color: $theme-green !important
 
 .delete-button
     svg
         color: $theme-red !important
-    &:hover:not(.no-hover), &.active, &.fab
+    &:hover:not(.no-hover), &.active, &.fab, &:focus
         background-color: $theme-red !important
         border-color: $theme-red !important
 
 .change-button
     svg
         color: $theme-orange !important
-    &:hover:not(.no-hover), &.active, &.fab
+    &:hover:not(.no-hover), &.active, &.fab, &:focus
         background-color: $theme-orange !important
         border-color: $theme-orange !important
 
 .dark-blue-button
-    &:hover:not(.no-hover), &.active, &.fab
+    &:hover:not(.no-hover), &.active, &.fab, &:focus
         background-color: $theme-dark-blue !important
         border-color: $theme-dark-blue !important
 

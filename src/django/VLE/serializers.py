@@ -3,6 +3,7 @@ Serializers.
 
 Functions to convert certain data to other formats.
 """
+from django.conf import settings
 from django.db.models import Min, Q
 from django.utils import timezone
 from rest_framework import serializers
@@ -56,10 +57,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_profile_picture(self, user):
         if 'user' not in self.context or not self.context['user']:
-            return None
+            return settings.DEFAULT_PROFILE_PICTURE
 
         if not self.context['user'].can_view(user):
-            return None
+            return settings.DEFAULT_PROFILE_PICTURE
 
         return user.profile_picture
 
@@ -344,7 +345,8 @@ class AssignmentSerializer(serializers.ModelSerializer):
             course = self.context['course']
             users = course.participation_set.filter(role__can_have_journal=True).values('user')
             return JournalSerializer(
-                journals.filter(authors__user__in=users).distinct(), many=True, context=self.context).data
+                journals.filter(Q(authors__user__in=users) | Q(authors__isnull=True)).distinct(), many=True,
+                context=self.context).data
         else:
             return None
 
@@ -435,10 +437,12 @@ class NodeSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
     last_edited_by = serializers.SerializerMethodField()
+    can_edit = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ('id', 'entry', 'author', 'text', 'published', 'creation_date', 'last_edited', 'last_edited_by')
+        fields = ('id', 'entry', 'author', 'text', 'published', 'creation_date', 'last_edited', 'last_edited_by',
+                  'can_edit')
         read_only_fields = ('id', 'entry', 'author', 'timestamp')
 
     def get_author(self, comment):
@@ -446,6 +450,13 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_last_edited_by(self, comment):
         return None if not comment.last_edited_by else comment.last_edited_by.full_name
+
+    def get_can_edit(self, comment):
+        user = self.context.get('user', None)
+        if not user:
+            return False
+
+        return comment.can_edit(user)
 
 
 class RoleSerializer(serializers.ModelSerializer):

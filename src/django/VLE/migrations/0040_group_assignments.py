@@ -45,6 +45,17 @@ def add_p_tag(apps, schema_editor):
         node.save()
 
 
+def add_manage_journal_permission(apps, schema_editor):
+    Role = apps.get_model('VLE', 'Role')
+    for role in Role.objects.filter(name='Teacher'):
+        role.can_manage_journals = True
+        role.save()
+
+    for role in Role.objects.filter(name='TA'):
+        role.can_manage_journals = True
+        role.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -151,4 +162,5 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(set_journal_grade),
         migrations.RunPython(add_p_tag),
+        migrations.RunPython(add_manage_journal_permission),
     ]

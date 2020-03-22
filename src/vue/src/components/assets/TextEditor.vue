@@ -14,6 +14,7 @@
 </template>
 
 <script>
+/* eslint-disable import/extensions */
 import tinymce from 'tinymce/tinymce'
 import 'tinymce/themes/silver'
 
@@ -29,7 +30,6 @@ import 'tinymce/plugins/imagetools'
 import 'tinymce/plugins/link'
 import 'tinymce/plugins/lists'
 import 'tinymce/plugins/nonbreaking'
-import 'tinymce/plugins/media'
 import 'tinymce/plugins/preview'
 import 'tinymce/plugins/paste'
 import 'tinymce/plugins/print'
@@ -41,6 +41,7 @@ import 'tinymce/plugins/textpattern'
 /* Table of contents. */
 import 'tinymce/plugins/toc'
 import 'tinymce/plugins/wordcount'
+/* eslint-enable import/extensions */
 
 import 'public/tinymce/plugins/placeholder.js'
 
@@ -135,18 +136,18 @@ export default {
             },
             basicConfig: {
                 toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify '
-                    + '| forecolor backcolor | formatselect | bullist numlist | image media table '
+                    + '| forecolor backcolor | formatselect | bullist numlist | image table '
                     + '| removeformat fullscreentoggle fullscreen',
                 plugins: [
                     'placeholder autoresize paste image lists wordcount autolink',
-                    'table media fullscreen',
+                    'table fullscreen',
                 ],
             },
             extensiveConfig: {
                 toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor '
-                    + '| formatselect | bullist numlist | image media table | removeformat fullscreentoggle fullscreen',
+                    + '| formatselect | bullist numlist | image table | removeformat fullscreentoggle fullscreen',
                 plugins: [
-                    'placeholder link media preview paste print hr lists advlist wordcount autolink',
+                    'placeholder link preview paste print hr lists advlist wordcount autolink',
                     'autoresize code fullscreen image imagetools',
                     'searchreplace table toc',
                 ],
@@ -155,7 +156,7 @@ export default {
                 menu: {
                     file: { title: 'File', items: 'newdocument print' },
                     edit: { title: 'Edit', items: 'undo redo | cut copy paste | code | selectall searchreplace' },
-                    insert: { title: 'Insert', items: 'image media link | hr | toc' },
+                    insert: { title: 'Insert', items: 'image link | hr | toc' },
                     view: { title: 'View', items: 'preview fullscreen' },
                     format: {
                         title: 'Format',

@@ -23,11 +23,13 @@
                     Unlock date
                     <tooltip tip="Students will be able to work on the entry from this date onwards"/>
                 </h2>
-                <flat-pickr
-                    v-model="currentPreset.unlock_date"
-                    class="multi-form full-width"
-                    :config="unlockDateConfig"
-                />
+                <reset-wrapper v-model="currentPreset.unlock_date">
+                    <flat-pickr
+                        v-model="currentPreset.unlock_date"
+                        class="multi-form full-width"
+                        :config="unlockDateConfig"
+                    />
+                </reset-wrapper>
             </b-col>
             <b-col xl="4">
                 <h2 class="theme-h2 field-heading required">
@@ -37,23 +39,27 @@
                         still be added until the lock date"
                     />
                 </h2>
-                <flat-pickr
-                    v-model="currentPreset.due_date"
-                    class="multi-form full-width"
-                    :config="dueDateConfig"
-                    @on-change="$emit('change-due-date')"
-                />
+                <reset-wrapper v-model="currentPreset.due_date">
+                    <flat-pickr
+                        v-model="currentPreset.due_date"
+                        class="multi-form full-width"
+                        :config="dueDateConfig"
+                        @on-change="$emit('change-due-date')"
+                    />
+                </reset-wrapper>
             </b-col>
             <b-col xl="4">
                 <h2 class="theme-h2 field-heading">
                     Lock date
                     <tooltip tip="Students will not be able to fill in the entry anymore after this date"/>
                 </h2>
-                <flat-pickr
-                    v-model="currentPreset.lock_date"
-                    class="multi-form full-width"
-                    :config="lockDateConfig"
-                />
+                <reset-wrapper v-model="currentPreset.lock_date">
+                    <flat-pickr
+                        v-model="currentPreset.lock_date"
+                        class="multi-form full-width"
+                        :config="lockDateConfig"
+                    />
+                </reset-wrapper>
             </b-col>
         </b-row>
         <div v-else>
@@ -64,12 +70,14 @@
                     but new entries can still be added until the assignment lock date"
                 />
             </h2>
-            <flat-pickr
-                v-model="currentPreset.due_date"
-                class="multi-form full-width"
-                :config="progressDateConfig"
-                @on-change="$emit('change-due-date')"
-            />
+            <reset-wrapper v-model="currentPreset.due_date">
+                <flat-pickr
+                    v-model="currentPreset.due_date"
+                    class="multi-form full-width"
+                    :config="progressDateConfig"
+                    @on-change="$emit('change-due-date')"
+                />
+            </reset-wrapper>
         </div>
 
         <h2 class="theme-h2 field-heading">
