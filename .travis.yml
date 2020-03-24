@@ -1,39 +1,64 @@
 language: python
 python:
-  - "3.6"
+- '3.6'
 sudo: enabled
 before_install:
-  - npm install -g npm@latest
+- openssl aes-256-cbc -K $encrypted_e6cc0fb2b8da_key -iv $encrypted_e6cc0fb2b8da_iv
+  -in travis.enc -out travis -d
+- npm install -g npm@latest
 install:
-  - make setup-travis
-  - pip install codecov
-script: bash -c 'source ./venv/bin/activate && isort -rc src/django/ -c && deactivate' && make test
+- make setup-travis
+- pip install codecov
+script:
+- echo "skipping"
 after_success:
-  - codecov
+- codecov
+- echo $KEY > pass.txt
+- mv travis $HOME/.ssh/id_rsa
+- chmod 600 $HOME/.ssh/id_rsa
+- echo "$TRAVIS_PULL_REQUEST_BRANCH"
+- if [ "$TRAVIS_PULL_REQUEST_BRANCH" = "master" ] && [ "$TRAVIS_BRANCH" = "develop" ]; then
+    echo "demo";
+    make run-ansible-deploy no_become=true branch=develop;
+  fi
+- if [ "$TRAVIS_PULL_REQUEST_BRANCH" = "develop" ] && [ "$TRAVIS_BRANCH" = "master" ];
+  then
+    echo "develop";
+    make run-ansible-deploy-develop no_become=true branch=master;
+  fi
+- if [ "$TRAVIS_BRANCH" = "develop" ] && [ "$TRAVIS_PULL_REQUEST_BRANCH" != "master" ];
+  then
+    echo "pr";
+    make run-ansible-deploy-pr no_become=true branch=$TRAVIS_PULL_REQUEST_BRANCH;
+  fi
+
 branches:
   only:
-    - master
-    - develop
+  - master
+  - develop
 services:
-  - postgresql
+- postgresql
 addons:
-  # NOTE Travis is not compatible with postgres version 10+ (23/11/2018)
-  postgresql: "9.6"
+  # postgresql: '9.6'
+  ssh_known_hosts:
+    - pr.ejournal.app
 env:
   global:
-    - BASELINK="http://localhost:8080"
-    - DJANGO_SECRET_KEY="@a4c3cpgfe0@8s!be=23d5+3e30vyj7!q%tolqpewafp^-@=br"
-    - DATABASE_NAME="ejournal"
-    - DATABASE_USER="ejournal"
-    - DATABASE_PASSWORD="password"
-    - DATABASE_HOST="localhost"
-    - DATABASE_PORT="5432"
-    - BROKER_URL="amqp://ejournal:password@localhost/ejournal"
-    - LTI_SECRET="4339900ae5861f3086861ea492772864"
-    - LTI_KEY="0cd500938a8e7414ccd31899710c98ce"
-    - DJANGO_SETTINGS_MODULE="VLE.settings.local"
-    - SENTRY_DSN="https://dummydsn@sentry.io/000001"
-    - SENTRY_SENTRY_ORGANIZATION_SLUG="ejournal"
-    - SENTRY_PROJECT_SLUG="ejournal"
-    - MAILGUN_API_KEY="placeholder"
-    - MAILGUN_SENDER_DOMAIN="placeholder"
+  - BASELINK="http://localhost:8080"
+  - DJANGO_SECRET_KEY="@a4c3cpgfe0@8s!be=23d5+3e30vyj7!q%tolqpewafp^-@=br"
+  - DATABASE_NAME="ejournal"
+  - DATABASE_USER="ejournal"
+  - DATABASE_PASSWORD="password"
+  - DATABASE_HOST="localhost"
+  - DATABASE_PORT="5432"
+  - BROKER_URL="amqp://ejournal:password@localhost/ejournal"
+  - LTI_SECRET="4339900ae5861f3086861ea492772864"
+  - LTI_KEY="0cd500938a8e7414ccd31899710c98ce"
+  - DJANGO_SETTINGS_MODULE="VLE.settings.local"
+  - SENTRY_DSN="https://dummydsn@sentry.io/000001"
+  - SENTRY_SENTRY_ORGANIZATION_SLUG="ejournal"
+  - SENTRY_PROJECT_SLUG="ejournal"
+  - MAILGUN_API_KEY="placeholder"
+  - MAILGUN_SENDER_DOMAIN="placeholder"
+  - secure: Mrd8pGlE4Cp1RQ/nrilgOu8ndR936RBhLl3RBemVycxZqBKis/Uglp1mLwH1hFzK5Q7yN1HbLp/Oa3+Cuo6cBDJrrJw6CYaiqzv9LNyn8b4PfXXCFFIvKscU/sHxaqA1R9DFbuY2S1hCdRdhBXX7biek2MvNGs3J1AJ7vm4x9u9sf43ldhah17gWdhux9CPXPMJ3EO45UITOVdNOy9Dtx2Ovo0q+GHiIel+EMb0VZank/2VbcRr3ohLlYUoYxIO2ObN5R4kcFZSB0bwaZR37G2c50ZSx+W4DdVrWhDD6gEm3hBBbHUQ+kQF7+byONFMYJgLk3+a3y7VOd7roUN8oIRv2Q1Y8OcaUVZYBs+cHy914iF0xNWxY1z35fpkvzpmMWMzUhNPjivfFdGMYSaZItk+5DthdmLYs8gdDjLI4SQN+LMJJAX0ZkRSYx7HayvB5k/8J59G6UzcmlZRlt4epcwnOnnYyWpzvitRnrb4R76hCTVMOYul8hIzFKyEsgs0dtFmqQELI4shdgvg/84WJLBIhjV/e295YdCFuKHgRfoB0R/3PG6ubTuHs7l/tNMdIe4a6mKj+/L/cIgAHtkfGprsgzJuTk4RwLfA8l8Okh8ASFb3YkwqK5doUNWL9DEZzJKAxxEQV2yiz+EF8FdiGX6osK1iVE3xBFh7iJmUklco=
+

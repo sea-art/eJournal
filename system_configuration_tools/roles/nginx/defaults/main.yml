@@ -14,3 +14,4 @@ nginx_frontend_access_log_file: "{{ nginx_frontend_log_dir }}/access.log"
 nginx_frontend_error_log_file: "{{ nginx_frontend_log_dir }}/error.log"
 nginx_user: www-data
 nginx_group: www-data
+virtualenv_path: "/webapps/{{ application_name }}"

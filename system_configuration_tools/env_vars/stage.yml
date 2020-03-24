@@ -3,7 +3,6 @@
 # Git settings.
 setup_git_repo: true
 
-
 # Sentry settings
 sentry_dsn: !vault |
           $ANSIBLE_VAULT;1.1;AES256

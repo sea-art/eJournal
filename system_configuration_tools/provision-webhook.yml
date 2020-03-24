@@ -1,9 +1,9 @@
 ---
 
-- name: Provision the {{ application_name }} web server
-  hosts: demo
-  become: true
+- name: Provision the test {{ application_name }} web server
+  hosts: webhook-test
   become_user: root
+  become: true
   remote_user: "{{ server_user }}"
   vars:
     update_apt_cache: true
@@ -13,10 +13,8 @@
 
   roles:
     - base
-    - db
-    - certbot
-    - rabbitmq
-    - web
-    - celery
+    - webhook
     - nginx
+    - flask
     - security
+    # - certbot

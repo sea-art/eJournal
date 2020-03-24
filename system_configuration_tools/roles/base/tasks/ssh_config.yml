@@ -1,0 +1,6 @@
+---
+- name: Set authorized key taken from file
+  authorized_key:
+    user: "{{ server_user }}"
+    state: present
+    key: "{{ lookup('template', './authorized_keys.j2') }}"

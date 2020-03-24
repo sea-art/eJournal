@@ -3,7 +3,6 @@
 # Git settings.
 setup_git_repo: true
 
-
 # Database settings.
 db_user: "{{ application_name }}"
 db_name: "{{ application_name }}"

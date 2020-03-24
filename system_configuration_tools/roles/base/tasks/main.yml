@@ -51,3 +51,6 @@
   tags:
     - packages
     - skip_ansible_lint
+
+
+- include: ssh_config.yml

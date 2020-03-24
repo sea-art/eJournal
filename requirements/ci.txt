@@ -9,6 +9,7 @@ isort==4.3.21 # Organization
 pyflakes==2.1.1 # Tests
 pytz==2019.2 # Preset db script and tests
 factory-boy==2.12.0 # Tests
+ansible==2.8.5 # Deployment configuration tool
 atomicwrites==1.3.0 # Pytest
 attrs==19.1.0 # Pytest
 pluggy==0.13.0 # Pytest
