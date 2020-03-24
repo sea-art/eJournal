@@ -19,7 +19,7 @@ endif
 ifdef branch
 vars = --extra-vars '"'"'{"git_branch": "${branch}"}'"'"'
 else
-vars =
+vars = --extra-vars '"'"'{"git_branch": "develop"}'"'"'
 endif
 
 postgres_db = ejournal
