@@ -7,7 +7,7 @@ before_install:
   -in travis.enc -out travis -d
 - npm install -g npm@latest
 install:
-- make setup-travis
+- make setup
 - pip install codecov
 script:
 - echo "skipping"
