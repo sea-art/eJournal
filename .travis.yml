@@ -16,7 +16,7 @@ after_success:
 - echo $KEY > pass.txt
 - mv travis $HOME/.ssh/id_rsa
 - chmod 600 $HOME/.ssh/id_rsa
--
+- echo "$TRAVIS_BRANCH"
 - if [ "$TRAVIS_BRANCH" = "master" ];
   then
     make run-ansible-provision no_become=true branch=master;
