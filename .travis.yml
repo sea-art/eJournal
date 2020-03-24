@@ -17,13 +17,13 @@ after_success:
 - mv travis $HOME/.ssh/id_rsa
 - chmod 600 $HOME/.ssh/id_rsa
 - echo "$TRAVIS_PULL_REQUEST_BRANCH"
-- if [ "$TRAVIS_BRANCH" = "master" ];
+- if ["$TRAVIS_PULL_REQUEST_BRANCH" = "develop" ];
   then
-    echo "is master";
-    make run-ansible-provision no_become=true branch=master;
+    echo "is develop";
+    make run-ansible-deploy no_become=true branch=develop;
   else
-    echo "is not master";
-    make run-ansible-provision-test no_become=true branch=$TRAVIS_PULL_REQUEST_BRANCH;
+    echo "is not develop";
+    make run-ansible-deploy-pr no_become=true branch=$TRAVIS_PULL_REQUEST_BRANCH;
   fi
 
 branches:
