@@ -121,6 +121,10 @@ run-ansible-deploy:
 	bash -c 'source ./venv/bin/activate && \
 	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} ${vars} --tags "deploy_front,deploy_back"'
 
+# run-ansible-deploy-test:
+# 	bash -c 'source ./venv/bin/activate && \
+# 	ansible-playbook ./system_configuration_tools/test-servers.yml ${become} ${ansible_use} ${vars} --tags "deploy_front,deploy_back"'
+
 run-ansible-deploy-front:
 	bash -c 'source ./venv/bin/activate && \
 	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} ${vars} --tags "deploy_front"'

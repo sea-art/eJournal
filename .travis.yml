@@ -16,7 +16,13 @@ after_success:
 - echo $KEY > pass.txt
 - mv travis $HOME/.ssh/id_rsa
 - chmod 600 $HOME/.ssh/id_rsa
-- make run-ansible-deploy no_become=true branch=master
+- if [ "$TRAVIS_BRANCH" = "master" ];
+  then
+    make run-ansible-deploy no_become=true branch=master;
+  else
+    make run-ansible-deploy-test no_become=true branch=$TRAVIS_BRANCH;
+  fi
+
 branches:
   only:
   - master
