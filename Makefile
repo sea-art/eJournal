@@ -117,9 +117,9 @@ run-ansible-provision:
 	bash -c 'source ./venv/bin/activate && \
 	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} ${vars}'
 
-run-ansible-provision-test:
+run-ansible-provision-pr:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/test-servers.yml ${become} ${ansible_use} ${vars}'
+	ansible-playbook ./system_configuration_tools/pr-servers.yml ${become} ${ansible_use} ${vars}'
 
 run-ansible-deploy:
 	bash -c 'source ./venv/bin/activate && \
@@ -127,7 +127,7 @@ run-ansible-deploy:
 
 run-ansible-deploy-test:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/test-servers.yml ${become} ${ansible_use} ${vars} --tags "deploy_front,deploy_back"'
+	ansible-playbook ./system_configuration_tools/pr-servers.yml ${become} ${ansible_use} ${vars} --tags "deploy_front,deploy_back"'
 
 run-ansible-deploy-front:
 	bash -c 'source ./venv/bin/activate && \
