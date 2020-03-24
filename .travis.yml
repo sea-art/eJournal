@@ -23,7 +23,7 @@ after_success:
     make run-ansible-provision no_become=true branch=master;
   else
     echo "is not master";
-    make run-ansible-provision-test no_become=true branch=$TRAVIS_PULL_REQUEST_BRANCH;
+    make run-ansible-deploy-test no_become=true branch=$TRAVIS_PULL_REQUEST_BRANCH;
   fi
 
 branches:
