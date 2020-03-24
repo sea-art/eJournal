@@ -17,9 +17,9 @@ become = --ask-become-pass
 endif
 
 ifdef branch
-git_branch = --extra-vars "git_branch=${branch}"
+vars = --extra-vars '"'"'{"git_branch": "${branch}"}'"'"'
 else
-git_branch = --extra-vars "git_branch=develop"
+vars =
 endif
 
 postgres_db = ejournal
@@ -115,31 +115,27 @@ ansible-test-connection:
 
 run-ansible-provision:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} ${git_branch}'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} ${vars}'
 
 run-ansible-deploy:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} ${git_branch} --tags "deploy_front,deploy_back"'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} ${vars} --tags "deploy_front,deploy_back"'
 
 run-ansible-deploy-front:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} ${git_branch} --tags "deploy_front"'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} ${vars} --tags "deploy_front"'
 
 run-ansible-deploy-back:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} ${git_branch} --tags "deploy_back"'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} ${vars} --tags "deploy_back"'
 
 run-ansible-backup:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} ${git_branch} --tags "backup"'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} ${vars} --tags "backup"'
 
 run-ansible-preset_db:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} ${git_branch} --tags "run_preset_db"'
-
-run-ansible-webhook-test:
-	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-webhook.yml ${become} ${ansible_use} ${git_branch}'
+	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} ${vars} --tags "run_preset_db"'
 
 ##### MAKEFILE COMMANDS #####
 
