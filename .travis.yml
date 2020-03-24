@@ -27,7 +27,7 @@ after_success:
     echo "develop"
     make run-ansible-deploy-develop no_become=true branch=develop;
   fi
-- if [ "$TRAVIS_BRANCH" = "develop" && "$TRAVIS_PULL_REQUEST_BRANCH" != "master"];
+- if [ "$TRAVIS_BRANCH" = "develop" && "$TRAVIS_PULL_REQUEST_BRANCH" != "master" ];
   then
     echo "pr"
     make run-ansible-deploy-pr no_become=true branch=$TRAVIS_PULL_REQUEST_BRANCH;
