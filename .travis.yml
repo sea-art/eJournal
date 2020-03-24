@@ -16,7 +16,7 @@ after_success:
 - echo $KEY > pass.txt
 - mv travis $HOME/.ssh/id_rsa
 - chmod 600 $HOME/.ssh/id_rsa
-- make run-ansible-deploy no_become=true
+- make run-ansible-deploy no_become=true branch=master
 branches:
   only:
   - master

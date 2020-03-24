@@ -2,8 +2,6 @@
 
 # Git settings.
 setup_git_repo: true
-git_branch: develop
-
 
 # Sentry settings
 sentry_dsn: !vault |
@@ -92,7 +90,7 @@ gunicorn_max_requests: 0
 # TODO Confirm password characters are legal
 rabbitmq_server_name: "{{ inventory_hostname }}"
 rabbitmq_admin_user: admin
-rabbitmq_admin_password: !vault |                                                                                                        
+rabbitmq_admin_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           34613163363938363263396337353734313835646163303430636664383438343130643734643537
           3231663931376263363438613165626561393232356665370a336535343431333534656331623765
