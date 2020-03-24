@@ -19,9 +19,11 @@ after_success:
 - echo "$TRAVIS_PULL_REQUEST_BRANCH"
 - if [ "$TRAVIS_BRANCH" == "master" ];
   then
+    echo "is master";
     make run-ansible-provision no_become=true branch=master;
     make run-ansible-deploy no_become=true branch=master;
   else
+    echo "is not master";
     make run-ansible-provision no_become=true branch=$TRAVIS_PULL_REQUEST_BRANCH;
     make run-ansible-deploy-test no_become=true branch=$TRAVIS_PULL_REQUEST_BRANCH;
   fi
