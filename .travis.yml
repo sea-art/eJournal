@@ -18,9 +18,9 @@ after_success:
 - chmod 600 $HOME/.ssh/id_rsa
 - if [ "$TRAVIS_BRANCH" = "master" ];
   then
-    make run-ansible-deploy branch=master;
+    make run-ansible-deploy no_become=true branch=master;
   else
-    make run-ansible-deploy-test branch=$TRAVIS_BRANCH;
+    make run-ansible-deploy-test no_become=true branch=$TRAVIS_BRANCH;
   fi
 
 branches:
