@@ -2,7 +2,7 @@
     <content-single-column>
         <h1><span>Welcome to {{ name ? name : 'eJournal' }}</span></h1><br/>
         <h4 class="multi-form">
-            <span>Let's get started</span>
+            <span>Let's get started!</span>
         </h4>
         <login-form @handleAction="handleLoginSucces"/>
         <h4 class="multi-form mt-4">
