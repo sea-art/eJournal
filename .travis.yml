@@ -31,7 +31,6 @@ after_success:
     echo "pr";
     make run-ansible-deploy-pr no_become=true branch=$TRAVIS_PULL_REQUEST_BRANCH;
   fi
-
 branches:
   only:
   - master
