@@ -11,6 +11,7 @@
         <b-button
             v-if="!autoUpload"
             class="add-button multi-form float-right"
+            :class="{ 'input-disabled': !file }"
             @click="uploadFile"
         >
             <icon name="upload"/>

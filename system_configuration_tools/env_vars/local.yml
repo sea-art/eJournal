@@ -4,6 +4,8 @@
 baselink: http://localhost:8080
 api_url: http://localhost:8000
 
+# Git settings.
+setup_git_repo: true
 
 # Database settings.
 db_user: "{{ application_name }}"

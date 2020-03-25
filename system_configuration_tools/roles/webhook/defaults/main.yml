@@ -1,0 +1,28 @@
+---
+
+# Virtualenv settings.
+enable_deadsnakes_ppa: false
+recreate_virtualenv: false
+virtualenv_python_version: "{{ base_python_package }}"
+
+
+# Application settings.
+virtualenv_path: "/webapps/{{ application_name }}"
+project_path: "{{ virtualenv_path }}/{{ project_name }}"
+application_log_dir: "{{ virtualenv_path }}/logs"
+application_log_file: "{{ application_log_dir }}/gunicorn_supervisor.log"
+requirements_file: "{{ project_path }}/requirements/{{ env }}.txt"
+
+
+# Gunicorn settings.
+gunicorn_user: "{{ application_name }}"
+gunicorn_group: webapps
+
+
+# Nginx settings.
+nginx_application_access_log_file: "{{ application_log_dir }}/nginx_access.log"
+nginx_application_error_log_file: "{{ application_log_dir }}/nginx_error.log"
+
+# Project environment variables.
+project_environment:
+  BASELINK: "{{ baselink }}"

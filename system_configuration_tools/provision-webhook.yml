@@ -1,0 +1,20 @@
+---
+
+- name: Provision the test {{ application_name }} web server
+  hosts: webhook-test
+  become_user: root
+  become: true
+  remote_user: "{{ server_user }}"
+  vars:
+    update_apt_cache: true
+  vars_files:
+    - env_vars/base.yml
+    - env_vars/{{ env }}.yml
+
+  roles:
+    - base
+    - webhook
+    - nginx
+    - flask
+    - security
+    # - certbot

@@ -1,9 +1,9 @@
 ---
 
-- name: Add authorized_keys for the user
-  authorized_key: user={{ server_user }} key="{{ lookup('file', item) }}"
-  with_items:
-    - "{{ user_public_keys }}"
+# - name: Add authorized_keys for the user
+#   authorized_key: user={{ server_user }} key="{{ lookup('file', item) }}"
+#   with_items:
+#     - "{{ user_public_keys }}"
 
 - name: Disallow password authentication
   lineinfile: dest=/etc/ssh/sshd_config

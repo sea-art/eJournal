@@ -66,7 +66,6 @@
 
 <script>
 import courseAPI from '@/api/course.js'
-import genericUtils from '@/utils/generic_utils.js'
 import tooltip from '@/components/assets/Tooltip.vue'
 import commonAPI from '@/api/common.js'
 
@@ -92,8 +91,8 @@ export default {
             this.form.name = this.lti.ltiCourseName
             this.form.abbreviation = this.lti.ltiCourseAbbr
             this.form.lti_id = this.lti.ltiCourseID
-            this.form.startdate = this.lti.ltiCourseStart.split(' ')[0]
-            this.form.enddate = genericUtils.yearOffset(this.form.startdate)
+            this.form.startdate = this.lti.ltiCourseStart.split(' ')[0] || ''
+            this.form.enddate = ''
         }
     },
     methods: {
