@@ -18,14 +18,14 @@ after_success:
 - chmod 600 $HOME/.ssh/id_rsa
 - echo "$TRAVIS_BRANCH"
 - echo "$TRAVIS_PULL_REQUEST"
-- if [ "$TRAVIS_BRANCH" = "master" ] && [ $TRAVIS_PULL_REQUEST ] ; then
+- if [ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_PULL_REQUEST" == false ] ; then
     make run-ansible-deploy no_become=true branch=develop;
   fi
-- if [ "$TRAVIS_PULL_REQUEST_BRANCH" = "develop" ] && [ $TRAVIS_PULL_REQUEST ];
+- if [ "$TRAVIS_PULL_REQUEST_BRANCH" = "develop" ] && [ "$TRAVIS_PULL_REQUEST" == false ];
   then
     make run-ansible-deploy-develop no_become=true branch=master;
   fi
-- if [ "$TRAVIS_BRANCH" = "develop" ] && [ $TRAVIS_PULL_REQUEST ];
+- if [ "$TRAVIS_BRANCH" = "develop" ] && [ "$TRAVIS_PULL_REQUEST" == true ];
   then
     make run-ansible-deploy-pr no_become=true branch=$TRAVIS_PULL_REQUEST_BRANCH;
   fi
