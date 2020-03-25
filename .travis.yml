@@ -41,6 +41,8 @@ addons:
   # postgresql: '9.6'
   ssh_known_hosts:
     - pr.ejournal.app
+    - demo.ejournal.app
+    - develop.ejournal.app
 env:
   global:
   - BASELINK="http://localhost:8080"
