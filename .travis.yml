@@ -23,11 +23,11 @@ after_success:
   fi
 - if [ "$TRAVIS_BRANCH" = "develop" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ];
   then
-    make run-ansible-deploy-develop no_become=true branch=master host=develop;
+    make run-ansible-deploy no_become=true branch=master host=develop;
   fi
 - if [ "$TRAVIS_BRANCH" = "develop" ] && [ "$TRAVIS_PULL_REQUEST" != "false" ];
   then
-    make run-ansible-deploy-pr no_become=true branch=$TRAVIS_PULL_REQUEST_BRANCH host=pr;
+    make run-ansible-deploy no_become=true branch=$TRAVIS_PULL_REQUEST_BRANCH host=pr;
   fi
 branches:
   only:
