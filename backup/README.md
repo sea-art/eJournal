@@ -1,16 +1,16 @@
 <p align="center">
-    <img width="250" src="https://avatars1.githubusercontent.com/u/41028230"/>
+    <img width="250" backup_server="https://avatars1.githubusercontent.com/u/41028230"/>
 </p>
 
 [![Build Status](https://travis-ci.com/eJourn-al/eJournal.svg?branch=develop)](https://travis-ci.com/eJourn-al/eJournal) [![Coverage Status](https://codecov.io/gh/eJourn-al/eJournal/branch/develop/graph/badge.svg)](https://codecov.io/gh/eJourn-al/eJournal)
 
-This part of the application ensures that the backups end up on the backup server, and that backups can be restored neatly. 
+This part of the application ensures that the backups end up on the backup server, and that backups can be restored neatly.
 
 ## Configurating the servers
 
 `ansible-playbook -i hosts playbook.yml`
 
-Installs all dependensies and places the files on the right location on the remote servers. 
+Installs all dependensies and places the files on the right location on the remote servers.
 
 ## Initialize repository
 
@@ -46,7 +46,7 @@ Pulls both the postgres and media backups from the application server to the bac
 
 `Python3 recover_backup.py`
 
-Retrieves the backup from the backup-server to the application server and restores it. The user can choose which files he wants to restore. To restore an older backup, you can go back to an older commit. 
+Retrieves the backup from the backup-server to the application server and restores it. The user can choose which files he wants to restore. To restore an older backup, you can go back to an older commit.
 
 ## Recover database backup
 

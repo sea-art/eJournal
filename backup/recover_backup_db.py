@@ -3,27 +3,20 @@ import subprocess
 from datetime import datetime
 import time
 
-"""
-- Testen op twee remote servers
-- Ansible 
-- Cron Job
-- Big files 
-"""
-
-key_path = 'awskey.pem'
-user = 'ubuntu'
-dest = 'ec2-34-207-89-78.compute-1.amazonaws.com'
-src = 'ec2-54-197-42-74.compute-1.amazonaws.com'
-# src_path = 'backups'
-# dest_path = 'backups'
-src_path = 'backups-db'
-dest_path = '/backup'
+key_path = '{{ key-placeholder }}'
+user = '{{ user-placeholder }} '
+application_server = '{{ application-server-placeholder }}'
+backup_server = '{{ backup-server-placeholder }}'
+# backup_server_path = 'backups'
+# application_server_path = 'backups'
+backup_server_path = 'backups-db'
+application_server_path = '/backup'
 reverted_bool = False
 changed_commit = ""
 
 
 def ssh_command(cmd):
-    ssh = subprocess.Popen(["ssh", "-i", f"{key_path}", f'{user}@{src}', cmd],
+    ssh = subprocess.Popen(["ssh", "-i", f"{key_path}", f'{user}@{backup_server}', cmd],
                            shell=False,
                            stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE)
@@ -34,7 +27,7 @@ def ssh_command(cmd):
 # Recovers commit on remote server
 def recover_commit():
     # Get all commits on SSH and print them
-    cmd = f'cd {src_path} ; git log --all --pretty="format:%h -> %cr"'
+    cmd = f'cd {backup_server_path} ; git log --all --pretty="format:%h -> %cr"'
     ssh = ssh_command(cmd)
     # tmp = ssh.stdout.read().decode('utf-8')
     tmp = ssh.stdout.read().decode('utf-8')
@@ -60,7 +53,7 @@ def recover_commit():
 
     commit = commits[choice]
     # Checkout to commit, revert the backup
-    cmd = f'cd {src_path} ; git checkout {commit}'
+    cmd = f'cd {backup_server_path} ; git checkout {commit}'
     ssh = ssh_command(cmd)
     revert_backup()
 
@@ -68,26 +61,26 @@ def recover_commit():
 def new_branch():
     # Start new branch at chosen commit
     branch_name = datetime.today().strftime('%Y-%m-%d-%H-%M-%S')
-    cmd = f'cd {src_path} ; git checkout -b {branch_name}'
+    cmd = f'cd {backup_server_path} ; git checkout -b {branch_name}'
     ssh = ssh_command(cmd)
 
 
 def print_current_commit():
-    cmd = f'cd {src_path} ; git rev-parse --short HEAD'
+    cmd = f'cd {backup_server_path} ; git rev-parse --short HEAD'
     ssh = ssh_command(cmd)
     tmp = ssh.stdout.read()
     return tmp.decode('utf-8')
 
 
 def print_current_branch():
-    cmd = f'cd {src_path} ; git rev-parse --abbrev-ref HEAD'
+    cmd = f'cd {backup_server_path} ; git rev-parse --abbrev-ref HEAD'
     ssh = ssh_command(cmd)
     tmp = ssh.stdout.read()
     return tmp.decode('utf-8')
 
 
 def checkout_first_branch(branch):
-    cmd = f'cd {src_path} ; git checkout {branch}'
+    cmd = f'cd {backup_server_path} ; git checkout {branch}'
     ssh = ssh_command(cmd)
     tmp = ssh.stdout.read()
     return tmp.decode('utf-8')
@@ -99,7 +92,7 @@ def revert_backup():
     time.sleep(5)
 
     # Get files list from SSH and print them
-    cmd = f'cd /home/ubuntu ; cd {src_path} ; ls'
+    cmd = f'cd /home/{{ user-placeholder }}  ; cd {backup_server_path} ; ls'
     ssh = ssh_command(cmd)
     tmp = ssh.stdout.read()
     files = tmp.decode('utf-8').splitlines()
@@ -118,7 +111,7 @@ def revert_backup():
     # If yes, pull these files
     if choice == "Y" or choice == 'y':
         os.system(
-            f'rsync --exclude .git/ --exclude .gitignore -az -P --delete -e "ssh -ax -i {key_path}" {user}@{src}:{src_path}/ {dest_path}')
+            f'rsync --exclude .git/ --exclude .gitignore -az -P --delete -e "ssh -ax -i {key_path}" {user}@{backup_server}:{backup_server_path}/ {application_server_path}')
 
         global changed_commit
         changed_commit = print_current_commit()[:-1]

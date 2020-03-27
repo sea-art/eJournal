@@ -10,44 +10,44 @@
 
     - name: copy init script
       copy:
-        src: init_repo.py
-        dest: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
+        backup_server: init_repo.py
+        application_server: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
         mode: '0644'
 
     - name: Copy backup recovery script
       copy:
-        src: recover_backup.py
-        dest: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
+        backup_server: recover_backup.py
+        application_server: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
         mode: '0644'
 
     - name: Copy backup push script
       copy:
-        src: push.py
-        dest: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
+        backup_server: push.py
+        application_server: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
         mode: '0644'
 
     - name: Copy backup recovery script
       copy:
-        src: recover_backup_db.py
-        dest: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
+        backup_server: recover_backup_db.py
+        application_server: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
         mode: '0644'
 
     - name: Copy backup push script
       copy:
-        src: push_db.py
-        dest: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
+        backup_server: push_db.py
+        application_server: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
         mode: '0644'
 
     - name: send key
       copy:
-        src: awskey.pem
-        dest: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
+        backup_server: {{ key-placeholder }}
+        application_server: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
         mode: '0400'
 
     - name: send key
       copy:
-        src: awskey.pem
-        dest: /webapps/ejournal/VLE/VLE/tasks/beats/
+        backup_server: {{ key-placeholder }}
+        application_server: /webapps/ejournal/VLE/VLE/tasks/beats/
         mode: '0400'
 
     - name: Init the repo
@@ -71,13 +71,13 @@
 
     - name: send key
       copy:
-        src: awskey.pem
-        dest: /home/ubuntu
+        backup_server: {{ key-placeholder }}
+        application_server: /home/{{ user-placeholder }}
         mode: '0400'
 
     - name: copy pull script
       copy:
-        src: pull.py
-        dest: /home/ubuntu
+        backup_server: pull.py
+        application_server: /home/{{ user-placeholder }}
         mode: '0644'
-   
+

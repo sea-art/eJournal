@@ -1,19 +1,19 @@
 import os
 
-key_path = 'awskey.pem'
-user = 'ubuntu'
-dest = 'ec2-34-207-89-78.compute-1.amazonaws.com'
-src = 'ec2-54-197-42-74.compute-1.amazonaws.com'
-src_path = 'backups'
-dest_path = 'backups'
+key_path = '{{ key-placeholder }}'
+user = '{{ user-placeholder }} '
+application_server = '{{ application-server-placeholder }}'
+backup_server = '{{ backup-server-placeholder }}'
+backup_server_path = 'backups'
+application_server_path = 'backups'
 reverted_bool = False
 changed_commit = ""
 
 
 # makes backup folder on remote and git init
 def init_remote():
-    os.system(f'ssh {user}@{src} -i {key_path} "mkdir {src_path}-media ; cd {src_path}-media ; git init"')
-    os.system(f'ssh {user}@{src} -i {key_path} "mkdir {src_path}-db ; cd {src_path}-db ; git init"')
+    os.system(f'ssh {user}@{backup_server} -i {key_path} "mkdir {backup_server_path}-media ; cd {backup_server_path}-media ; git init"')
+    os.system(f'ssh {user}@{backup_server} -i {key_path} "mkdir {backup_server_path}-db ; cd {backup_server_path}-db ; git init"')
 
 
 if __name__ == '__main__':
