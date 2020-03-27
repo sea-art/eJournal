@@ -23,7 +23,7 @@
     build_dir: /home/{{ ansible_ssh_user }}/
     mon_admin_user: admin
     mon_admin_pass: $$apr1$$OWNl7uou$$zJm3bmrGZLlyor/Jyc2P11 # 'pass', requires http encryption
-    slack_notifications_incoming_webhook: https://hooks.slack.com/services/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
+    slack_notifications_incoming_webhook: https://hooks.slack.com/services/<id>/<key>
     base_domain: ejournal.app
     admin_email: admin@{{ base_domain }}
     monitoring_docker_web_network: monitor-web
