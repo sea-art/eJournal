@@ -11,7 +11,7 @@
 mail.host: 'smtp.eu.mailgun.org'
 mail.port: 587
 mail.username: 'postmaster@sentry.ejournal.app'
-mail.password: '96c31ec0d947c2a76baa77526513a160-c322068c-9ecf146b'
+mail.password: 'reset-but-changed-password'
 mail.use-tls: true
 # The email address to send on behalf of
 mail.from: 'sentry@ejournal.app'
