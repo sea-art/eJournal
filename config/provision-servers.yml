@@ -1,7 +1,7 @@
 ---
 
 - name: Provision the {{ application_name }} web server
-  hosts: demo
+  hosts: "{{ deploy_host }}"
   become: true
   become_user: root
   remote_user: "{{ server_user }}"
