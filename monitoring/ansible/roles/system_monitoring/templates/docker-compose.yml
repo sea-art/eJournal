@@ -1,0 +1,196 @@
+version: "3.7"
+
+x-defaults: &defaults
+  restart: unless-stopped
+  networks:
+    - {{ monitoring_docker_web_network }}
+
+networks:
+  {{ monitoring_docker_web_network }}:
+    driver: bridge
+
+volumes:
+    prometheus_data: {}
+    grafana_data: {}
+
+services:
+
+  traefik:
+    << : *defaults
+    image: "traefik"
+    command:
+      - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network={{ monitoring_docker_web_network }}
+      - --api.dashboard=true
+      # lets encrypt challenge and storage
+      - --certificatesresolvers.le.acme.email={{ admin_email }}
+      - --certificatesresolvers.le.acme.storage=/acme.json
+      - --certificatesresolvers.le.acme.tlschallenge=true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik/acme.json:/acme.json"
+    labels:
+      # Enable traefik as part of its own network for the dashboard functionality
+      traefik.enable: "true"
+      traefik.http.routers.api.rule: "Host(`{{ traefik_domain }}`)"
+      traefik.http.routers.api.service: "api@internal"
+      traefik.http.routers.api.entrypoints: "https"
+      traefik.http.routers.api.tls.certresolver: "le"
+
+      # Global https redirection
+      traefik.http.routers.http_catchall.rule: HostRegexp(`{any:.+}`)
+      traefik.http.routers.http_catchall.entrypoints: http
+      traefik.http.routers.http_catchall.middlewares: https_redirect
+      traefik.http.middlewares.https_redirect.redirectscheme.scheme: https
+      traefik.http.middlewares.https_redirect.redirectscheme.permanent: true
+
+      # Headers
+      traefik.http.middlewares.securedheaders.headers.forcestsheader: "true"
+      traefik.http.middlewares.securedheaders.headers.sslRedirect: "true"
+      traefik.http.middlewares.securedheaders.headers.STSPreload: "true"
+      traefik.http.middlewares.securedheaders.headers.ContentTypeNosniff: "true"
+      traefik.http.middlewares.securedheaders.headers.BrowserXssFilter: "true"
+      traefik.http.middlewares.securedheaders.headers.STSIncludeSubdomains: "true"
+      traefik.http.middlewares.securedheaders.headers.STSSeconds: "315360000"
+
+      # Basic auth
+      traefik.http.middlewares.auth.basicauth.users: "{{ mon_admin_user }}:{{ mon_admin_pass }}"
+
+      traefik.http.routers.api.middlewares: "auth,securedheaders"
+
+  prometheus:
+    << : *defaults
+    image: prom/prometheus
+    container_name: prometheus
+    depends_on:
+      - traefik
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--storage.tsdb.retention.time=200h"
+      - "--web.enable-lifecycle"
+    expose:
+      - 9090
+    labels:
+      org.label-schema.group: "monitoring"
+      traefik.enable: true
+      traefik.http.routers.prometheus.rule: "Host(`{{ prometheus_domain }}`)"
+      traefik.http.routers.prometheus.service: "prometheus"
+      traefik.http.routers.prometheus.tls: true
+      traefik.http.routers.prometheus.tls.certresolver: "le"
+      traefik.http.routers.prometheus.entrypoints: "https"
+      traefik.http.services.prometheus.loadbalancer.server.port: 9090
+      traefik.http.routers.prometheus.middlewares: "securedheaders,auth"
+
+  alertmanager:
+    << : *defaults
+    image: prom/alertmanager
+    container_name: alertmanager
+    depends_on:
+      - traefik
+    volumes:
+      - ./alertmanager:/etc/alertmanager
+    command:
+      - "--config.file=/etc/alertmanager/config.yml"
+      - "--storage.path=/alertmanager"
+    expose:
+      - 9093
+    labels:
+      org.label-schema.group: "monitoring"
+      traefik.enable: true
+      traefik.http.routers.alertmanager.rule: "Host(`{{ alertmanager_domain }}`)"
+      traefik.http.routers.alertmanager.service: "alertmanager"
+      traefik.http.routers.alertmanager.tls: true
+      traefik.http.routers.alertmanager.tls.certresolver: "le"
+      traefik.http.routers.alertmanager.entrypoints: "https"
+      traefik.http.services.alertmanager.loadbalancer.server.port: 9093
+      traefik.http.routers.alertmanager.middlewares: "securedheaders,auth"
+
+  nodeexporter:
+    << : *defaults
+    image: prom/node-exporter:v0.18.1
+    container_name: nodeexporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)"
+    expose:
+      - 9100
+    labels:
+      org.label-schema.group: "monitoring"
+
+  cadvisor:
+    << : *defaults
+    image: gcr.io/google-containers/cadvisor
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /cgroup:/cgroup:ro
+    expose:
+      - 8080
+    labels:
+      org.label-schema.group: "monitoring"
+
+  grafana:
+    << : *defaults
+    image: grafana/grafana
+    container_name: grafana
+    depends_on:
+      - traefik
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER={{ mon_admin_user }}
+      - GF_SECURITY_ADMIN_PASSWORD={{ mon_admin_pass }}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    expose:
+      - 3000
+    labels:
+      org.label-schema.group: "monitoring"
+      traefik.enable: true
+      traefik.http.routers.grafana.rule: "Host(`{{ grafana_domain }}`)"
+      traefik.http.routers.grafana.service: "grafana"
+      traefik.http.routers.grafana.tls: true
+      traefik.http.services.grafana.loadbalancer.server.port: 3000
+      traefik.http.routers.grafana.tls.certresolver: "le"
+      traefik.http.routers.grafana.entrypoints: "https"
+      traefik.http.routers.grafana.middlewares: "securedheaders"
+
+  pushgateway:
+    << : *defaults
+    image: prom/pushgateway
+    container_name: pushgateway
+    depends_on:
+      - traefik
+    expose:
+      - 9091
+    labels:
+      org.label-schema.group: "monitoring"
+      traefik.enable: true
+      traefik.http.routers.pushgateway.rule: "Host(`{{ pushgateway_domain }}`)"
+      traefik.http.routers.pushgateway.service: "pushgateway"
+      traefik.http.routers.pushgateway.tls: true
+      traefik.http.routers.pushgateway.tls.certresolver: "le"
+      traefik.http.routers.pushgateway.entrypoints: "https"
+      traefik.http.services.pushgateway.loadbalancer.server.port: 9091
+      traefik.http.routers.pushgateway.middlewares: "securedheaders,auth"

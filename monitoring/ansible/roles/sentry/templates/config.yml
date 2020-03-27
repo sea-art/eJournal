@@ -1,0 +1,159 @@
+# While a lot of configuration in Sentry can be changed via the UI, for all
+# new-style config (as of 8.0) you can also declare values here in this file
+# to enforce defaults or to ensure they cannot be changed via the UI. For more
+# information see the Sentry documentation.
+
+###############
+# Mail Server #
+###############
+
+# mail.backend: 'smtp'  # Use dummy if you want to disable email entirely
+mail.host: 'smtp.eu.mailgun.org'
+mail.port: 587
+mail.username: 'postmaster@sentry.ejournal.app'
+mail.password: '96c31ec0d947c2a76baa77526513a160-c322068c-9ecf146b'
+mail.use-tls: true
+# The email address to send on behalf of
+mail.from: 'sentry@ejournal.app'
+
+## Example reported to work out of the box '16:
+# mail.backend: 'django.core.mail.backends.smtp.EmailBackend'  # Use dummy if you want to disable email entirely
+# mail.host: 'localhost'
+# mail.port: 25
+# mail.username: ''
+# mail.password: ''
+# mail.use-tls: false
+# # The email address to send on behalf of
+# mail.from: 'sentry@company.de'
+
+# If you'd like to configure email replies, enable this.
+# mail.enable-replies: true
+
+# When email-replies are enabled, this value is used in the Reply-To header
+# mail.reply-hostname: ''
+
+# If you're using mailgun for inbound mail, set your API key and configure a
+# route to forward to /api/hooks/mailgun/inbound/
+# Also don't forget to set `mail.enable-replies: true` above.
+# mail.mailgun-api-key: ''
+
+###################
+# System Settings #
+###################
+
+# The technical contact address for this installation. This will be reported to upstream to the Sentry
+# team (as part of the Beacon), and will be the point of contact for critical updates and security notifications.
+system.admin-email: 'admin@ejournal.app'
+
+# If this file ever becomes compromised, it's important to regenerate your a new key
+# Changing this value will result in all current sessions being invalidated.
+# A new key can be generated with `$ sentry config generate-secret-key`
+system.secret-key: '0\RwhY2-]GG]cTSJVt%5wpS<?zJ@x(&UU1qQ>JP(7.KkyES&/?'
+
+system.url-prefix: 'https://sentry.ejournal.app'
+
+# The ``redis.clusters`` setting is used, unsurprisingly, to configure Redis
+# clusters. These clusters can be then referred to by name when configuring
+# backends such as the cache, digests, or TSDB backend.
+# redis.clusters:
+#   default:
+#     hosts:
+#       0:
+#         host: 127.0.0.1
+#         port: 6379
+
+################
+# File storage #
+################
+
+# Uploaded media uses these `filestore` settings. The available
+# backends are either `filesystem` or `s3`.
+
+filestore.backend: 'filesystem'
+filestore.options:
+  location: '/data/files'
+dsym.cache-path: '/data/dsym-cache'
+releasefile.cache-path: '/data/releasefile-cache'
+
+# filestore.backend: 's3'
+# filestore.options:
+#   access_key: 'AKIXXXXXX'
+#   secret_key: 'XXXXXXX'
+#   bucket_name: 's3-bucket-name'
+
+system.internal-url-prefix: 'http://web:9000'
+symbolicator.enabled: true
+symbolicator.options:
+  url: "http://symbolicator:3021"
+
+transaction-events.force-disable-internal-project: true
+
+######################
+# GitHub Integration #
+######################
+
+# github.apps-install-url: https://sentry.ejournal.app/extensions/github/setup/
+# github.integration-app-id: 58609
+# github.integration-hook-secret: '8ZZkJWGLztuLp588RuhBflYfo1PVkN6UeO7j7nx2y6CPhj50awS2JRLLKuAdpOTX'
+# github.integration-private-key: !
+#   -----BEGIN RSA PRIVATE KEY-----
+#   MIIEpAIBAAKCAQEA8jTsRRCw5r3E0QR5+c0JChcFWiemvO0icffyn6gG9lhunS3g
+#   cuCk9qjWyzEyxAK/J6MqljzL+2QYimwrcbgArU22lWJUrrYEpzPCg1WJT3qEUGNf
+#   9SizHbPz8WHpGxwhU2JYDhCJKomSnow+NaS8ASC14eJaTpTGre4EH85zH2tD2zjv
+#   txEyU/Maxq8imKJEw3V08Xnq9lLn1yqZzhW2QbcwqjCfBNclaU+psHqK0ONb9zbm
+#   CUGgpN4ReDkLZilBfxr8LeXuTx1TiVQpeAMxeTCAKC46InWRvW0vKTNhRJzc8gii
+#   FNppv9QlD2NYMnujUK62QGo8lI8Pbykl3MhafQIDAQABAoIBAFT6wJMS4h5zIqT7
+#   XxiIGc3SeexB0TykLtux1QyzVY4FRPoc6I0lyHtKjeJI5rjjBdKQaxa/Sgpv+jRG
+#   8484sfQcOh17nJ6X+lX30R1nW3/pSpcx5q8LkpyvUL22TqVWX1L0RFTa9GVaU3kR
+#   V5pWrCfxJB+W3XyIspS/1+6Y7sdsmmfn3OIV5cNQA+t/SUYsaOCGKERkklGuniKm
+#   AD9l99UQg0TluGUQ7FIehY8pKrR6+iQRFYYscyGVToxrRxnTONUsJCCiqK8YJIBp
+#   unB6qnTnxiUREbC7laq1V0OuY76HphEhJHdxpg0WvxmWy2EoyQsmTry8xiyfAbuU
+#   82sslnkCgYEA/IpNfZP1706kqed+UU6Oj0zfCKP/0twuVedf2o1cq+B9bqu1/WvM
+#   783aUkpxGBhwUTcjGxPTk5JvXu8dPnGGDRvqAvBvp3gZ1xnzRP0Vx99ayo9lkVE9
+#   ftndLiDLl1FxCGKjXkcMaAqK41fft9XNjRZ1RD8yw5wkM8PhJf2b8xcCgYEA9YZh
+#   BwNBpreqO5IicmrEmxyB4mYjmjnLrvsI/qcaQ/MuCrOKZ2f+dZzDQY76LLfOo+OO
+#   iALVsBu2diEO75Fp4gTFDgdM+seYizES4gGbMYnHKFPgkL/K1DorLkoj+JDqRUPx
+#   TfN01ZE/8ndMWYhBC23Haz8Og5N4K2v4L0D9q4sCgYBotlfnKACjl3JDWM9Rm0cV
+#   OASKqqWaot07lVJzZoX0ZoLb7qrpR1eUX0CVOnSmTwvTQQ93XMMvv1oafP8dMyko
+#   Kljfmx5QzEW6oPHzuxTa6UvWDZtJo+vhuygwxjxko8pAddXTc5Y7VZO9LGSA70/p
+#   nlRFVgcQgJ+qLyAeBogxRQKBgQCAaAYop8BXE+k4/IV9d29ZfABFyotGJoHrAqlC
+#   nVw0O2NR/3IcAJxpIFJR4Bfg+UReHC233lupneTARSvNiSxqI3p3isPsyCR0b3bj
+#   sllbACajZbKloVjPw5g/vlCvuAJ9tTnnPbNV2oAqK9BHZuY1tvU7lp/dmmuXsgD7
+#   na7NXwKBgQDG1tPkHAreO24j8vDgGuHz0BIpjDtn7JDrKp5EZWO0w3HOC7Seq2SJ
+#   57qrYDWBL0Aio1qUvuvb9Y2GMcboEiMkMQDtwCtmehBB69BkNY/MDzQczNZGTrwS
+#   Rl0Z4MLL/vt4I7XhirvS3VdEm0KQRWpRvOD4NzMl9uqnyuhJlutK/A==
+#   -----END RSA PRIVATE KEY-----
+
+github-app.id: 58609
+github-app.name: eJournal Sentry
+github-app.webhook-secret: '8ZZkJWGLztuLp588RuhBflYfo1PVkN6UeO7j7nx2y6CPhj50awS2JRLLKuAdpOTX'
+github-app.private-key: !
+  -----BEGIN RSA PRIVATE KEY-----
+  MIIEpAIBAAKCAQEA8jTsRRCw5r3E0QR5+c0JChcFWiemvO0icffyn6gG9lhunS3g
+  cuCk9qjWyzEyxAK/J6MqljzL+2QYimwrcbgArU22lWJUrrYEpzPCg1WJT3qEUGNf
+  9SizHbPz8WHpGxwhU2JYDhCJKomSnow+NaS8ASC14eJaTpTGre4EH85zH2tD2zjv
+  txEyU/Maxq8imKJEw3V08Xnq9lLn1yqZzhW2QbcwqjCfBNclaU+psHqK0ONb9zbm
+  CUGgpN4ReDkLZilBfxr8LeXuTx1TiVQpeAMxeTCAKC46InWRvW0vKTNhRJzc8gii
+  FNppv9QlD2NYMnujUK62QGo8lI8Pbykl3MhafQIDAQABAoIBAFT6wJMS4h5zIqT7
+  XxiIGc3SeexB0TykLtux1QyzVY4FRPoc6I0lyHtKjeJI5rjjBdKQaxa/Sgpv+jRG
+  8484sfQcOh17nJ6X+lX30R1nW3/pSpcx5q8LkpyvUL22TqVWX1L0RFTa9GVaU3kR
+  V5pWrCfxJB+W3XyIspS/1+6Y7sdsmmfn3OIV5cNQA+t/SUYsaOCGKERkklGuniKm
+  AD9l99UQg0TluGUQ7FIehY8pKrR6+iQRFYYscyGVToxrRxnTONUsJCCiqK8YJIBp
+  unB6qnTnxiUREbC7laq1V0OuY76HphEhJHdxpg0WvxmWy2EoyQsmTry8xiyfAbuU
+  82sslnkCgYEA/IpNfZP1706kqed+UU6Oj0zfCKP/0twuVedf2o1cq+B9bqu1/WvM
+  783aUkpxGBhwUTcjGxPTk5JvXu8dPnGGDRvqAvBvp3gZ1xnzRP0Vx99ayo9lkVE9
+  ftndLiDLl1FxCGKjXkcMaAqK41fft9XNjRZ1RD8yw5wkM8PhJf2b8xcCgYEA9YZh
+  BwNBpreqO5IicmrEmxyB4mYjmjnLrvsI/qcaQ/MuCrOKZ2f+dZzDQY76LLfOo+OO
+  iALVsBu2diEO75Fp4gTFDgdM+seYizES4gGbMYnHKFPgkL/K1DorLkoj+JDqRUPx
+  TfN01ZE/8ndMWYhBC23Haz8Og5N4K2v4L0D9q4sCgYBotlfnKACjl3JDWM9Rm0cV
+  OASKqqWaot07lVJzZoX0ZoLb7qrpR1eUX0CVOnSmTwvTQQ93XMMvv1oafP8dMyko
+  Kljfmx5QzEW6oPHzuxTa6UvWDZtJo+vhuygwxjxko8pAddXTc5Y7VZO9LGSA70/p
+  nlRFVgcQgJ+qLyAeBogxRQKBgQCAaAYop8BXE+k4/IV9d29ZfABFyotGJoHrAqlC
+  nVw0O2NR/3IcAJxpIFJR4Bfg+UReHC233lupneTARSvNiSxqI3p3isPsyCR0b3bj
+  sllbACajZbKloVjPw5g/vlCvuAJ9tTnnPbNV2oAqK9BHZuY1tvU7lp/dmmuXsgD7
+  na7NXwKBgQDG1tPkHAreO24j8vDgGuHz0BIpjDtn7JDrKp5EZWO0w3HOC7Seq2SJ
+  57qrYDWBL0Aio1qUvuvb9Y2GMcboEiMkMQDtwCtmehBB69BkNY/MDzQczNZGTrwS
+  Rl0Z4MLL/vt4I7XhirvS3VdEm0KQRWpRvOD4NzMl9uqnyuhJlutK/A==
+  -----END RSA PRIVATE KEY-----
+github-app.client-id: Iv1.5f38f695d395c652
+github-app.client-secret: 4a046dae9fdee60c62627c2c5e405f91d86915dd
