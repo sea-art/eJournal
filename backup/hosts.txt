@@ -1,0 +1,14 @@
+[application]
+backup.ejournal.app
+
+[backup]
+{{ backup-server-placeholder }}
+
+[network:children]
+application
+backup
+
+[network:vars]
+ansible_ssh_user={{ user-placeholder }}
+ansible_ssh_private_key_file={{ key-placeholder }}
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
