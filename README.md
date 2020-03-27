@@ -32,6 +32,7 @@ eJournal is a blended learning web application that provides an easy to manage g
   - `django/test/` unit tests backend
   - `vue/src/` frontend code
 - `monitoring/` monitoring configuration
+- `backup/` backup logic
 
 ## Troubleshooting
 
