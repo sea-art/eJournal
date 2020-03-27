@@ -1,0 +1,35 @@
+---
+
+- name: Remove old docker versions
+  apt:
+    state: absent
+    name:
+      - docker
+      - docker.io
+      - docker-engine
+      - containerd
+      - runc
+
+- name: Add Docker’s official GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+    id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+
+- name: Set up the stable docker repo
+  shell: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+- name: Install the latest version of Docker Engine - Community and containerd
+  apt:
+    state: present
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    update_cache: True
+
+- name: Download the current stable release of Docker Compose
+  shell: curl -L "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+- name: Make docker-compose executable
+  shell: chmod +x /usr/local/bin/docker-compose

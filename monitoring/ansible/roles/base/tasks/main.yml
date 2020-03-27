@@ -1,0 +1,12 @@
+- include: update_packages.yml
+  when: update_packages
+
+- name: Install certificate and repository management tools
+  apt:
+    state: present
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
