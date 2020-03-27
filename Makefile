@@ -104,7 +104,7 @@ setup-venv:
 		source ./venv/bin/activate && \
 		pip install -r requirements/$(requirements_file) && \
 		isort -rc src/django/ && \
-		ansible-playbook ./system_configuration_tools/provision-local.yml --ask-become-pass --ask-vault-pass && \
+		ansible-playbook ./config/provision-local.yml --ask-become-pass --ask-vault-pass && \
 		deactivate'
 
 ##### DEPLOY COMMANDS ######
@@ -179,6 +179,7 @@ preset-db:
 	@read -r a
 	make preset-db-no-input
 preset-db-no-input:
+	rm -rf src/django/media/*
 	make postgres-reset
 	make postgres-init-development
 	make migrate-back
