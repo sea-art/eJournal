@@ -1,0 +1,83 @@
+---
+- hosts: application
+  become: true
+  tasks:
+    - name: Create a directory if it does not exist
+      file:
+        path: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
+        state: directory
+        mode: '0755'
+
+    - name: copy init script
+      copy:
+        src: init_repo.py
+        dest: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
+        mode: '0644'
+
+    - name: Copy backup recovery script
+      copy:
+        src: recover_backup.py
+        dest: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
+        mode: '0644'
+
+    - name: Copy backup push script
+      copy:
+        src: push.py
+        dest: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
+        mode: '0644'
+
+    - name: Copy backup recovery script
+      copy:
+        src: recover_backup_db.py
+        dest: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
+        mode: '0644'
+
+    - name: Copy backup push script
+      copy:
+        src: push_db.py
+        dest: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
+        mode: '0644'
+
+    - name: send key
+      copy:
+        src: awskey.pem
+        dest: /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
+        mode: '0400'
+
+    - name: send key
+      copy:
+        src: awskey.pem
+        dest: /webapps/ejournal/VLE/VLE/tasks/beats/
+        mode: '0400'
+
+    - name: Init the repo
+      script: init_repo.py
+      args:
+        executable: python3
+      register: get_output
+      become: yes
+
+    - debug: var=get_output.stdout_lines
+
+    - name: change premissions
+      raw: sudo chmod -R 777 /webapps/ejournal/VLE/VLE/tasks/beats/backuplogic
+
+
+- hosts: backup
+  become: true
+  tasks:
+    - name: add python3 repo
+      raw: sudo apt install -y python3
+
+    - name: send key
+      copy:
+        src: awskey.pem
+        dest: /home/ubuntu
+        mode: '0400'
+
+    - name: copy pull script
+      copy:
+        src: pull.py
+        dest: /home/ubuntu
+        mode: '0644'
+   

@@ -1,0 +1,14 @@
+[application]
+backup.ejournal.app
+
+[backup]
+ec2-54-197-42-74.compute-1.amazonaws.com
+
+[network:children]
+application
+backup
+
+[network:vars]
+ansible_ssh_user=ubuntu
+ansible_ssh_private_key_file=awskey.pem
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
