@@ -16,7 +16,19 @@ after_success:
 - echo $KEY > pass.txt
 - mv travis $HOME/.ssh/id_rsa
 - chmod 600 $HOME/.ssh/id_rsa
-- make run-ansible-deploy no_become=true branch=master
+- echo "$TRAVIS_BRANCH"
+- echo $TRAVIS_PULL_REQUEST
+- if [ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] ; then
+    make run-ansible-deploy no_become=true branch=develop host=demo;
+  fi
+- if [ "$TRAVIS_BRANCH" = "develop" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ];
+  then
+    make run-ansible-deploy no_become=true branch=master host=develop;
+  fi
+- if [ "$TRAVIS_BRANCH" = "develop" ] && [ "$TRAVIS_PULL_REQUEST" != "false" ];
+  then
+    make run-ansible-deploy no_become=true branch=$TRAVIS_PULL_REQUEST_BRANCH host=pr;
+  fi
 branches:
   only:
   - master
@@ -25,7 +37,10 @@ services:
 - postgresql
 addons:
   # postgresql: '9.6'
-  ssh_known_hosts: demo.ejournal.app
+  ssh_known_hosts:
+    - pr.ejournal.app
+    - demo.ejournal.app
+    - develop.ejournal.app
 env:
   global:
   - BASELINK="http://localhost:8080"
