@@ -1,0 +1,45 @@
+---
+
+- name: Stop docker compose
+  shell: cd {{ sentry_stack_dir }} && sudo docker-compose down
+
+- name: Docker prune all (including volumes)
+  shell: docker system prune -a -f --volumes
+  become: yes
+
+- name: Remove the sentry on premise directory
+  file:
+    path: "{{ sentry_stack_dir }}"
+    state: absent
+
+######### This route clean all (including RUNNING) containers #####
+# - name: Count the number of running docker containers
+#   shell: docker ps | grep imagename | wc -l
+#   become: yes
+#   register: container_count
+
+# - name: Register docker ps -a -q
+#   shell: docker ps -a -q
+#   become: yes
+#   register: docker_ps
+
+# - name: Get info on docker host and list images
+#   docker_host_info:
+#     containers: yes
+#   register: result
+
+# - name: Debug dockerInfo
+#   debug:
+#     var: item
+#   loop: "{{ result.containers }}"
+#   become: yes
+#   when: result.containers | length != 0
+
+# - name: Stop all docker images
+#   shell: "docker stop {{ docker_ps.stdout }}"
+#   become: yes
+#   when: container_count.stdout != '0'
+
+# - name: Docker prune all (including volumes)
+#   shell: docker system prune -a -f --volumes
+#   become: yes

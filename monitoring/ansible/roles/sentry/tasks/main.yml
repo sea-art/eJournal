@@ -1,0 +1,48 @@
+- name: Check if the sentry on site repo exists
+  stat:
+    path: "{{ sentry_stack_dir }}"
+  register: repo_exists
+
+- include: clean.yml
+  when: repo_exists.stat.exists and repo_exists.stat.isdir
+
+- name: Clone the sentry on premise on the remote
+  git:
+    repo: 'https://github.com/getsentry/onpremise.git'
+    dest: "{{ sentry_stack_dir }}"
+    clone: yes
+    update: yes
+
+- name: Overwrite the sentry docker compose file
+  template:
+    src: docker-compose.yml
+    dest: "{{ sentry_stack_dir }}/docker-compose.yml"
+
+- name: Set the sentry config.yml settings
+  template:
+    src: config.yml
+    dest: "{{ sentry_stack_dir }}/sentry/config.yml"
+
+- name: Set the sentry.conf.py settings
+  template:
+    src: sentry.conf.py
+    dest: "{{ sentry_stack_dir }}/sentry/sentry.conf.py"
+
+- name: Create and set the .env file and variables
+  template:
+    src: .env
+    dest: "{{ sentry_stack_dir }}/sentry/.env"
+
+- name: Run the install script
+  shell: "cd {{ sentry_stack_dir }} && ./install.sh"
+  environment:
+    CI: 1
+  become: yes
+
+- name: Create a superuser
+  shell: cd {{ sentry_stack_dir }} && docker-compose run --rm web createuser --superuser --email admin@ejournal.app --password Lekkermooiweer1
+  become: yes
+
+- name: Run docker-compose up -d
+  shell: cd {{ sentry_stack_dir }} && docker-compose up -d
+  become: yes

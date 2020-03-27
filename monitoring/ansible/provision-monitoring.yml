@@ -1,0 +1,46 @@
+---
+
+- name: Install preqrequisites for monitoring stack
+  hosts: all
+  become: True
+  gather_facts: False
+  vars:
+    update_packages: True
+
+  pre_tasks:
+  - name: 'Install python3'
+    raw: 'sudo apt-get -y install python3'
+
+  roles:
+    - base
+    - docker
+
+- name: Configure prometheus, grafana and host dependencies
+  hosts: all
+  gather_facts: False
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    build_dir: /home/{{ ansible_ssh_user }}/
+    mon_admin_user: admin
+    mon_admin_pass: $$apr1$$OWNl7uou$$zJm3bmrGZLlyor/Jyc2P11 # 'pass', requires http encryption
+    slack_notifications_incoming_webhook: https://hooks.slack.com/services/<id>/<key>
+    base_domain: ejournal.app
+    admin_email: admin@{{ base_domain }}
+    monitoring_docker_web_network: monitor-web
+
+    system_monitoring_stack_name: system_monitoring
+    system_monitoring_stack_dir: "{{ build_dir }}/{{ system_monitoring_stack_name }}"
+
+    sentry_domain: sentry.{{ base_domain }}
+    sentry_stack_dir: "{{ build_dir }}/sentry"
+
+    grafana_domain: grafana.{{ base_domain }}
+    prometheus_domain: prometheus.{{ base_domain }}
+    alertmanager_domain: alertmanager.{{ base_domain }}
+    pushgateway_domain: pushgateway.{{ base_domain }}
+    traefik_domain: traefik.{{ base_domain }}
+
+  roles:
+    - system_monitoring
+    # NOTE: requires system_monitoring to be ran first, as this is where the Traefik instance is configured
+    - sentry
