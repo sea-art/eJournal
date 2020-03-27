@@ -48,7 +48,7 @@ system.admin-email: 'admin@ejournal.app'
 # If this file ever becomes compromised, it's important to regenerate your a new key
 # Changing this value will result in all current sessions being invalidated.
 # A new key can be generated with `$ sentry config generate-secret-key`
-system.secret-key: '0\RwhY2-]GG]cTSJVt%5wpS<?zJ@x(&UU1qQ>JP(7.KkyES&/?'
+system.secret-key: 'super-secret-key'
 
 system.url-prefix: 'https://sentry.ejournal.app'
 
@@ -92,68 +92,12 @@ transaction-events.force-disable-internal-project: true
 # GitHub Integration #
 ######################
 
-# github.apps-install-url: https://sentry.ejournal.app/extensions/github/setup/
-# github.integration-app-id: 58609
-# github.integration-hook-secret: '8ZZkJWGLztuLp588RuhBflYfo1PVkN6UeO7j7nx2y6CPhj50awS2JRLLKuAdpOTX'
-# github.integration-private-key: !
-#   -----BEGIN RSA PRIVATE KEY-----
-#   MIIEpAIBAAKCAQEA8jTsRRCw5r3E0QR5+c0JChcFWiemvO0icffyn6gG9lhunS3g
-#   cuCk9qjWyzEyxAK/J6MqljzL+2QYimwrcbgArU22lWJUrrYEpzPCg1WJT3qEUGNf
-#   9SizHbPz8WHpGxwhU2JYDhCJKomSnow+NaS8ASC14eJaTpTGre4EH85zH2tD2zjv
-#   txEyU/Maxq8imKJEw3V08Xnq9lLn1yqZzhW2QbcwqjCfBNclaU+psHqK0ONb9zbm
-#   CUGgpN4ReDkLZilBfxr8LeXuTx1TiVQpeAMxeTCAKC46InWRvW0vKTNhRJzc8gii
-#   FNppv9QlD2NYMnujUK62QGo8lI8Pbykl3MhafQIDAQABAoIBAFT6wJMS4h5zIqT7
-#   XxiIGc3SeexB0TykLtux1QyzVY4FRPoc6I0lyHtKjeJI5rjjBdKQaxa/Sgpv+jRG
-#   8484sfQcOh17nJ6X+lX30R1nW3/pSpcx5q8LkpyvUL22TqVWX1L0RFTa9GVaU3kR
-#   V5pWrCfxJB+W3XyIspS/1+6Y7sdsmmfn3OIV5cNQA+t/SUYsaOCGKERkklGuniKm
-#   AD9l99UQg0TluGUQ7FIehY8pKrR6+iQRFYYscyGVToxrRxnTONUsJCCiqK8YJIBp
-#   unB6qnTnxiUREbC7laq1V0OuY76HphEhJHdxpg0WvxmWy2EoyQsmTry8xiyfAbuU
-#   82sslnkCgYEA/IpNfZP1706kqed+UU6Oj0zfCKP/0twuVedf2o1cq+B9bqu1/WvM
-#   783aUkpxGBhwUTcjGxPTk5JvXu8dPnGGDRvqAvBvp3gZ1xnzRP0Vx99ayo9lkVE9
-#   ftndLiDLl1FxCGKjXkcMaAqK41fft9XNjRZ1RD8yw5wkM8PhJf2b8xcCgYEA9YZh
-#   BwNBpreqO5IicmrEmxyB4mYjmjnLrvsI/qcaQ/MuCrOKZ2f+dZzDQY76LLfOo+OO
-#   iALVsBu2diEO75Fp4gTFDgdM+seYizES4gGbMYnHKFPgkL/K1DorLkoj+JDqRUPx
-#   TfN01ZE/8ndMWYhBC23Haz8Og5N4K2v4L0D9q4sCgYBotlfnKACjl3JDWM9Rm0cV
-#   OASKqqWaot07lVJzZoX0ZoLb7qrpR1eUX0CVOnSmTwvTQQ93XMMvv1oafP8dMyko
-#   Kljfmx5QzEW6oPHzuxTa6UvWDZtJo+vhuygwxjxko8pAddXTc5Y7VZO9LGSA70/p
-#   nlRFVgcQgJ+qLyAeBogxRQKBgQCAaAYop8BXE+k4/IV9d29ZfABFyotGJoHrAqlC
-#   nVw0O2NR/3IcAJxpIFJR4Bfg+UReHC233lupneTARSvNiSxqI3p3isPsyCR0b3bj
-#   sllbACajZbKloVjPw5g/vlCvuAJ9tTnnPbNV2oAqK9BHZuY1tvU7lp/dmmuXsgD7
-#   na7NXwKBgQDG1tPkHAreO24j8vDgGuHz0BIpjDtn7JDrKp5EZWO0w3HOC7Seq2SJ
-#   57qrYDWBL0Aio1qUvuvb9Y2GMcboEiMkMQDtwCtmehBB69BkNY/MDzQczNZGTrwS
-#   Rl0Z4MLL/vt4I7XhirvS3VdEm0KQRWpRvOD4NzMl9uqnyuhJlutK/A==
-#   -----END RSA PRIVATE KEY-----
-
 github-app.id: 58609
 github-app.name: eJournal Sentry
-github-app.webhook-secret: '8ZZkJWGLztuLp588RuhBflYfo1PVkN6UeO7j7nx2y6CPhj50awS2JRLLKuAdpOTX'
+github-app.webhook-secret: 'secret-webhook-key'
 github-app.private-key: !
   -----BEGIN RSA PRIVATE KEY-----
-  MIIEpAIBAAKCAQEA8jTsRRCw5r3E0QR5+c0JChcFWiemvO0icffyn6gG9lhunS3g
-  cuCk9qjWyzEyxAK/J6MqljzL+2QYimwrcbgArU22lWJUrrYEpzPCg1WJT3qEUGNf
-  9SizHbPz8WHpGxwhU2JYDhCJKomSnow+NaS8ASC14eJaTpTGre4EH85zH2tD2zjv
-  txEyU/Maxq8imKJEw3V08Xnq9lLn1yqZzhW2QbcwqjCfBNclaU+psHqK0ONb9zbm
-  CUGgpN4ReDkLZilBfxr8LeXuTx1TiVQpeAMxeTCAKC46InWRvW0vKTNhRJzc8gii
-  FNppv9QlD2NYMnujUK62QGo8lI8Pbykl3MhafQIDAQABAoIBAFT6wJMS4h5zIqT7
-  XxiIGc3SeexB0TykLtux1QyzVY4FRPoc6I0lyHtKjeJI5rjjBdKQaxa/Sgpv+jRG
-  8484sfQcOh17nJ6X+lX30R1nW3/pSpcx5q8LkpyvUL22TqVWX1L0RFTa9GVaU3kR
-  V5pWrCfxJB+W3XyIspS/1+6Y7sdsmmfn3OIV5cNQA+t/SUYsaOCGKERkklGuniKm
-  AD9l99UQg0TluGUQ7FIehY8pKrR6+iQRFYYscyGVToxrRxnTONUsJCCiqK8YJIBp
-  unB6qnTnxiUREbC7laq1V0OuY76HphEhJHdxpg0WvxmWy2EoyQsmTry8xiyfAbuU
-  82sslnkCgYEA/IpNfZP1706kqed+UU6Oj0zfCKP/0twuVedf2o1cq+B9bqu1/WvM
-  783aUkpxGBhwUTcjGxPTk5JvXu8dPnGGDRvqAvBvp3gZ1xnzRP0Vx99ayo9lkVE9
-  ftndLiDLl1FxCGKjXkcMaAqK41fft9XNjRZ1RD8yw5wkM8PhJf2b8xcCgYEA9YZh
-  BwNBpreqO5IicmrEmxyB4mYjmjnLrvsI/qcaQ/MuCrOKZ2f+dZzDQY76LLfOo+OO
-  iALVsBu2diEO75Fp4gTFDgdM+seYizES4gGbMYnHKFPgkL/K1DorLkoj+JDqRUPx
-  TfN01ZE/8ndMWYhBC23Haz8Og5N4K2v4L0D9q4sCgYBotlfnKACjl3JDWM9Rm0cV
-  OASKqqWaot07lVJzZoX0ZoLb7qrpR1eUX0CVOnSmTwvTQQ93XMMvv1oafP8dMyko
-  Kljfmx5QzEW6oPHzuxTa6UvWDZtJo+vhuygwxjxko8pAddXTc5Y7VZO9LGSA70/p
-  nlRFVgcQgJ+qLyAeBogxRQKBgQCAaAYop8BXE+k4/IV9d29ZfABFyotGJoHrAqlC
-  nVw0O2NR/3IcAJxpIFJR4Bfg+UReHC233lupneTARSvNiSxqI3p3isPsyCR0b3bj
-  sllbACajZbKloVjPw5g/vlCvuAJ9tTnnPbNV2oAqK9BHZuY1tvU7lp/dmmuXsgD7
-  na7NXwKBgQDG1tPkHAreO24j8vDgGuHz0BIpjDtn7JDrKp5EZWO0w3HOC7Seq2SJ
-  57qrYDWBL0Aio1qUvuvb9Y2GMcboEiMkMQDtwCtmehBB69BkNY/MDzQczNZGTrwS
-  Rl0Z4MLL/vt4I7XhirvS3VdEm0KQRWpRvOD4NzMl9uqnyuhJlutK/A==
+  INSERT
   -----END RSA PRIVATE KEY-----
 github-app.client-id: Iv1.5f38f695d395c652
-github-app.client-secret: 4a046dae9fdee60c62627c2c5e405f91d86915dd
+github-app.client-secret: client-secret
