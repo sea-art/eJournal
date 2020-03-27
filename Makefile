@@ -17,7 +17,7 @@ become = --ask-become-pass
 endif
 
 ifndef branch
-branch=develop
+branch=`git rev-parse --abbrev-ref HEAD`
 endif
 ifndef host
 host=staging
