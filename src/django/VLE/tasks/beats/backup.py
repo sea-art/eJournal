@@ -43,3 +43,5 @@ def backup_media():
     name = shutil.make_archive(output_base_path, 'tar', settings.MEDIA_ROOT)
 
     return "Backup of media dir: {} success.".format(name)
+
+backup_postgres();

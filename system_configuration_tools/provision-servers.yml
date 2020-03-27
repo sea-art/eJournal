@@ -1,10 +1,10 @@
 ---
 
 - name: Provision the {{ application_name }} web server
-  hosts: demo
+  hosts: AWS
   become: true
   become_user: root
-  remote_user: "{{ server_user }}"
+  remote_user: ubuntu
   vars:
     update_apt_cache: true
   vars_files:
