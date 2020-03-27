@@ -1,0 +1,54 @@
+- name: Check if the docker compose file is created
+  stat:
+    path: "{{ system_monitoring_stack_dir }}/docker-compose.yml"
+  register: docker_compose_file_check
+
+- name: Create the docker compose directory if it does not exists
+  file:
+    path: "{{ system_monitoring_stack_dir }}"
+    state: directory
+
+- name: Run docker compose down
+  shell: cd {{ system_monitoring_stack_dir }} && docker-compose down
+  become: yes
+  when: docker_compose_file_check.stat.exists
+
+- name: Ensure the docker config directory structure exists
+  file:
+    path: "{{ system_monitoring_stack_dir }}/{{ item.path }}"
+    state: directory
+    owner: "{{ ansible_ssh_user }}"
+    group: "{{ ansible_ssh_user }}"
+  with_filetree: ../templates
+  when: item.state == "directory"
+
+- name: Ensure the docker compose and config files are populated from templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ system_monitoring_stack_dir }}/{{ item.path }}"
+    owner: "{{ ansible_ssh_user }}"
+    group: "{{ ansible_ssh_user }}"
+  with_filetree: ../templates
+  when: item.state == "file"
+
+# Required because the directory is empty, and the acme.json is empty to start as well
+# Empty dirs and files do not place nice with git else this could be skipped
+- name: Create the Traefik directory if it does not exist
+  file:
+    path: "{{ system_monitoring_stack_dir }}/traefik"
+    state: directory
+
+- name: Create the Traefik certificate storage file if it does not exist
+  copy:
+    content: ""
+    dest: "{{ system_monitoring_stack_dir }}/traefik/acme.json"
+    force: no
+    mode: "600"
+
+- name: Run docker-compose up -d
+  shell: cd {{ system_monitoring_stack_dir }} && docker-compose up -d
+  become: yes
+
+# - name: Run docker-compose up -d --build --force-recreate
+#   shell: cd {{ system_monitoring_stack_dir }} && docker-compose up -d --build --force-recreate
+#   become: yes

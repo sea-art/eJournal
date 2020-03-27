@@ -2,7 +2,7 @@
     <div>
         <b-card class="no-hover card-last-elem-button">
             <b-form @submit.prevent="handleLogin()">
-                <h2 class="field-heading">
+                <h2 class="theme-h2 field-heading">
                     Username
                 </h2>
                 <b-input
@@ -13,7 +13,7 @@
                     placeholder="Username"
                     autocomplete="username"
                 />
-                <h2 class="field-heading">
+                <h2 class="theme-h2 field-heading">
                     Password
                 </h2>
                 <b-input
@@ -28,7 +28,7 @@
                     class="float-right multi-form"
                     type="submit"
                 >
-                    <icon name="sign-in"/>
+                    <icon name="sign-in-alt"/>
                     Log in
                 </b-button>
                 <b-button
@@ -55,11 +55,12 @@
             size="lg"
             title="Password recovery"
             hideFooter
+            noEnforceFocus
             @shown="$refs.usernameEmailInput.focus(); usernameEmail=username"
         >
             <b-card class="no-hover">
                 <b-form @submit.prevent="handleForgotPassword">
-                    <h2 class="field-heading">
+                    <h2 class="theme-h2 field-heading">
                         Username or email
                     </h2>
                     <b-input

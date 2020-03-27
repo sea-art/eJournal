@@ -16,17 +16,14 @@ else
 become = --ask-become-pass
 endif
 
-ifdef branch
-vars = --extra-vars '"'"'{"git_branch": "${branch}"}'"'"'
-else
-vars = --extra-vars '"'"'{"git_branch": "develop"}'"'"'
+ifndef branch
+branch=`git rev-parse --abbrev-ref HEAD`
+endif
+ifndef host
+host=staging
 endif
 
-ifdef host
-deploy_host = --extra-vars '"'"'{"deploy_host": "${host}"}'"'"'
-else
-deploy_host = --extra-vars '"'"'{"deploy_host": "develop"}'"'"'
-endif
+vars = --extra-vars "git_branch=${branch} deploy_host=${host}"
 
 postgres_db = ejournal
 postgres_test_db = test_$(postgres_db)
@@ -110,7 +107,7 @@ setup-venv:
 		source ./venv/bin/activate && \
 		pip install -r requirements/$(requirements_file) && \
 		isort -rc src/django/ && \
-		ansible-playbook ./system_configuration_tools/provision-local.yml --ask-become-pass --ask-vault-pass && \
+		ansible-playbook ./config/provision-local.yml --ask-become-pass --ask-vault-pass && \
 		deactivate'
 
 ##### DEPLOY COMMANDS ######
@@ -121,27 +118,27 @@ ansible-test-connection:
 
 run-ansible-provision:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} ${vars} ${deploy_host}'
+	ansible-playbook config/provision-servers.yml ${become} ${ansible_use} ${vars}'
 
 run-ansible-deploy:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} ${vars} ${deploy_host} --tags "deploy_front,deploy_back"'
+	ansible-playbook config/provision-servers.yml ${become} ${ansible_use} ${vars} --tags "deploy_front,deploy_back"'
 
 run-ansible-deploy-front:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} ${vars} --tags "deploy_front"'
+	ansible-playbook config/provision-servers.yml ${become}  ${ansible_use} ${vars} --tags "deploy_front"'
 
 run-ansible-deploy-back:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} ${vars} --tags "deploy_back"'
+	ansible-playbook config/provision-servers.yml ${become}  ${ansible_use} ${vars} --tags "deploy_back"'
 
 run-ansible-backup:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become}  ${ansible_use} ${vars} --tags "backup"'
+	ansible-playbook config/provision-servers.yml ${become}  ${ansible_use} ${vars} --tags "backup"'
 
 run-ansible-preset_db:
 	bash -c 'source ./venv/bin/activate && \
-	ansible-playbook ./system_configuration_tools/provision-servers.yml ${become} ${ansible_use} ${vars} --tags "run_preset_db"'
+	ansible-playbook config/provision-servers.yml ${become} ${ansible_use} ${vars} --tags "run_preset_db"'
 
 ##### MAKEFILE COMMANDS #####
 
@@ -185,6 +182,7 @@ preset-db:
 	@read -r a
 	make preset-db-no-input
 preset-db-no-input:
+	rm -rf src/django/media/*
 	make postgres-reset
 	make postgres-init-development
 	make migrate-back
