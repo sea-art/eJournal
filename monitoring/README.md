@@ -43,5 +43,5 @@ Tested on an ubuntu 18.04 LTS server image, minimum of 2 cores and 4GB ram.
 
 ### Installation
 
-`make setup`
+`make setup`  
 `make run provision-monitoring`
